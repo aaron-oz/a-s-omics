@@ -15,7 +15,8 @@ require(elsa)
 require(tmap)
 require(tidyr)
 # Load data
-load("~/Dropbox/a-s-omics/sam_sandbox/assay.list.2025-05-16.Robj")
+# load("~/Dropbox/a-s-omics/sam_sandbox/assay.list.2025-05-16.Robj")
+load("~/Dropbox/a-s-omics/sam_sandbox/HD Embeddings/assay.list.2025-07-26.Robj")
 # Inspect
 names(assay.list)
 

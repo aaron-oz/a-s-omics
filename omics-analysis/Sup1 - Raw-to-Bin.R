@@ -85,12 +85,12 @@ setwd("/Users/msbr/Dropbox/a-s-omics/data-inputs/mouse-embryo-raw/msbr-2025-04-2
   feat.in.d <- which(splancs::inout(splancs::as.points(sub[, .(x, y)]), boundary))
   sub.bounded <- sub[feat.in.d, ]
   dim(sub.bounded) # 23660265, 15% reduction
-  fwrite(sub.bounded, file.path('partial-raw-t16-data_2025-04-24_MSBR.csv'))
+  fwrite(sub.bounded, file.path('partial-raw-t16-data_2025-04-24.csv'))
   
   total.cts <- full.raw[, list(total.count = sum(MIDCount)), by = .(x, y)]
   total.in.d <- which(splancs::inout(splancs::as.points(total.cts[, .(x, y)]), boundary))
   total.cts <- total.cts[total.in.d, ]
-  fwrite(total.cts, file.path('total-raw-t16-data_2025-04-24_MSBR.csv'))
+  fwrite(total.cts, file.path('total-raw-t16-data_2025-04-24.csv'))
 #}
 
 ## binning the data
@@ -99,8 +99,8 @@ gc()
 #   gc()
 agg.size <- 50 # tester
   ## load in clean data
-  sub.bounded <- fread('./partial-raw-t16-data_2025-04-24_MSBR.csv')
-  total.cts <- fread(file.path('total-raw-t16-data_2025-04-24_MSBR.csv'))
+  sub.bounded <- fread('./partial-raw-t16-data_2025-04-24.csv')
+  total.cts <- fread(file.path('total-raw-t16-data_2025-04-24.csv'))
   
   ## define aggregation bins
   
@@ -130,10 +130,10 @@ agg.size <- 50 # tester
   all.dat <- all.dat[feat.in.d, ]
   
   # Save aggregated feature data
-  fwrite(all.dat, file.path('all.dat.bin.50_2025-04-27_MSBR.csv'))
+  fwrite(all.dat, file.path('all.dat.bin.50_2025-04-27.csv'))
   
   # Turn into DGE
-  all.dat <- fread('./msbr-2025-04-24/all.dat.bin.50_2025-04-27_MSBR.csv')
+  all.dat <- fread('./msbr-2025-04-24/all.dat.bin.50_2025-04-27.csv')
   # long to wide [had to break into parts to prvent data exceed]
   all.dat$coord <- paste(all.dat$x,all.dat$y,sep = '.') # add xy coordinate as a barcode
   split.by.gene <- split(all.dat,by='feat')
