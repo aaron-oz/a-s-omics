@@ -16,6 +16,7 @@ data-outputs/mouse-embryo-raw/controls/fov-markers-raw.tsv
 
 # Built manuscript PDFs (regenerate with pdflatex; sources are tracked)
 Submission_PLOSOne/submission-2/plos-port/paper-plos.pdf
+Submission_PLOSOne/submission-2/plos-port/S9-notation-to-code.pdf
 
 # latexdiff output (regenerate; see submission-2/README-build.md)
 Submission_PLOSOne/submission-2/plos-port/paper-plos-diff.*

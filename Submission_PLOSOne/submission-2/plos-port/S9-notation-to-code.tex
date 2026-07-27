@@ -1,0 +1,148 @@
+% S9 Table. Notation-to-code mapping.
+% PLOS ONE PONE-D-26-04349, Osgood-Zimmerman & Raredon.
+% Supporting Information for the revised manuscript. Compile: pdflatex x2.
+% Every path, object name, and line number below was checked against the files.
+
+\documentclass[10pt]{article}
+\usepackage[landscape,margin=0.7in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{ragged2e}
+\usepackage[hidelinks]{hyperref}
+\usepackage{parskip}
+
+\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\newcommand{\bs}{\mbox{\boldmath $s$}}
+\newcommand{\btheta}{\mbox{\boldmath $\theta$}}
+\newcommand{\N}{\mbox{N}}
+
+\pagestyle{plain}
+
+\begin{document}
+
+\begin{center}
+{\large\bfseries S9 Table. Notation-to-code mapping.}\\[4pt]
+\emph{Spatial modeling of tissues for morphogenic field analysis}\\
+Osgood-Zimmerman \& Raredon
+\end{center}
+
+\bigskip
+
+Each row gives one mathematical object from the manuscript, its meaning, the name it
+carries in the analysis code, and the script and line at which it is constructed. Line
+numbers refer to the versions of the scripts archived with this submission and available
+at \url{https://github.com/aaron-oz/a-s-omics}.
+
+All paths are relative to
+\texttt{Supplements for Publication/code/spatial-modeling/}. The directory
+\texttt{supp-4-lik-comparison/} is the canonical pipeline: it produces the per-feature
+fitted fields used in every reported analysis, together with Fig~4 and Table~1. Within it,
+the three scripts referenced below run in the order \texttt{00}, \texttt{01}, \texttt{02},
+\texttt{03}, and are abbreviated here as \texttt{00-launch}, \texttt{01-params},
+\texttt{02-run} and \texttt{03-post}.
+
+\medskip
+
+\noindent\textbf{One caution for readers of the code.} The file-level default at
+\texttt{02-run:32} sets the marginal standard deviation component of the Mat\'ern
+penalized-complexity prior to 1. That default is overridden inside the Poisson branch at
+\texttt{02-run:63}, which sets it to 0.1. The values reported in the manuscript, and given
+in this table, are the line-63 values, because the Poisson branch is what produced every
+reported result. Separately, \texttt{matern.pri.feat.present} at \texttt{02-run:33} and
+\texttt{02-run:231} belongs to the binomial (zero) component of the ZAP model and not to
+the Poisson model.
+
+\bigskip
+
+\begin{longtable}{@{}L{2.6cm} L{5.6cm} L{6.6cm} L{4.4cm}@{}}
+\toprule
+\textbf{Symbol} & \textbf{Meaning} & \textbf{Code object} & \textbf{Script and line} \\
+\midrule
+\endfirsthead
+\multicolumn{4}{@{}l}{\emph{S9 Table, continued}}\\
+\toprule
+\textbf{Symbol} & \textbf{Meaning} & \textbf{Code object} & \textbf{Script and line} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+
+\multicolumn{4}{@{}l}{\textbf{Spatial domain and observation units}}\\[2pt]
+
+$\bs$ & A spatial location in the field of view & \texttt{cbind(x, y)} & \texttt{02-run:71} \\[3pt]
+
+$\mathcal{S}$ & The continuous spatial domain, here the analyzed field of view: $x$ from 15000 to 25000 and $y$ from 11500 to 18000 in raw chip coordinates & \texttt{sub.bound} & \texttt{01-params:43} \\[3pt]
+
+--- & Bin size used throughout (bin 50) & \texttt{agg.size <- 50} & \texttt{01-params:39} \\[3pt]
+
+--- & The curated feature list (918 genes) from which the modeled features are drawn & \texttt{to.use\$gene}, loaded from \texttt{features.to.use.2025-04-04.Robj} & \texttt{01-params:79--80} \\[6pt]
+
+\multicolumn{4}{@{}l}{\textbf{Data stage}}\\[2pt]
+
+$y_i(\bs)$ & Observed count of feature $i$ at bin $\bs$ & \texttt{feat.count}, a column of \texttt{run.dat} & assembled in \texttt{00-launch}; used at \texttt{02-run:76} \\[3pt]
+
+$F_i(\bs)$ & The count of feature $i$ at $\bs$ as a random variable; the response in the observation model & response side of \texttt{formula = feat.count \textasciitilde{} feat.count.int + feat.count.field} & \texttt{02-run:76} \\[3pt]
+
+$\N(\bs)$ & Observed total counts (nUMI) at $\bs$, entering as a fixed, known offset. This is the quantity the reported analyses use in place of a latent total-count model & \texttt{total.count}, passed as the exposure argument \texttt{E =} & \texttt{02-run:77} \\[3pt]
+
+--- & The Poisson observation model itself & \texttt{poi.lik <- bru\_obs(family = "poisson", ...)} & \texttt{02-run:73--78} \\[6pt]
+
+\multicolumn{4}{@{}l}{\textbf{Process stage}}\\[2pt]
+
+$\lambda_i(\bs)$ & Modeled rate for feature $i$: expected counts per unit of total counts & \texttt{lambda <- exp(feat.count.int + feat.count.field)} & \texttt{02-run:105} \\[3pt]
+
+$\N(\bs)\lambda_i(\bs)$ & Posterior predictive mean count & \texttt{expect <- lambda * total.count} & \texttt{02-run:106} \\[3pt]
+
+$\alpha_i$ & Feature-specific scalar intercept & \texttt{feat.count.int(1)} & \texttt{02-run:70} \\[3pt]
+
+$u_i(\bs)$ & Zero-mean spatial Gaussian process for feature $i$, carrying all spatial variation in $\log\lambda_i$ & \texttt{feat.count.field(cbind(x, y), model = matern.feat.count)} & \texttt{02-run:71} \\[6pt]
+
+\multicolumn{4}{@{}l}{\textbf{Covariance, its parameters, and their priors}}\\[2pt]
+
+$\Sigma(\btheta_i)$ & Mat\'ern covariance of $u_i$, represented through the SPDE approach as a sparse precision matrix on mesh nodes & \texttt{matern.feat.count <- inla.spde2.pcmatern(...)} & \texttt{02-run:64--67} \\[3pt]
+
+$\btheta_i=(\rho_i,\sigma_i)$ & Range and marginal standard deviation of the Mat\'ern field for feature $i$ & \texttt{matern.pri.feat.count <- c(500, .95, .1, .05)} & \texttt{02-run:63} \\[3pt]
+
+--- & Range prior, $P(\rho_i < 500) = 0.95$, with range in raw chip coordinate units & \texttt{prior.range = matern.pri.feat.count[1:2]} & \texttt{02-run:66} \\[3pt]
+
+--- & Marginal standard deviation prior, $P(\sigma_i > 0.1) = 0.05$ & \texttt{prior.sigma = matern.pri.feat.count[3:4]} & \texttt{02-run:67} \\[3pt]
+
+$\nu$ & Mat\'ern smoothness, fixed rather than estimated. SPDE order $\alpha=2$ gives $\nu=1$ in two dimensions & \texttt{alpha = 2} & \texttt{02-run:64} \\[3pt]
+
+--- & Sum-to-zero constraint on the field, for identifiability against the intercept & \texttt{constr = TRUE} & \texttt{02-run:65} \\[3pt]
+
+--- & SPDE triangulation of $\mathcal{S}$; approximately 10,200 nodes over the 26,000 observation bins & \texttt{mesh <- fm\_mesh\_2d(...)}, with \texttt{max.edge}, \texttt{offset} and \texttt{cutoff} set at lines 45--46 & \texttt{00-launch:48--54} \\[6pt]
+
+\multicolumn{4}{@{}l}{\textbf{The latent total-count model, which the reported analyses do NOT use}}\\[2pt]
+
+$\lambda_N(\bs)$, $\alpha_N$, $\btheta_N$, $\Sigma(\btheta_N)$ & Objects of the latent model for the total counts. These appear in the general model specification in the manuscript but are not used in any reported result. In the canonical pipeline the corresponding code is commented out; the live implementation is in the Supplement 3 pipeline & \texttt{matern.pri.total}, \texttt{matern.remain} (commented out) & commented at \texttt{02-run:31} and \texttt{02-run:35--38}; live at \texttt{supp-3-raw-v-norm-joint-feat-total-model/02-array-run-model.R:30--34} \\[6pt]
+
+\multicolumn{4}{@{}l}{\textbf{Zero-inflated and zero-adjusted variants}}\\[2pt]
+
+$p_i(\bs)$ (ZIP) & Spatially varying probability of a zero observation under the zero-inflated Poisson & \texttt{zip.lik <- bru\_obs(...)} & \texttt{02-run:143--163} \\[3pt]
+
+$p_i(\bs)$ (ZAP) & Spatially varying zero probability under the zero-adjusted Poisson, with its own Mat\'ern field and prior \texttt{c(1000, .95, 10, .05)} & \texttt{feat.present.int}, \texttt{feat.present.field}, \texttt{matern.feat.present}, \texttt{zap.feat.lik} & \texttt{02-run:231--253} \\[6pt]
+
+\multicolumn{4}{@{}l}{\textbf{Posterior summaries and prediction scores}}\\[2pt]
+
+--- & Number of posterior samples drawn per feature & \texttt{n.samp <- 1000} & \texttt{02-run:55} \\[3pt]
+
+$AE_i(\bs_j)$ & Absolute error. Note that this one score uses the posterior predictive \emph{median}, whereas $SE$ and $DS$ use the mean & \texttt{AE = abs(count - pred\_median)} & \texttt{02-run:385} \\[3pt]
+
+$SE_i(\bs_j)$ & Squared error & \texttt{SE = (count - pred\_mean)\^{}2} & \texttt{02-run:386} \\[3pt]
+
+$DS_i(\bs_j)$ & Dawid-Sebastiani score & \texttt{DS = (count - pred\_mean)\^{}2 / pred\_var + log(pred\_var)} & \texttt{02-run:387} \\[3pt]
+
+$LS_i(\bs_j)$ & Negated logarithmic score & \texttt{LG = log\_score}, built as \texttt{-log(pred.poi\$obs\_prob\$mean)} & \texttt{02-run:388}; constructed at \texttt{02-run:129} \\[3pt]
+
+$MAE_i$, $RMSE_i$, $MDS_i$, $MLG_i$ & The four per-feature scores of Table~1, each averaging its location-level score over observation locations. Written to \texttt{\{feature\}-scores.csv} & \texttt{MAE = mean(AE)}, \texttt{RMSE = sqrt(mean(SE))}, \texttt{MDS = mean(DS)}, \texttt{MLG = mean(LG)} & \texttt{02-run:394--397}; written at \texttt{02-run:750} \\[3pt]
+
+--- & Table~1, absolute averages across features & \texttt{sum.res} & \texttt{03-post:69--84} \\[3pt]
+
+--- & Table~1, parenthetical percentages. Each is a per-feature ratio to the Poisson score, formed before averaging & \texttt{rel[2, 3:6] <- rel[2, 3:6] / rel[1, 3:6]}, summarized as \texttt{sum.rel} & \texttt{03-post:58--59} and \texttt{03-post:77} \\
+
+\end{longtable}
+
+\end{document}

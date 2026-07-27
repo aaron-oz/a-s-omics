@@ -12,7 +12,13 @@
 \usepackage{parskip}
 \usepackage{framed}
 
+\usepackage{amsmath,amssymb}
+
 \newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+
+%% Match the manuscript's notation macros (from plos-port/definitions.tex).
+\newcommand{\N}{\mbox{N}}
+\newcommand{\E}{\mbox{E}}
 
 \titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
 \titleformat{\subsection}{\normalsize\bfseries}{}{0em}{}
@@ -75,7 +81,10 @@ supplementary table mapping every mathematical object in the manuscript to the c
 implements it.
 
 Reviewer comments are reproduced verbatim in italics, followed by our response. Changes
-are marked in the accompanying \emph{Revised Manuscript with Track Changes}.
+are marked in the accompanying \emph{Revised Manuscript with Track Changes}. One caveat
+about that file: the markup covers the prose but not the interiors of displayed equations,
+so the revised model specification in the Materials and methods does not appear visually
+flagged even though it changed. We describe that change in words under R2.1 below.
 
 \medskip
 \noindent Sincerely,\\
@@ -84,12 +93,174 @@ Aaron Osgood-Zimmerman and Micha Sam Brickman Raredon
 \vspace{1em}
 \hrule
 
-\section{Status summary}
+\ifdraftmode
+\section{Open items: everything still outstanding}
+
+\noindent\textcolor{red}{\textbf{Internal only, delete this section before submission.}}
+
+\medskip
+
+\noindent This is the single consolidated list. Every open item is here, including ones that
+have no \texttt{\textbackslash todo} marker of their own. ``Paper'' references are to
+\texttt{plos-port/paper-plos.tex}; the line numbers were current on 2026-07-27 and will drift
+as the file is edited, so treat the section names as the reliable anchor and the numbers as a
+hint. Items are ordered by consequence, not by reviewer number.
+
+\subsection*{A. Blocked on the authors, cannot be drafted}
+
+\begin{enumerate}[leftmargin=*]
+
+\item \textbf{The Cd44 rationale is missing from the manuscript entirely.} This is the only
+place where a reviewer's request currently has no answer in the text: R2.5 asked why Cd44 was
+chosen as the representative feature, and no rationale was written, because we could not
+invent one. Needs one sentence in the Results and one in the Fig~3 caption. If the real
+reason is visual clarity, that is a fine answer, but say so and point to the per-feature
+supplement. \\
+\emph{Letter:} \S R2.5 (line 694). \emph{Paper:} Results, ``Raw counts, rather than
+normalized counts\ldots'' (line 274, Cd44 named at line 276); Fig~3 caption (line 281).
+
+\item \textbf{Funder statement confirmation.} Both authors must confirm ``The funders had no
+role\ldots'' is accurate for T32GM086287 (NIGMS) and the Yale and Bucknell startup funds
+before it goes in the cover letter. \\
+\emph{Letter:} \S JR-2 (line 312). \emph{Paper:} nothing to change; this lives in the cover
+letter and the Editorial Manager funding statement only.
+
+\item \textbf{How to describe the duplicated columns.} Name the cloud file-synchronization
+conflict as the cause, which is what the letter currently does, or describe it neutrally as
+duplicated input files. Whichever is chosen, the letter and the manuscript must agree. \\
+\emph{Letter:} \S Additional corrections (line 1083). \emph{Paper:} Materials and methods, ``Dataset
+modeling'' (line 225).
+
+\end{enumerate}
+
+\subsection*{B. Decisions taken on the authors' behalf that should be ratified}
+
+\noindent These are all defensible and all currently written into the manuscript, but each is
+a substantive judgement rather than a mechanical edit.
+
+\begin{enumerate}[leftmargin=*, resume]
+
+\item \textbf{The CytoSignal novelty concession.} The Discussion now states plainly that we do
+not claim novelty for spatially resolved ligand-receptor mapping. This is a real concession
+and it has never been explicitly signed off. \\
+\emph{Letter:} \S R2.10 (line 921), \S JR-6 (line 369). \emph{Paper:} Discussion,
+``Relationship to existing methods'', CytoSignal paragraph (line 413).
+
+\item \textbf{The narrowed contribution statement}, which is now the paper's formal novelty
+claim. \\
+\emph{Paper:} Discussion, ``Relationship to existing methods'', paragraph beginning ``Stating
+our contribution precisely'' (line 415).
+
+\item \textbf{The Abstract was rewritten wholesale}, to state what was done and on what, and
+to name the scope of the demonstration rather than assert general applicability. \\
+\emph{Paper:} Abstract (line 93). \emph{Letter:} \S R2.11 (line 989).
+
+\item \textbf{Publicly disclosing that the clustering is non-deterministic}, and that the
+published Fig~6 domains are one realization. This was decided before the drafting session,
+but it is the kind of statement worth re-reading before it reaches a reviewer. \\
+\emph{Paper:} Results, ``Run-to-run variability of the clustering'' (line 379); Fig~6 caption
+closing sentence (line 344). \emph{Letter:} \S R2.8 (line 761).
+
+\item \textbf{S10 Fig was dropped.} A controls figure was considered and deliberately not
+added, because the existing control plots have no generating script and are not publication
+quality. The Controls section is self-contained numerically. Reinstate only if someone
+produces the figure. \\
+\emph{Paper:} Supporting information, LaTeX comment at line 475.
+
+\item \textbf{The Fig~5 and Fig~6 layout stopgap.} Both were floating past the bibliography
+with their captions running off the page, so they were given \texttt{[p]} placement, smaller
+caption type, and width scaling to about 0.72\,\texttt{\textbackslash linewidth}. This makes
+them \emph{smaller}, which works against R1.3, and must be undone when the figures are
+regenerated or stripped. \\
+\emph{Paper:} figure environments at lines 319 and 335. \emph{Also:}
+\texttt{README-build.md}, ``Figures'' section.
+
+\end{enumerate}
+
+\subsection*{C. Work outstanding that no one has started}
+
+\begin{enumerate}[leftmargin=*, resume]
+
+\item \textbf{Figure regeneration}, covering three reviewer comments at once. Note one
+question is now settled: the elongated pixels in Figs~3 and 4 are a \emph{plotting} artifact,
+not real bin geometry. The binning steps \texttt{x.breaks} and \texttt{y.breaks} by the same
+\texttt{agg.size} and the chip pitch is isotropic, so the bins are genuinely square and
+rescaling the display is the correct fix. While regenerating, fix Fig~6's baked-in panel
+labels, which still read ``1481 Features'' where the corrected count is 1477. \\
+\emph{Letter:} \S R1.3 (line 460), \S R2.6 (line 710), \S R1.5 (line 503). \emph{Paper:}
+Figs~3 and 4 (captions at lines 281 and 313); Fig~6 in-source note at line 339.
+
+\item \textbf{Supporting Information packaging.} Package the directories as PLOS SI files,
+confirm every S-number in the text matches the uploaded file, and decide whether the FigShare
+links stay alongside the uploads or are replaced by them. S9 Table is built and ready at
+\texttt{plos-port/S9-notation-to-code.tex}. \\
+\emph{Letter:} \S JR-5 (line 354). \emph{Paper:} Supporting information (line 433).
+
+\item \textbf{Repository reproducibility documentation}, the largest remaining piece and one
+the reviewer will actively check. Only the controls directory currently meets the standard;
+the main pipeline under \texttt{Supplements for Publication/code/} still needs run order,
+inputs, intermediates, figure scripts, and a session-info or lockfile capture. \\
+\emph{Letter:} \S R2.9 (line 896).
+
+\end{enumerate}
+
+\subsection*{D. Claims deliberately weakened for lack of evidence, which the authors may be able to restore}
+
+\begin{enumerate}[leftmargin=*, resume]
+
+\item \textbf{Physical size of the field of view.} Chen et al.\ give the nanoball spot pitch
+as ``500 or 715 nm'' and never say which chip carried the embryo sections, so the manuscript
+states the field of view in spot units rather than millimetres. The raw data header names the
+chip as \texttt{SS200000108BR\_A3A4}; if that chip's pitch can be established, a physical size
+can be stated. \\
+\emph{Paper:} Materials and methods, ``Dataset selection'' (line 212).
+
+\item \textbf{The latent-$N(s)$ comparison.} The original text said modeling $N(s)$ ``didn't
+practically alter the outputs.'' This has been weakened to ``no visible change, not
+quantified,'' because S3 File appears to contain joint-model outputs rather than a
+joint-versus-offset comparison. If that comparison exists elsewhere, the claim can be
+restored and strengthened. \\
+\emph{Letter:} \S R2.3 (line 592). \emph{Paper:} ``The status of the latent total-count
+model'' (line 190); Results (line 276).
+
+\item \textbf{Supplement cross-reference mapping.} The original text cited ``Supplement
+3/4/5'' under a numbering that did not match the S1--S8 list, so the pointers were reassigned
+by inspecting each directory's contents: 32 assays $\rightarrow$ S5 File, ELSA results
+$\rightarrow$ S6 File, feature-depth sweep $\rightarrow$ S7 File. Worth confirming each lands
+where intended. \\
+\emph{Paper:} lines 329, 348, and the Supporting information list (line 433).
+
+\end{enumerate}
+
+\subsection*{E. Mechanics, immediately before upload}
+
+\begin{enumerate}[leftmargin=*, resume]
+
+\item Set \texttt{\textbackslash draftmodefalse} in this file, which removes the banner, the
+status summary, and this section. Then confirm no markers remain:
+\texttt{grep -c '\textbackslash\textbackslash todo\{' response-to-reviewers.tex} must
+return 0.
+
+\item Strip the embedded figures from \texttt{paper-plos.tex} and submit them as separate
+files, removing the \texttt{[p]} placement, the \texttt{\textbackslash captionsetup}, and the
+width scaling along with them.
+
+\item Build all three uploads, following \texttt{README-build.md}. Note that the
+track-changes build requires \texttt{latexdiff --math-markup=off}; the previously documented
+\texttt{--math-markup=whole} no longer compiles, because the model equation was rewritten for
+R2.1.
+
+\item Write the cover letter, incorporating the funding statement from item 2.
+
+\end{enumerate}
+
+\fi
 
 \ifdraftmode
+\section{Status summary}
+
 \noindent\textcolor{red}{\textbf{Internal only, delete this section before submission.}}
 \medskip
-\fi
 
 \begin{longtable}{@{}L{1.6cm} L{9.2cm} L{3.6cm}@{}}
 \toprule
@@ -98,31 +269,32 @@ Aaron Osgood-Zimmerman and Micha Sam Brickman Raredon
 \endhead
 JR-1  & PLOS style and file naming & Done \\
 JR-2  & Role of funder statement & Needs author input \\
-JR-3  & Remove funding text from Acknowledgments & To do \\
+JR-3  & Remove funding text from Acknowledgments & Done, none present \\
 JR-4  & PLOS \LaTeX{} template & Done \\
-JR-5  & Upload Supplemental Materials as SI & To do \\
-JR-6  & Evaluate recommended citations & Drafted (see R2.10) \\
+JR-5  & Upload Supplemental Materials as SI & To do (packaging) \\
+JR-6  & Evaluate recommended citations & Done, five cited \\
 \midrule
-R1.1  & Comparative analysis vs existing methods & Drafted (see R2.8, R2.10) \\
-R1.2  & Tissue sample and methods detail & To do \\
-R1.3  & Figures too small, reorganize & To do \\
-R1.4  & Small-scale disease proof of concept & Drafted (respectful pushback) \\
-R1.5  & Better graphical abstract & To do \\
+R1.1  & Comparative analysis vs existing methods & Done (see R2.8, R2.10) \\
+R1.2  & Tissue sample and methods detail & Done \\
+R1.3  & Figures too small, reorganize & To do (figures) \\
+R1.4  & Small-scale disease proof of concept & Done, pushback plus scope text \\
+R1.5  & Better graphical abstract & To do (figures) \\
 \midrule
-R2.1  & Define model parameters and priors at first use & Drafted \\
-R2.2  & Notation-to-code supplementary table & Drafted, table not built \\
-R2.3  & Clarify that final analyses used observed nUMI & Drafted \\
-R2.4  & Define metrics; Table 1 abbreviations and percentages & To do \\
+R2.1  & Define model parameters and priors at first use & Done \\
+R2.2  & Notation-to-code supplementary table & Done, S9 Table built \\
+R2.3  & Clarify that final analyses used observed nUMI & Done \\
+R2.4  & Define metrics; Table 1 abbreviations and percentages & Done \\
 R2.5  & Rationale for Cd44 as representative feature & Needs author input \\
-R2.6  & Elongated-pixel distortion in Figs 3 and 4 & To do \\
-R2.7  & Clearer captions for Figs 5 and 6 & To do \\
+R2.6  & Elongated-pixel distortion in Figs 3 and 4 & To do (figures) \\
+R2.7  & Clearer captions for Figs 5 and 6 & Done \\
 \textbf{R2.8} & \textbf{Controls and baselines} & \textbf{Done, two reported, one withdrawn} \\
 R2.9  & Reproducibility documentation & Partly done \\
-R2.10 & Positioning vs related methods & Drafted \\
-R2.11 & Moderate generalizability claims & Drafted \\
-R2.12 & Cautious biological language & Drafted \\
+R2.10 & Positioning vs related methods & Done \\
+R2.11 & Moderate generalizability claims & Done \\
+R2.12 & Cautious biological language & Done \\
 \bottomrule
 \end{longtable}
+\fi
 
 \section{Journal requirements}
 
@@ -156,7 +328,7 @@ publish, or preparation of the manuscript.
 \todo{Both authors must confirm this is accurate for T32GM086287 (NIGMS) and for the Yale
 and Bucknell startup funds before it goes in the cover letter.}
 
-\subsection{JR-3. Funding text in the Acknowledgments} \status{TODO}
+\subsection{JR-3. Funding text in the Acknowledgments} \status{DONE}
 
 \begin{rev}
 We note that you have provided funding information that is not currently declared in your
@@ -164,13 +336,10 @@ Funding Statement. However, funding information should not appear in the Acknowl
 section or other areas of your manuscript.
 \end{rev}
 
-\noindent The funding text has been removed from the Acknowledgments section of the
-manuscript. The Acknowledgments now contain only non-financial acknowledgments. The
-funding information appears solely in the Funding Statement, and our updated statement is
-reproduced in the cover letter.
-
-\todo{Actually remove the funding sentence from the Acknowledgments in paper-plos.tex,
-around line 376, and check that no funding language survives elsewhere in the text.}
+\noindent The Acknowledgments section now contains only non-financial acknowledgments, and
+we have checked the full manuscript text for funding, grant, and sponsor language and
+confirmed that none remains anywhere in it. The funding information appears solely in the
+Funding Statement, and our updated statement is reproduced in the cover letter.
 
 \subsection{JR-4. PLOS \LaTeX{} template} \status{DONE}
 
@@ -230,7 +399,7 @@ responses below describe each change.
 
 \section{Reviewer 1}
 
-\subsection{R1.1. Comparative analysis with existing spatial modeling techniques} \status{DRAFTED}
+\subsection{R1.1. Comparative analysis with existing spatial modeling techniques} \status{DONE}
 
 \begin{rev}
 Recommend the authors to perform a comparative analysis with other existing techniques
@@ -264,25 +433,29 @@ task, which we regard as its own piece of work. We have instead positioned our a
 against each of these methods conceptually and explicitly (R2.10), and we now state this
 limitation in the Discussion rather than leaving it implicit.
 
-\subsection{R1.2. Detail on the tissue sample and methods} \status{TODO}
+\subsection{R1.2. Detail on the tissue sample and methods} \status{DONE}
 
 \begin{rev}
 The methods on the tissue/patient sample obtained here is missing and lacks details.
 \end{rev}
 
-\noindent We have expanded the dataset description in Materials and methods. The revised
-text specifies the source publication and accession, the developmental stage and section
-identity, the platform and its capture chemistry, the physical dimensions of the field of
-view analyzed, the binning applied, the number of spatial locations and features modeled,
-and the filtering that produced the analyzed feature set.
+\noindent We have expanded the Dataset selection and Dataset preprocessing subsections. We
+should first clarify one point that the comment may turn on: there is no patient sample
+here. The material is a mouse embryo section taken from a public atlas, we collected no
+new tissue for this study, and we did not perform the tissue processing or sequencing
+ourselves, so the experimental protocol is properly the source publication's to report. We
+now say this explicitly rather than leaving it to be inferred.
 
-\todo{Write this expansion into the Dataset selection and Dataset preprocessing
-subsections. Concrete facts to state: Chen et al.\ 2022 Stereo-seq mouse embryo (MOSTA),
-section E16.5\_E1S3; field of view x from 15000 to 25000 and y from 11500 to 18000 in raw
-chip coordinates; bin size 50; 26000 spatial locations; 918 curated features of which 912
-produced converged fits; FANTOM5 ligand-receptor pairings, of which 1477 have both
-partners among the converged features. Note that the sample is a mouse embryo from a
-public atlas, not a patient sample, which is what the reviewer may be assuming.}
+The revised text states the source publication and resource (Chen et al.\ 2022, the Mouse
+Organogenesis Spatiotemporal Transcriptomic Atlas), the platform and the nature of its
+capture chemistry, the developmental stage and section identity (embryonic day 16.5,
+section E16.5\_E1S3), the field of view analyzed ($x$ from 15000 to 25000 and $y$ from
+11500 to 18000 in raw chip coordinates), the binning applied (bin 50, giving a
+$200\times130$ grid of 26,000 spatial locations), and the filtering that produced the
+analyzed feature set, including the attrition from 918 curated features to the 912 with
+converged fits and the 1477 ligand-receptor pairs computable from them. We have also
+removed the sentence describing the dataset as ``beautiful,'' which was not a reason for
+selecting it, and replaced it with our actual reasons.
 
 \subsection{R1.3. Figure size and organization} \status{TODO}
 
@@ -299,7 +472,7 @@ by Reviewer 2 (R2.6).
 \todo{Regenerate all figures. Coordinate with R2.6 (aspect ratio) and R2.7 (captions) so
 each figure is touched once.}
 
-\subsection{R1.4. Small-scale disease proof of concept} \status{DRAFTED, PUSHBACK}
+\subsection{R1.4. Small-scale disease proof of concept} \status{DONE, PUSHBACK}
 
 \begin{rev}
 Since the author claims the spatial modelling provides multidimensional information to
@@ -345,7 +518,7 @@ schematic rather than panels reused from the figures.
 identified real gaps, particularly the absence of controls, and the manuscript is
 materially stronger as a result.
 
-\subsection{R2.1. Precision of the statistical model specification} \status{DRAFTED}
+\subsection{R2.1. Precision of the statistical model specification} \status{DONE}
 
 \begin{rev}
 First, the statistical model is not specified with sufficient precision. The manuscript
@@ -376,20 +549,20 @@ the intercept. The symbols $\theta_N$ and $\Sigma(\theta_N)$ played a role only 
 latent total-count model, which the final analyses did not use; see R2.3, where we have
 clarified their status rather than leaving them ambiguous.
 
-We have also added an explicit paragraph connecting the abstract model to its
-implementation, and a supplementary table making the mapping object by object (R2.2).
+We have also made two changes to the model display itself. The process stage is now written
+additively, as $\log\lambda_i(\mathbf{s}) = \alpha_i + u_i(\mathbf{s})$ with $u_i$ a zero-mean Gaussian
+process, rather than as a Gaussian process with mean $\alpha_i$. The two are equivalent, but
+the additive form separates the intercept from the field, which is how the model is actually
+implemented, and it gives the field its own symbol so that it can be named in the mapping
+table. We have also corrected a small imprecision: the original text wrote
+$F_i(\mathbf{s}) = \N(\mathbf{s})\times\lambda_i(\mathbf{s})$, equating a random variable with its mean, where
+$\E(F_i(\mathbf{s})) = \N(\mathbf{s})\times\lambda_i(\mathbf{s})$ was intended.
 
-\todo{Write this into the ``A general spatial statistical model for spatialomics''
-subsection of paper-plos.tex. The prior values above are VERIFIED against the canonical
-pipeline (\texttt{supp-4-lik-comparison/02-array-run-model.R} line 63, inside the Poisson
-branch: \texttt{matern.pri.feat.count <- c(500, .95, .1, .05)} passed to
-\texttt{inla.spde2.pcmatern} as \texttt{prior.range = c(500, 0.95)},
-\texttt{prior.sigma = c(0.1, 0.05)}, with \texttt{alpha = 2} and \texttt{constr = TRUE}).
-Note the file-level default at line 32 is \texttt{c(500, .95, 1, .05)}, with sigma 1 rather
-than 0.1; it is overridden inside the Poisson branch, so quote the line-63 values. Posterior
-summaries use \texttt{n.samp <- 1000} draws.}
+We have added an explicit paragraph connecting the abstract model to its implementation,
+including the SPDE representation, the mesh, the inference method, and the number of
+posterior draws, and a supplementary table making the mapping object by object (R2.2).
 
-\subsection{R2.2. Notation-to-code mapping} \status{DRAFTED, TABLE NOT BUILT}
+\subsection{R2.2. Notation-to-code mapping} \status{DONE}
 
 \begin{rev}
 Second, the correspondence between the notation in the manuscript and the public code
@@ -399,18 +572,24 @@ $\theta_i$ are implemented in the code. I recommend adding a supplementary table
 each manuscript term to its corresponding code object, script, or model component.
 \end{rev}
 
-\noindent We have added this table as Supporting Information. Each row gives a
-mathematical symbol, its meaning, the script in which it is constructed, and the name of
-the corresponding code object, so that a reader can move from any equation in the
-manuscript to the lines that implement it.
+\noindent We have added this table as Supporting Information (S9 Table). Each row gives a
+mathematical symbol, its meaning, the name of the corresponding code object, and the script
+and line at which it is constructed, so that a reader can move from any equation in the
+manuscript to the lines that implement it. It covers every symbol the reviewer names, plus
+the mesh, the Mat\'ern SPDE object, the priors, the likelihood, the posterior draws, and the
+four prediction scores. Every path, object name, and line number in it was checked against
+the files rather than written from memory.
 
-\todo{Build the table. One row per symbol, minimally: $\lambda_i(s)$, $F_i(s)$, $N(s)$,
-$\alpha_i$, $\theta_i$, $\Sigma(\theta_i)$, $\theta_N$, $\Sigma(\theta_N)$, the mesh, the
-Mat\'ern SPDE object, the likelihood, and the posterior predictive draws. Anchor each row
-to a script and object name in \texttt{Supplements for Publication/code/spatial-modeling/}.
-Verify every path and object name against the actual files rather than from memory.}
+Two things in the table are worth flagging here, because both are traps for a reader
+navigating the repository. First, the file-level default prior at line 32 of the model
+script sets the marginal standard deviation to 1, but it is overridden inside the Poisson
+branch at line 63, which sets it to 0.1; the manuscript quotes the line-63 values, because
+the Poisson branch produced every reported result. Second, the absolute error uses the
+posterior predictive \emph{median} while the squared error and Dawid-Sebastiani score use
+the mean. The manuscript equations now reflect that difference, which the original text did
+not.
 
-\subsection{R2.3. Treatment of total counts $N(s)$} \status{DRAFTED}
+\subsection{R2.3. Treatment of total counts $N(s)$} \status{DONE}
 
 \begin{rev}
 Third, the treatment of total counts $N(s)$ requires clarification. The manuscript
@@ -430,17 +609,23 @@ result in the manuscript comes from the joint latent model for $N(s)$.
 
 We retain the latent formulation in the model development section because it is the
 general form of the framework and because we tested it, but we now flag its status
-explicitly at first presentation, rather than only in passing later. We also state what
-the comparison showed: fitting the joint latent model for $N(s)$ did not materially change
-the estimated feature fields, which is why the simpler and computationally cheaper offset
-specification was adopted for the full feature set. The supporting comparison is the
-analysis in Supplement 3.
+explicitly at the point of first presentation, in a short subsection immediately following
+the model display, rather than only in passing in the Results. That subsection states which
+lines of the model specification the reported analyses actually use, and that every symbol
+carrying an $N$ subscript plays no part in any reported result.
 
-\todo{Add the clarifying sentence at the point where the latent $N(s)$ model is first
-introduced, not only in the Results. Confirm the Supplement 3 comparison supports the
-``did not materially change'' wording, and quantify it if the numbers are available.}
+On the comparison itself we have deliberately weakened the original wording. The
+manuscript previously said that modeling $N(s)$ ``didn't practically alter the outputs.''
+We ran that comparison (the analysis in Supplement 3) and it did not show a visible
+difference in the estimated feature fields, but we did not compute a summary statistic
+quantifying the discrepancy, and we are not able to produce one now without rerunning the
+joint model across the feature set. The revised text therefore says exactly that: the
+comparison showed no visible change, we adopted the offset specification because it is
+simpler and cheaper to fit, and we make no stronger claim than that. We would rather state
+the weaker, supportable version than leave a quantitative-sounding claim standing behind a
+qualitative check.
 
-\subsection{R2.4. Prediction metrics and model comparison} \status{TODO}
+\subsection{R2.4. Prediction metrics and model comparison} \status{DONE}
 
 \begin{rev}
 Fourth, the prediction metrics and model comparison need clearer explanation. The
@@ -462,21 +647,49 @@ four are negatively oriented, so smaller values indicate better performance. We 
 the proper scoring rules, because the manuscript's argument concerns the quality of the
 predictive distribution and its uncertainty rather than point accuracy alone.
 
-\todo{Still needs the actual justification for Poisson over ZIP and ZAP written against the
-Table 1 numbers, including the metrics that disagree (MDS favours ZAP at 82\% and ZIP at
-85\%, while MAE, RMSE and MLG favour Poisson), and the metric definitions written as
-equations in the Methods.
-Two things about Table 1 are now verified from \texttt{03-array-post-process.R} and can be
-stated directly. (i) The parenthetical percentages are the mean over features of the ratio
-of that model's score to the Poisson score \emph{for the same feature}, expressed as a
-percentage, so 100\% means indistinguishable from Poisson. They are NOT the ratio of the two
-averages printed in the table, which is why 0.29 against 0.21 shows as 111\% rather than
-138\%. The current caption calls this an ``average percentage difference,'' which is a
-misnomer for a ratio and should be reworded. (ii) The averages exclude features with
-abnormal values indicating nonconvergence, via the filter \texttt{MAE < 100 \&
-abs(MDS) < 100}, which the code comments say drops 4 and 3 features respectively. The
-caption's ``all 918 modeled ligand/receptor features'' is wrong on both counts and needs
-restating.}
+We have also rewritten the Table 1 caption completely, and in doing so we found and
+corrected an error in how the table had been read.
+
+The parenthetical percentages are the mean across features of the ratio of that model's
+score to the Poisson score \emph{for the same feature}, so 100\% denotes a model
+indistinguishable from Poisson. They are ratios, not differences, and they are not the
+ratio of the two averages printed in the table, which is why 0.29 against 0.21 appears as
+111\% rather than 138\%. The old caption called them an ``average percentage difference,''
+which is a misnomer for a ratio; the new caption defines them correctly and defines every
+abbreviation.
+
+The error concerns the Dawid-Sebastiani column. Because MDS is negative, a ratio below
+100\% corresponds to a score \emph{nearer zero}, and DS is negatively oriented, so a ratio
+below 100\% indicates worse performance rather than better. Reading the 85\% and 82\%
+entries as ZIP and ZAP outperforming Poisson, which is the natural reading and one we had
+made ourselves while preparing this response, inverts the result. Comparing the raw values
+directly, Poisson at $-2.15$ is better than ZIP at $-1.78$ and ZAP at $-1.77$. Poisson is
+therefore the best model on all four scores, not three of four, and no criterion disagrees.
+The new caption warns the reader about this explicitly and directs them to the raw MDS
+values.
+
+On which criteria we prioritized: we prioritized the two proper scoring rules over the
+point-forecast measures, because the manuscript's argument concerns the quality of the
+predictive distribution rather than point accuracy. As it happens the choice does not
+matter here, since Poisson wins on all four.
+
+We have added one piece of new evidence, because the averages alone do not show whether the
+result is driven by a few extreme features. Comparing the three likelihoods feature by
+feature, Poisson gives the lowest score for 814 of the 912 features on MAE, 880 on RMSE, 734
+on MDS, and 829 on MLG, and is best on all four simultaneously for 645 of the 912. These
+counts are computed from the same per-feature score files that produce Table 1.
+
+Finally, the caption's claim that averages were taken over ``all 918 modeled
+ligand/receptor features'' was wrong in three ways, and is now corrected. The fitted set is
+912, not 918. The averages exclude feature-by-model combinations with extreme values
+indicating nonconvergence, via the filter \texttt{MAE < 100 \& abs(MDS) < 100}. And that
+filter is applied to the absolute scores for one table and to the \emph{ratios} for the
+other, so the two halves of the table exclude different numbers of rows: 4 of the 2,736
+combinations for the absolute averages and 7 for the parenthetical ratios. In both cases
+only the ZIP row is affected, so ZIP is averaged over 908 features for the absolute values
+and 905 for the ratios, while Poisson and ZAP use all 912. We reproduced the published table
+from the archived per-feature score files to confirm this, and both halves reproduce
+exactly.
 
 \subsection{R2.5. Rationale for Cd44 as the representative feature} \status{NEEDS AUTHOR INPUT}
 
@@ -508,7 +721,7 @@ that spatial bins render as squares and distances are visually comparable along 
 the plotting call or in the underlying bin geometry; if the bins genuinely are not square,
 say so explicitly instead of rescaling the display.}
 
-\subsection{R2.7. Captions for Figures 5 and 6} \status{TODO}
+\subsection{R2.7. Captions for Figures 5 and 6} \status{DONE}
 
 \begin{rev}
 Figures 5 and 6 require clearer captions, definitions of abbreviations, explanation of
@@ -521,10 +734,29 @@ abbreviation used in the panel, states what the rows and columns represent, and 
 explicitly what the reader should take from the figure and how it supports the claim made
 in the text.
 
-\todo{Rewrite both captions. Figure 5 is the convolution-operator comparison (product,
-geometric mean, common minimum, with ELSA entrograms) and Figure 6 is the feature-depth
-sweep producing emergent domains. Each caption must be readable without the surrounding
-prose.}
+Concretely, the Figure 5 caption now identifies what each column is (the three convolution
+operators, with the code labels \texttt{m.est.prod}, \texttt{m.est.gm} and
+\texttt{m.est.min} that appear in the panel titles), what the four blocks in the top section
+are (four example ligand-receptor mechanisms, each showing the separately estimated ligand
+and receptor fields alongside the interaction field the operator produces from them), what
+the middle and lower rows show (the resulting tissue domains and the corresponding
+entrogram), and what the two bottom panels plot. It also states that cluster colors are
+arbitrary labels, so that the comparable quantities across columns are the number of
+domains and their spatial organization, and it says which direction of the bottom-right
+panel is favorable.
+
+The Figure 6 caption now states the five feature depths row by row, identifies each of the
+four columns, explains that the column-4 curves summarize the whole sweep with the current
+depth highlighted, explains the entrogram scale and how to read a coherent domain from it,
+and identifies the eight three-dimensional surfaces and the sub-region they cover. It also
+now carries two caveats that the figure cannot show on its own: that the fields are
+model-derived estimates rather than measurements of binding, and that the domain map is one
+realization of a non-deterministic clustering step.
+
+One point of inconsistency remains for the figure regeneration. The in-figure panel labels
+in Figure 6 still read ``1481 Features''; the corrected count is 1477, which the caption now
+gives. The panel labels need to be updated when the figure is regenerated for R1.3 and R2.6,
+and we have left a note to that effect in the manuscript source.
 
 \subsection{R2.8. Controls and baselines} \status{DONE}
 
@@ -542,7 +774,7 @@ increased feature dimensionality, or clustering.
 \noindent This was the most important comment in the review, and we have addressed it with
 two new controls, chosen from the reviewer's menu: a spatial shuffling control and a
 comparison with previously annotated tissue regions. Both are reported in a new subsection
-of the Results and a new supplementary figure, and the code and summary outputs are in the
+of the Results, and the code and summary outputs are in the
 public repository. We also attempted the ligand-receptor pair shuffling control the reviewer
 suggests, and we report below why we do not present a result from it.
 
@@ -580,8 +812,22 @@ spatial structure present in the data, not structure imposed by the smoother.
 
 As a positive control we compared the emergent domains to the anatomical annotations
 published with the source dataset by Chen et al.\ (2022) for the same tissue section. These
-annotations were produced independently of our work, by a different method, so they
-constitute external evidence rather than a circular check.
+annotations were produced by a different group, by a different method, and without reference
+to our labels, which our pipeline in turn never sees, so they are an independent reference in
+the sense that matters for a positive control.
+
+For transparency we also checked and now state how those labels were derived: by spatially
+constrained clustering, combining a spatial nearest-neighbour graph with an expression
+nearest-neighbour graph, followed by manual labelling of each cluster from its marker genes
+against a reference embryo atlas. The comparison is thus between two partitions of the same
+tissue section, which is unavoidable, since a concordance check is only meaningful against
+annotations of the same specimen. The two partitions are nonetheless built from very
+different features, theirs from binned expression across all genes and ours from 1477
+convolved ligand-receptor interaction fields, and the manual labelling step brings in
+anatomical knowledge from outside the dataset. We note in the manuscript that the two
+controls answer different questions: the coordinate shuffle asks whether the structure is
+real, and the concordance comparison asks whether the structure that survives is anatomically
+meaningful.
 
 All 26{,}000 modeled spatial bins matched an annotated bin. Agreement was substantially
 above chance: adjusted Rand index 0.401 and normalized mutual information 0.604, against a
@@ -672,7 +918,7 @@ pipeline under \texttt{Supplements for Publication/code/} still needs the same t
 run order, inputs, intermediates, figure scripts, and a session-info or lockfile capture.
 This is the largest remaining task after the figures, and the reviewer will check it.}
 
-\subsection{R2.10. Scientific positioning relative to existing work} \status{DRAFTED}
+\subsection{R2.10. Scientific positioning relative to existing work} \status{DONE}
 
 \begin{rev}
 The scientific positioning of the manuscript should also be strengthened. The authors
@@ -688,18 +934,33 @@ existing approaches.
 families and states plainly which parts of our contribution are new and which are
 combinations or reinterpretations of established ideas.
 
-In outline: SpatialDE introduced Gaussian-process testing for spatially variable genes, and
-we share its use of a GP prior over space but not its goal, since we estimate and use the
-field itself rather than testing features for spatial variability. BOOST-GP is the closest
-methodological relative, in that it also places a Gaussian process within a Bayesian count
-model for spatial transcriptomics; our contribution relative to it is not the count-GP
-combination, which we do not claim as novel, but the downstream use of the posterior fields
-as continuous objects that are convolved and then analyzed jointly. Spatial Variance
-Component Analysis decomposes expression variance into spatial and non-spatial components,
-which is a variance-partitioning aim rather than a field-estimation one. SpatialDM tests
-ligand-receptor pairs for spatial association using a bivariate Moran's statistic, which
-targets significance of individual interactions where we target a continuous inferred field
-per interaction with quantified uncertainty.
+In outline: SpatialDE (Svensson et al., \emph{Nature Methods}, 2018) introduced
+Gaussian-process testing for spatially variable genes, decomposing each gene's expression
+variance into a kernel-parameterized spatial component and a noise component and testing the
+former by a likelihood ratio test. We share its use of a GP prior over space but not its
+goal, since we estimate and use the field itself rather than testing features for spatial
+variability. BOOST-GP (Li et al., \emph{Bioinformatics}, 2021) is the closest methodological
+relative: it places a gene-specific zero-mean Gaussian process on the spatial random effect
+inside a zero-inflated negative binomial count model, with Bayesian variable selection over
+whether that spatial component is present, and its stated goal is likewise identifying
+spatially variable genes. Our contribution relative to it is not the count-GP combination,
+which we explicitly do not claim as novel, but the downstream use of the posterior fields as
+continuous objects that are convolved and then analyzed jointly. Spatial Variance Component
+Analysis (Arnol et al., \emph{Cell Reports}, 2019) decomposes expression variance into
+intrinsic, environmental, cell-cell interaction, and noise components and tests whether the
+interaction component is nonzero, which is a variance-partitioning aim rather than a
+field-estimation one, and it was developed for imaging-based data. SpatialDM (Li et al.,
+\emph{Nature Communications}, 2023) tests ligand-receptor pairs for spatial co-expression
+using a bivariate extension of Moran's $I$, globally and per spot, with significance from an
+analytically derived null; it targets significance of individual interactions where we
+target a continuous inferred field per interaction with quantified uncertainty.
+
+We should correct one thing we had wrong in our own preparation, since it affects how we
+cite BOOST-GP. Its published title is ``Bayesian modeling of spatial molecular profiling
+data via Gaussian process'' and it appeared in \emph{Bioinformatics}; ``BOOST-GP'' is the
+software name and does not appear in the journal title. We verified the characterization of
+each of these methods against the papers themselves rather than from summary knowledge, as
+the reviewer's comment warrants.
 
 We have also added a discussion of CytoSignal (Liu et al., \emph{Nature Genetics}, 2026),
 concurrent work that appeared after our submission and that analyzes the same Stereo-seq
@@ -718,12 +979,14 @@ signaling field without dimensionality reduction produces tissue domains that co
 anatomy. The combination of a Gaussian process with a Bayesian count likelihood is not
 itself new, and we now say so.
 
-\todo{Write this into a new Discussion subsection and add the five citations. Verify the
-characterization of each method against its paper rather than from summary knowledge,
-particularly BOOST-GP and SVCA. Confirm the CytoSignal publication details and that the
-concurrency framing is accurate with respect to both submission timelines.}
+All of this now appears in a new Discussion subsection, ``Relationship to existing
+methods,'' and all five works are cited. That subsection also states plainly that we have
+not run a head-to-head benchmark against any of them, and why: there is no shared target
+quantity on which an accuracy comparison would be meaningful without first defining a
+benchmark task and a ground truth, which we regard as a separate piece of work. We would
+rather say that than leave the omission implicit.
 
-\subsection{R2.11. Generalizability claims} \status{DRAFTED}
+\subsection{R2.11. Generalizability claims} \status{DONE}
 
 \begin{rev}
 Some claims of generalizability appear broader than the evidence provided. The study is
@@ -753,11 +1016,24 @@ explicit treatment of cell geometry. We also note that platforms with substantia
 capture may favour a zero-inflated likelihood, which our Table 1 comparison found
 unnecessary at this sparsity but which the framework accommodates.
 
-\todo{Apply the softening pass across the manuscript. The Abstract, the end of the
-Introduction, and the Discussion are where the broad claims live. Check that the moderated
-scope is consistent everywhere, including the Abstract.}
+The specific changes are as follows. The Abstract previously asserted that ``the general
+methods piloted here can readily be applied to spatialomics data from diverse platforms with
+no need to alter data collection techniques''; it has been rewritten to state what was
+actually done and on what, and it now ends by naming the scope of the demonstration and
+pointing to the transfer conditions instead of asserting general applicability. The opening
+sentence of the model section previously claimed the model ``can be applied to most, if not
+all, existing spatialomics datasets''; it now states the property a dataset must have for
+the model to apply, and cross-references the Discussion. The Discussion claim that ``our
+methods are generally-applicable to any spatial transcriptomic data'' has been replaced by
+the paragraph of transfer conditions described above.
 
-\subsection{R2.12. Caution in biological interpretation} \status{DRAFTED}
+One further sentence needed correcting rather than softening. The limitations paragraph
+said that ``our general approach has thus far proved easy to adapt on all data types
+tested,'' which is not supportable in a manuscript that fits only Stereo-seq data. It now
+says that we have fitted the model only to Stereo-seq data here, so our expectation that
+adaptation is straightforward is an expectation rather than a demonstrated result.
+
+\subsection{R2.12. Caution in biological interpretation} \status{DONE}
 
 \begin{rev}
 Finally, the biological interpretation should remain cautious. I appreciate that the
@@ -785,9 +1061,24 @@ transcript counts are a proxy for transcript abundance, transcript abundance is 
 protein abundance, co-localization of ligand and receptor proxies is a proxy for the
 opportunity for interaction, and none of these steps is directly observed here.
 
-\todo{Perform the terminology pass across the full manuscript. Read the Results and
-Discussion specifically for verbs implying observation of binding or signaling. Keep
-terminology consistent: pick one term per concept and use it throughout.}
+The inferential chain now appears explicitly in the Discussion, in the terms the reviewer
+suggests: transcript counts are a proxy for local transcript abundance; transcript abundance
+is a proxy for protein abundance, a step we do not attempt to correct; co-localization of a
+ligand proxy and a receptor proxy is a proxy for the \emph{opportunity} for interaction; and
+none of the intermediate quantities, and no binding event, is directly observed in this
+work.
+
+We settled on ``inferred interaction field'' as the single term for the convolved output and
+use it consistently. Specific replacements include: a claim that the model outputs
+``directly estimate local ligand-receptor binding density'' now says they estimate a proxy
+for it; ``the maximum possible number of local binding events'' is now an upper bound
+implied by the estimated levels under a stated assumption; ``individual ligand-receptor
+binding density field'' in the Figure 6 discussion is now ``individual inferred
+ligand-receptor interaction fields''; and the invitation to readers to ``observe the true
+scale and structure of extracellular communication in mammalian tissues'' now invites them
+to explore the scale and structure of the inferred fields. We also removed several
+intensifiers that editorialized rather than described, including ``statistically-powerful,''
+``experimentally pioneered,'' and two uses of ``significant'' in a non-statistical sense.
 
 \section{Additional corrections}
 
@@ -812,14 +1103,18 @@ attrition.
 
 Second, the number of interaction fields was overstated by four. The manuscript reports 1481
 unique ligand-receptor interaction fields, and describes them as following from the 918-gene
-list. On inspection, the 1481-column object used for the high-dimensional clustering
-contains four pairs of exactly duplicated columns, which we traced to files that had been
+list. Neither part of that is right. The 1481-row object used for the high-dimensional
+clustering contains four exactly duplicated rows, which we traced to files that had been
 silently duplicated by a cloud file-synchronization conflict and then read in alongside their
-originals. The four affected interactions are PDGFC-PDGFRA, PDGFC-PDGFRB, PDGFD-PDGFRA, and
-PDGFD-PDGFRB; in each case the duplicate column is numerically identical to its counterpart.
-The correct number of distinct interaction fields computable from the 912 fitted features is
-therefore 1477. We have corrected the count wherever it appears, including the upper limit of
-the feature-depth sweep in Figure 6.
+originals; the duplicates are still identifiable by the conflicted-copy suffix carried in
+their names. The four affected interactions are PDGFC-PDGFRA, PDGFC-PDGFRB, PDGFD-PDGFRA, and
+PDGFD-PDGFRB, and in each case the duplicate is numerically identical to its counterpart. The
+correct number of distinct interaction fields computable from the 912 fitted features is
+therefore 1477, which we confirmed by re-deriving it from the FANTOM5 pairings and checking
+it against the 1481 rows of the clustered object. Separately, 1481 was never the right figure
+for the 918-gene list either: 1493 FANTOM5 pairs have both partners among the 918 curated
+genes. We have corrected the count wherever it appears, including the upper limit of the
+feature-depth sweep in Figure 6.
 
 We do not think this materially affects the results. The duplication gives four of 1477
 interactions twice their intended weight in a scaled clustering over more than a thousand
@@ -829,11 +1124,14 @@ clustering without the duplicates, because the clustering algorithm is not deter
 (see our response to R2.8), so a single re-run would not isolate an effect of this size from
 run-to-run variation.
 
-\todo{Apply these corrections to every occurrence in the manuscript and captions: 918 to 912
-at line 217; 1481 to 1477 at lines 213 and 251 and in the Fig 6 caption; and the Table 1
-caption, which averages over the fitted features that pass the score filter, not over ``all
-918 modeled ligand/receptor features.'' Decide with Raredon whether to name the
-synchronization conflict as the cause in the manuscript or to describe it more neutrally as
-duplicated input files.}
+Both corrections have been applied to every occurrence in the manuscript text, in the
+Table 1 caption, and in the Figure 6 caption. The one place the old number still appears is
+inside the Figure 6 image itself, whose panel labels read ``1481 Features''; those labels
+will be corrected when the figure is regenerated for R1.3 and R2.6.
+
+\todo{Author decision, not a blocker for drafting: decide whether the manuscript should
+name the file-synchronization conflict as the cause, as the paragraph above currently does,
+or describe it more neutrally as duplicated input files. The response letter should say
+whichever the manuscript says.}
 
 \end{document}
