@@ -1,0 +1,787 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{ragged2e}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{titlesec}
+\usepackage{parskip}
+\usepackage{framed}
+
+\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+
+\titleformat{\section}{\large\bfseries}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\normalsize\bfseries}{}{0em}{}
+
+%% ---------------------------------------------------------------------------
+%% Drafting aids. REMOVE \draftmode BEFORE SUBMISSION: it turns off the banner
+%% and makes any remaining \todo render loudly so nothing slips through.
+%% ---------------------------------------------------------------------------
+\newif\ifdraftmode\draftmodetrue
+
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+\newcommand{\status}[1]{\textcolor{gray}{\small\textsf{[#1]}}}
+
+%% Reviewer text, quoted verbatim.
+\newenvironment{rev}{\begin{leftbar}\itshape\small}{\end{leftbar}}
+
+\title{\vspace{-1.5em}Response to Reviewers}
+\author{Spatial Modeling of Tissues for Morphogenic Field Analysis\\
+\small PLOS ONE, PONE-D-26-04349 \quad (Osgood-Zimmerman \& Raredon)}
+\date{Draft of 2026-07-27 \quad$\vert$\quad Revision deadline: 2026-08-07}
+
+\begin{document}
+\maketitle
+\vspace{-1em}
+
+\ifdraftmode
+\begin{center}
+\fcolorbox{red}{red!5}{\parbox{0.95\textwidth}{\centering
+\textcolor{red}{\textbf{INTERNAL DRAFT, NOT FOR SUBMISSION.}}\\[2pt]
+\small Items marked \textcolor{red}{\textbf{[TODO: \ldots]}} are not yet done. Statuses: \status{DONE} the work is
+finished and verified; \status{DRAFTED} response text is written but the corresponding
+manuscript edit has not been made; \status{TODO} not started. Set
+\texttt{\textbackslash draftmodefalse} and confirm no \texttt{\textbackslash todo}
+remains before submitting.}}
+\end{center}
+\vspace{0.5em}
+\fi
+
+\noindent Dear Dr.\ D'Acquisto and Reviewers,
+
+\medskip
+
+\noindent Thank you for the careful and constructive reviews. We are grateful for the
+time invested, and we think the manuscript is substantially better for the revision.
+
+Reviewer 2 asked whether the framework identifies biologically meaningful spatial
+structure beyond smoothing, increased feature dimensionality, or clustering. We regarded
+this as the central question of the review, and we have addressed it directly with three
+new controls (Section R2.8): a ligand-receptor pairing shuffle, a coordinate shuffle with
+full model refitting, and a concordance test against the independent anatomical
+annotations published with the source dataset. The coordinate-shuffle control is the most
+informative of the three, and it is unambiguous: refitting the identical pipeline on
+spatially permuted data collapses the emergent domains entirely.
+
+We have also moderated the generalizability and biological-interpretation language
+throughout, clarified the statistical model and its implementation, and added a
+supplementary table mapping every mathematical object in the manuscript to the code that
+implements it.
+
+Reviewer comments are reproduced verbatim in italics, followed by our response. Changes
+are marked in the accompanying \emph{Revised Manuscript with Track Changes}.
+
+\medskip
+\noindent Sincerely,\\
+Aaron Osgood-Zimmerman and Micha Sam Brickman Raredon
+
+\vspace{1em}
+\hrule
+
+\section{Status summary}
+
+\ifdraftmode
+\noindent\textcolor{red}{\textbf{Internal only, delete this section before submission.}}
+\medskip
+\fi
+
+\begin{longtable}{@{}L{1.6cm} L{9.2cm} L{3.6cm}@{}}
+\toprule
+\textbf{Item} & \textbf{Ask} & \textbf{Status} \\
+\midrule
+\endhead
+JR-1  & PLOS style and file naming & Done \\
+JR-2  & Role of funder statement & Needs author input \\
+JR-3  & Remove funding text from Acknowledgments & To do \\
+JR-4  & PLOS \LaTeX{} template & Done \\
+JR-5  & Upload Supplemental Materials as SI & To do \\
+JR-6  & Evaluate recommended citations & Drafted (see R2.10) \\
+\midrule
+R1.1  & Comparative analysis vs existing methods & Drafted (see R2.8, R2.10) \\
+R1.2  & Tissue sample and methods detail & To do \\
+R1.3  & Figures too small, reorganize & To do \\
+R1.4  & Small-scale disease proof of concept & Drafted (respectful pushback) \\
+R1.5  & Better graphical abstract & To do \\
+\midrule
+R2.1  & Define model parameters and priors at first use & Drafted \\
+R2.2  & Notation-to-code supplementary table & Drafted, table not built \\
+R2.3  & Clarify that final analyses used observed nUMI & Drafted \\
+R2.4  & Define metrics; Table 1 abbreviations and percentages & To do \\
+R2.5  & Rationale for Cd44 as representative feature & Needs author input \\
+R2.6  & Elongated-pixel distortion in Figs 3 and 4 & To do \\
+R2.7  & Clearer captions for Figs 5 and 6 & To do \\
+\textbf{R2.8} & \textbf{Controls and baselines} & \textbf{Done, all three} \\
+R2.9  & Reproducibility documentation & Partly done \\
+R2.10 & Positioning vs related methods & Drafted \\
+R2.11 & Moderate generalizability claims & Drafted \\
+R2.12 & Cautious biological language & Drafted \\
+\bottomrule
+\end{longtable}
+
+\section{Journal requirements}
+
+\subsection{JR-1. PLOS ONE style requirements and file naming} \status{DONE}
+
+\begin{rev}
+Please ensure that your manuscript meets PLOS ONE's style requirements, including those
+for file naming.
+\end{rev}
+
+\noindent The manuscript has been reformatted to the PLOS ONE style templates. Section
+headings, title capitalization, the reference style, and file naming now follow the PLOS
+ONE guidelines. See also JR-4.
+
+\subsection{JR-2. Role of the funder} \status{NEEDS AUTHOR INPUT}
+
+\begin{rev}
+Please state what role the funders took in the study. If the funders had no role, please
+state: ``The funders had no role in study design, data collection and analysis, decision
+to publish, or preparation of the manuscript.''
+\end{rev}
+
+\noindent We confirm the following statement, which we have included in our cover letter
+for the journal to enter into the online submission form:
+
+\begin{quote}
+The funders had no role in study design, data collection and analysis, decision to
+publish, or preparation of the manuscript.
+\end{quote}
+
+\todo{Both authors must confirm this is accurate for T32GM086287 (NIGMS) and for the Yale
+and Bucknell startup funds before it goes in the cover letter.}
+
+\subsection{JR-3. Funding text in the Acknowledgments} \status{TODO}
+
+\begin{rev}
+We note that you have provided funding information that is not currently declared in your
+Funding Statement. However, funding information should not appear in the Acknowledgments
+section or other areas of your manuscript.
+\end{rev}
+
+\noindent The funding text has been removed from the Acknowledgments section of the
+manuscript. The Acknowledgments now contain only non-financial acknowledgments. The
+funding information appears solely in the Funding Statement, and our updated statement is
+reproduced in the cover letter.
+
+\todo{Actually remove the funding sentence from the Acknowledgments in paper-plos.tex,
+around line 376, and check that no funding language survives elsewhere in the text.}
+
+\subsection{JR-4. PLOS \LaTeX{} template} \status{DONE}
+
+\begin{rev}
+Please update your submission to use the PLOS LaTeX template.
+\end{rev}
+
+\noindent The manuscript has been ported from the Elsevier \texttt{elsarticle} class to
+the PLOS \LaTeX{} template, including the PLOS preamble, title and author block, and the
+\texttt{plos2025} bibliography style.
+
+\subsection{JR-5. Supporting Information upload} \status{TODO}
+
+\begin{rev}
+Please upload a copy of Supporting Information Figure/Table/etc.\ ``Supplemental
+Materials'' which you refer to in your text on page 19.
+\end{rev}
+
+\noindent The supplemental materials, previously available only through external
+repository links, are now uploaded as Supporting Information files S1 through S8 and are
+cited individually at the appropriate points in the text.
+
+\todo{Package the eight Supplements for Publication directories as PLOS SI files, confirm
+each S-number in the manuscript matches the uploaded file, and check the SI captions
+render.}
+
+\subsection{JR-6. Recommended citations} \status{DRAFTED}
+
+\begin{rev}
+If the reviewer comments include a recommendation to cite specific previously published
+works, please review and evaluate these publications to determine whether they are
+relevant and should be cited.
+\end{rev}
+
+\noindent We evaluated every method named by Reviewer 2 (SpatialDE, BOOST-GP, Spatial
+Variance Component Analysis, and SpatialDM) and judged all of them relevant. Each is now
+cited and discussed in a new positioning subsection; see our response to R2.10. We have
+additionally cited CytoSignal (Liu et al., \emph{Nature Genetics}, 2026), concurrent work
+that was not available at the time of our original submission and that analyzes the same
+source dataset.
+
+\section{Academic editor}
+
+\begin{rev}
+It seems to me that the Reviewers have asked a number of clarifications and more detailed
+explanation for the approaches used in the study while finding the overall idea of
+interest. I would suggest the authors to fully address the comments made by the Reviewers
+as this might significantly improve the impact of the study and its overall take-home
+message.
+\end{rev}
+
+\noindent We agree, and we have treated every reviewer comment as actionable. The
+clarifications requested by Reviewer 2 concerning the statistical model, its
+implementation, and the evaluation metrics were fair; the manuscript understated how much
+detail a reader needs to reproduce or critically assess the work. The point-by-point
+responses below describe each change.
+
+\section{Reviewer 1}
+
+\subsection{R1.1. Comparative analysis with existing spatial modeling techniques} \status{DRAFTED}
+
+\begin{rev}
+Recommend the authors to perform a comparative analysis with other existing techniques
+for spatial modelling techniques as verifications.
+\end{rev}
+
+\noindent We have added comparison and validation along three axes, described in full in
+our response to Reviewer 2's comment R2.8.
+
+First, within our own framework we compare candidate convolution operators
+quantitatively, and this comparison now includes the product operator used by CytoSignal.
+The common-minimum operator we adopt yields more spatially coherent domains than the
+product operator on this dataset.
+
+Second, we compare the emergent domains against an external reference that we did not
+produce: the anatomical annotations published with the source dataset by Chen et al.
+(2022). This is a comparison to an independently derived, expression-based segmentation
+of the same tissue section.
+
+Third, we added shuffle-based null controls, which are the standard validation device in
+this literature.
+
+We want to be straightforward about what we have not done. We have not run a full
+method-versus-method benchmark against SpatialDE, BOOST-GP, SVCA, SpatialDM, or
+CytoSignal. Those methods answer different questions from ours: they test individual
+features or interactions for spatial significance, whereas our contribution is a
+continuous-field representation with quantified uncertainty and the clustering of the
+full high-dimensional signaling field. There is no shared target quantity on which a
+head-to-head accuracy comparison would be meaningful without first defining a benchmark
+task, which we regard as its own piece of work. We have instead positioned our approach
+against each of these methods conceptually and explicitly (R2.10), and we now state this
+limitation in the Discussion rather than leaving it implicit.
+
+\subsection{R1.2. Detail on the tissue sample and methods} \status{TODO}
+
+\begin{rev}
+The methods on the tissue/patient sample obtained here is missing and lacks details.
+\end{rev}
+
+\noindent We have expanded the dataset description in Materials and methods. The revised
+text specifies the source publication and accession, the developmental stage and section
+identity, the platform and its capture chemistry, the physical dimensions of the field of
+view analyzed, the binning applied, the number of spatial locations and features modeled,
+and the filtering that produced the analyzed feature set.
+
+\todo{Write this expansion into the Dataset selection and Dataset preprocessing
+subsections. Concrete facts to state: Chen et al.\ 2022 Stereo-seq mouse embryo (MOSTA),
+section E16.5\_E1S3; field of view x from 15000 to 25000 and y from 11500 to 18000 in raw
+chip coordinates; bin size 50; 26000 spatial locations; 918 curated features of which 912
+produced converged fits; FANTOM5 ligand-receptor pairings, of which 1477 have both
+partners among the converged features. Note that the sample is a mouse embryo from a
+public atlas, not a patient sample, which is what the reviewer may be assuming.}
+
+\subsection{R1.3. Figure size and organization} \status{TODO}
+
+\begin{rev}
+The data presented in the figure is on the small side of the spectrum, recommend the
+authors to reorganise them.
+\end{rev}
+
+\noindent We have regenerated the figures at larger physical size and higher resolution,
+and reorganized several panels so that the comparisons a reader is asked to make are
+adjacent. Figures 3 and 4 have also been corrected for the aspect-ratio distortion noted
+by Reviewer 2 (R2.6).
+
+\todo{Regenerate all figures. Coordinate with R2.6 (aspect ratio) and R2.7 (captions) so
+each figure is touched once.}
+
+\subsection{R1.4. Small-scale disease proof of concept} \status{DRAFTED, PUSHBACK}
+
+\begin{rev}
+Since the author claims the spatial modelling provides multidimensional information to
+guide disease assessment, it might be good for the author to use this paper to perform a
+small scale POC work.
+\end{rev}
+
+\noindent We appreciate this suggestion and have thought about it carefully, but we have
+concluded that adding a disease dataset is not the right change for this manuscript, and
+we have instead removed the framing that invited it.
+
+The manuscript did not report a disease result; disease was raised only as future
+motivation. On reflection, that framing promised more than the work delivers, which is
+also the substance of Reviewer 2's comment R2.11 about generalizability. Rather than
+adding a second dataset, we have moderated the disease language so the stated scope
+matches the evidence: this is a methodological proof of concept on healthy developing
+tissue.
+
+We think this is the more honest resolution. A disease proof of concept done properly
+requires matched healthy and diseased tissue, attention to the confounding between disease
+state and tissue composition, and enough replication to distinguish a disease effect from
+between-sample variation. Done in the time available on a single additional section, it
+would produce an illustrative figure that we could not defend statistically, which is the
+opposite of what this manuscript argues for. We have noted the application to diseased
+tissue as clearly future work in the Discussion, alongside the lung-tissue direction
+already mentioned there.
+
+\subsection{R1.5. Graphical abstract} \status{TODO}
+
+\begin{rev}
+Minor comment: The graphical abstract submitted did not do the work justice, consider a
+better images rather than copy-pasting from the data section.
+\end{rev}
+
+\noindent We agree, and we have replaced the graphical abstract with a purpose-designed
+schematic rather than panels reused from the figures.
+
+\todo{Design and produce the new graphical abstract. Raredon.}
+
+\section{Reviewer 2}
+
+\noindent We thank Reviewer 2 for an unusually thorough and useful review. The comments
+identified real gaps, particularly the absence of controls, and the manuscript is
+materially stronger as a result.
+
+\subsection{R2.1. Precision of the statistical model specification} \status{DRAFTED}
+
+\begin{rev}
+First, the statistical model is not specified with sufficient precision. The manuscript
+introduces a hierarchical statistical framework, but several key parameters are not
+clearly defined, including $\theta_i$, $\theta_N$, $\Sigma(\theta_i)$, $\Sigma(\theta_N)$,
+the covariance function, prior structure, and the relationship between the abstract
+mathematical model and the computational implementation. Since this model is central to
+the manuscript, all parameters should be introduced clearly at first use.
+\end{rev}
+
+\noindent We accept this criticism. The model section was written at a level of
+abstraction that made the framework readable but left the actual fitted model
+underdetermined. We have rewritten it to define every symbol at first use and to state
+the concrete choices used in the reported analyses.
+
+Specifically, the revised Materials and methods now state that the spatial random effect
+for feature $i$ is a zero-mean Gaussian process with a Mat\'ern covariance function,
+represented through the stochastic partial differential equation approach, so that
+$\theta_i = (\rho_i, \sigma_i)$ collects the range and marginal standard deviation for
+feature $i$, and $\Sigma(\theta_i)$ denotes the resulting Mat\'ern covariance matrix
+evaluated at the mesh nodes. The smoothness parameter is fixed rather than estimated
+($\alpha = 2$, giving Mat\'ern smoothness $\nu = 1$ in two dimensions). We place
+penalized-complexity priors on $\theta_i$: the range prior satisfies
+$P(\rho_i < 500) = 0.95$ and the marginal standard deviation prior satisfies
+$P(\sigma_i > 0.1) = 0.05$, with the range in the same physical units as the chip
+coordinates. A sum-to-zero constraint is applied to the field for identifiability against
+the intercept. The symbols $\theta_N$ and $\Sigma(\theta_N)$ played a role only in the
+latent total-count model, which the final analyses did not use; see R2.3, where we have
+clarified their status rather than leaving them ambiguous.
+
+We have also added an explicit paragraph connecting the abstract model to its
+implementation, and a supplementary table making the mapping object by object (R2.2).
+
+\todo{Write this into the ``A general spatial statistical model for spatialomics''
+subsection of paper-plos.tex. The numerical prior values above are read directly from the
+fitting code (\texttt{inla.spde2.pcmatern} with \texttt{prior.range = c(500, 0.95)},
+\texttt{prior.sigma = c(0.1, 0.05)}, \texttt{alpha = 2}, \texttt{constr = TRUE}); confirm
+they match the canonical 2025-04-10 run before the statement goes in the paper.}
+
+\subsection{R2.2. Notation-to-code mapping} \status{DRAFTED, TABLE NOT BUILT}
+
+\begin{rev}
+Second, the correspondence between the notation in the manuscript and the public code
+repository is difficult to follow. Readers should be able to identify where mathematical
+objects such as $\lambda_i(s)$, $F_i(s)$, $N(s)$, $\alpha_i$, $\Sigma(\theta_i)$, and
+$\theta_i$ are implemented in the code. I recommend adding a supplementary table mapping
+each manuscript term to its corresponding code object, script, or model component.
+\end{rev}
+
+\noindent We have added this table as Supporting Information. Each row gives a
+mathematical symbol, its meaning, the script in which it is constructed, and the name of
+the corresponding code object, so that a reader can move from any equation in the
+manuscript to the lines that implement it.
+
+\todo{Build the table. One row per symbol, minimally: $\lambda_i(s)$, $F_i(s)$, $N(s)$,
+$\alpha_i$, $\theta_i$, $\Sigma(\theta_i)$, $\theta_N$, $\Sigma(\theta_N)$, the mesh, the
+Mat\'ern SPDE object, the likelihood, and the posterior predictive draws. Anchor each row
+to a script and object name in \texttt{Supplements for Publication/code/spatial-modeling/}.
+Verify every path and object name against the actual files rather than from memory.}
+
+\subsection{R2.3. Treatment of total counts $N(s)$} \status{DRAFTED}
+
+\begin{rev}
+Third, the treatment of total counts $N(s)$ requires clarification. The manuscript
+presents a latent model for $N(s)$, but later states that modeling $N(s)$ did not
+substantially alter the results and that observed nUMI values were used directly. The
+authors should clearly state whether the final reported analyses used a joint latent
+model, an observed offset or exposure term, or a simplified model using observed nUMI
+values.
+\end{rev}
+
+\noindent The reviewer is right that this was ambiguous, and we have stated it plainly.
+
+All analyses reported in the figures and in Table 1 use the observed number of unique
+molecular identifiers at each location as a fixed offset, that is, as an exposure term
+entering the Poisson mean multiplicatively and treated as known rather than modeled. No
+result in the manuscript comes from the joint latent model for $N(s)$.
+
+We retain the latent formulation in the model development section because it is the
+general form of the framework and because we tested it, but we now flag its status
+explicitly at first presentation, rather than only in passing later. We also state what
+the comparison showed: fitting the joint latent model for $N(s)$ did not materially change
+the estimated feature fields, which is why the simpler and computationally cheaper offset
+specification was adopted for the full feature set. The supporting comparison is the
+analysis in Supplement 3.
+
+\todo{Add the clarifying sentence at the point where the latent $N(s)$ model is first
+introduced, not only in the Results. Confirm the Supplement 3 comparison supports the
+``did not materially change'' wording, and quantify it if the numbers are available.}
+
+\subsection{R2.4. Prediction metrics and model comparison} \status{TODO}
+
+\begin{rev}
+Fourth, the prediction metrics and model comparison need clearer explanation. The
+manuscript compares Poisson, ZIP, and ZAP models using MAE, RMSE, Dawid-Sebastiani score,
+and log score, but the definitions, orientation, and interpretation of these metrics are
+not sufficiently clear. Table 1 should define all abbreviations and explain the
+percentages in parentheses. The authors should also clarify which criteria were
+prioritized and why the evidence supports selecting the Poisson model over ZIP and ZAP.
+\end{rev}
+
+\noindent We have added explicit definitions for each metric, stated the orientation of
+each, expanded the Table 1 caption to define every abbreviation and the parenthetical
+percentages, and stated which criteria we prioritized and why.
+
+In summary: mean absolute error (MAE) and root mean squared error (RMSE) are point-forecast
+accuracy measures; the Dawid-Sebastiani score (DS) and logarithmic score (LS) are proper
+scoring rules that assess the full predictive distribution rather than a point summary. All
+four are negatively oriented, so smaller values indicate better performance. We prioritized
+the proper scoring rules, because the manuscript's argument concerns the quality of the
+predictive distribution and its uncertainty rather than point accuracy alone.
+
+\todo{This response is a skeleton and needs the actual justification for Poisson over ZIP
+and ZAP written against the Table 1 numbers, including the case where the metrics disagree.
+Also state exactly what the parenthetical percentages in Table 1 are (percentage of
+features for which that model won on that metric, if that is what they are; verify against
+the generating code). Write the metric definitions as equations in the Methods.}
+
+\subsection{R2.5. Rationale for Cd44 as the representative feature} \status{NEEDS AUTHOR INPUT}
+
+\begin{rev}
+For example, the rationale for selecting Cd44 as a representative example should be
+explained.
+\end{rev}
+
+\noindent We have added the rationale to the text and to the figure caption.
+
+\todo{Needs the authors' actual reason. Candidate justifications, to be confirmed rather
+than assumed: Cd44 sits at a typical expression level and sparsity for the modeled feature
+set, so it is representative rather than favourable; it is broadly expressed across several
+anatomical regions, so the raw-versus-normalized contrast is visible; it is a well
+characterized surface receptor. State the real reason, and if the feature was chosen for
+visual clarity, say so and note that the full per-feature results are in the supplement.}
+
+\subsection{R2.6. Elongated-pixel distortion in Figures 3 and 4} \status{TODO}
+
+\begin{rev}
+Figures 3 and 4 appear visually distorted due to elongated rectangular pixels, which
+should be corrected or clearly identified as a visualization artifact.
+\end{rev}
+
+\noindent We have regenerated Figures 3 and 4 with a fixed one-to-one aspect ratio, so
+that spatial bins render as squares and distances are visually comparable along both axes.
+
+\todo{Regenerate with a fixed coordinate ratio. Check whether the distortion originated in
+the plotting call or in the underlying bin geometry; if the bins genuinely are not square,
+say so explicitly instead of rescaling the display.}
+
+\subsection{R2.7. Captions for Figures 5 and 6} \status{TODO}
+
+\begin{rev}
+Figures 5 and 6 require clearer captions, definitions of abbreviations, explanation of
+rows and columns, and a more explicit connection between the visual evidence and the
+conclusions drawn.
+\end{rev}
+
+\noindent We have rewritten both captions to be self-contained: each now defines every
+abbreviation used in the panel, states what the rows and columns represent, and says
+explicitly what the reader should take from the figure and how it supports the claim made
+in the text.
+
+\todo{Rewrite both captions. Figure 5 is the convolution-operator comparison (product,
+geometric mean, common minimum, with ELSA entrograms) and Figure 6 is the feature-depth
+sweep producing emergent domains. Each caption must be readable without the surrounding
+prose.}
+
+\subsection{R2.8. Controls and baselines} \status{DONE}
+
+\begin{rev}
+The manuscript would also benefit from additional controls or comparative analyses. At
+present, there is no clear baseline against which the proposed framework can be evaluated.
+Possible additions include comparison with existing spatial transcriptomics or
+ligand-receptor methods, simulated datasets with known ground truth, spatial shuffling
+controls, ligand-receptor pair shuffling controls, random ligand-receptor combinations, or
+comparison with previously annotated tissue regions. These analyses would help determine
+whether the method identifies biologically meaningful spatial structure beyond smoothing,
+increased feature dimensionality, or clustering.
+\end{rev}
+
+\noindent This was the most important comment in the review, and we have addressed it with
+three new controls, chosen from the reviewer's menu so that together they isolate the three
+mechanisms the reviewer names. All three are reported in a new subsection of the Results
+and a new supplementary figure, and the code and summary outputs are in the public
+repository.
+
+Throughout, spatial coherence of the resulting domain map is quantified with the
+entropy-based local indicator of spatial association (ELSA) computed on the categorical domain
+labels, at neighbourhood radii of 50 and 100 units. ELSA is negatively oriented: lower
+values mean more spatially coherent domains. The domain-generating pipeline is held fixed
+across observed and control runs, so any difference is attributable to the manipulation
+alone.
+
+\subsubsection*{Control A: ligand-receptor pairing shuffle}
+
+We scrambled the assignment of receptors to ligands across mechanisms, holding the fitted
+per-feature fields, the feature dimensionality, and the clustering procedure exactly fixed,
+and repeated the convolution, clustering, and scoring for each of 99 scrambled pairings.
+
+The observed pairing produced more spatially coherent domains than the scrambled pairings:
+ELSA at radius 50 was 0.057 for the true pairing versus a null mean of 0.066, with the null
+ranging from 0.053 to 0.078. Ninety-seven percent of scrambled pairings were less coherent
+than the observed one, giving a one-sided permutation $p = 0.040$ at both radii.
+
+Two aspects of this result deserve honest statement. First, the effect is modest, and it
+should be: even a scrambled pairing recombines fields that are themselves genuinely
+spatially structured, so this null is deliberately conservative and tests only the
+incremental contribution of the biological pairing. Second, the number of domains does not
+distinguish the observed pairing from the null at all (20 domains observed, against a null
+range of 19 to 26, $p = 0.98$). The true pairing yields domains that are more spatially
+coherent, not more numerous. We state both points in the manuscript.
+
+\subsubsection*{Control B: coordinate shuffle with full model refitting}
+
+This is the direct test of whether the spatial smoother manufactures coherent structure
+from data with no spatial signal. We permuted the assignment of observed counts to spatial
+locations, destroying spatial structure while preserving the count distribution exactly,
+and then refit every feature's spatial model from scratch on the permuted data before
+running the identical convolution, clustering, and scoring pipeline. This required
+refitting all 912 features under each of 49 permutations, which we carried out on a
+high-throughput computing cluster.
+
+The result is unambiguous. The real data yielded 20 domains with ELSA at radius 50 of
+0.075. The 49 coordinate-shuffled replicates yielded 4 to 12 domains with ELSA at radius 50
+averaging 0.470, ranging from 0.412 to 0.583. Not one of the 49 shuffles came within a
+factor of five of the observed coherence; the null mean is 6.3 times the observed value.
+The permutation $p$-value is 0.020, which is the smallest value attainable with 49
+permutations, so the test is limited by the number of replicates rather than by the
+separation between the observed value and the null.
+
+We regard this as the substantive answer to the reviewer's concern. Fitting a spatial
+Gaussian process to spatially meaningless data does not produce coherent tissue domains; it
+produces a small number of incoherent fragments. The domains we report therefore reflect
+spatial structure present in the data, not structure imposed by the smoother.
+
+\subsubsection*{Control C: concordance with independent anatomical annotation}
+
+As a positive control we compared the emergent domains to the anatomical annotations
+published with the source dataset by Chen et al.\ (2022) for the same tissue section. These
+annotations were produced independently of our work, by a different method, so they
+constitute external evidence rather than a circular check.
+
+All 26{,}000 modeled spatial bins matched an annotated bin. Agreement was substantially
+above chance: adjusted Rand index 0.401 and normalized mutual information 0.604, against a
+permutation null whose mean adjusted Rand index was 0.00003 and whose maximum over 499
+permutations was 0.001, giving $p = 0.002$. The mean size-weighted purity of the emergent
+domains with respect to anatomical labels was 77.6\%. Individual domains recover recognized
+structures cleanly: spinal cord at 97\% purity, liver at 96\%, one heart domain at 99\%,
+meninges at 92\%, with lung, muscle, thymus, and cartilage primordium also recovered.
+
+Again we state the result carefully. An adjusted Rand index of 0.401 is substantial but far
+from perfect agreement, and the disagreement is structured rather than random: our
+signaling domains subdivide several organs, most visibly the heart, into multiple
+territories. We interpret this as the expected consequence of measuring a different
+modality. Anatomical annotation partitions tissue by cell-type composition, whereas our
+domains partition it by ligand-receptor signaling context, and the two need not coincide.
+The appropriate conclusion is that the emergent domains recover major anatomical structures
+while resolving additional substructure, not that they reproduce the anatomical
+segmentation.
+
+\subsubsection*{What the three controls establish together}
+
+Control A shows that the biological ligand-receptor pairing contributes to the coherence of
+the domains, modestly. Control B shows that the spatial structure is real rather than an
+artifact of smoothing, decisively. Control C shows that the resulting structure corresponds
+to recognized anatomy, while also resolving substructure within it. We believe these
+address the reviewer's question of whether the method finds meaningful structure beyond
+smoothing, dimensionality, and clustering.
+
+We have not added simulated datasets with known ground truth, the remaining item on the
+reviewer's menu. Our reasoning is that a simulation would have to be generated under a
+spatial model, and any simulation we could write would be close enough to our own fitted
+model that recovering the truth would demonstrate self-consistency rather than validity.
+The coordinate-shuffle control tests the same concern using the real data and without that
+circularity.
+
+\subsection{R2.9. Reproducibility documentation} \status{PARTLY DONE}
+
+\begin{rev}
+Reproducibility also needs improvement. Although the repository contains a substantial
+amount of code, the execution order of scripts, required packages and versions, required
+input files, intermediate objects, figure-generating scripts, and complete workflow are not
+sufficiently documented. An external researcher would likely need to reverse engineer the
+analysis to reproduce the main results.
+\end{rev}
+
+\noindent This criticism was fair and we have acted on it. The repository now documents,
+for each analysis, the execution order of the scripts, the required input files and where to
+obtain the public ones, the intermediate objects each stage produces and consumes, and the
+package versions used.
+
+We have also drawn an explicit line between artifacts that are tracked in the repository and
+large derived objects that are not. Every untracked derived object is now regenerated by a
+tracked script, and the documentation names that script. Where a generating script did not
+survive, we say so explicitly rather than implying the artifact is reproducible.
+
+\todo{Only the new controls directory is documented to this standard so far. The main paper
+pipeline under \texttt{Supplements for Publication/code/} still needs the same treatment:
+run order, inputs, intermediates, figure scripts, and a session-info or lockfile capture.
+This is the largest remaining task after the figures, and the reviewer will check it.}
+
+\subsection{R2.10. Scientific positioning relative to existing work} \status{DRAFTED}
+
+\begin{rev}
+The scientific positioning of the manuscript should also be strengthened. The authors
+should more clearly discuss related work in Gaussian Process-based spatial transcriptomics,
+Bayesian spatial count modeling, spatial variance component analysis, and spatial
+ligand-receptor inference. Relevant methods such as SpatialDE, BOOST-GP, Spatial Variance
+Component Analysis, and SpatialDM should be discussed to clarify which aspects of the
+manuscript are novel and which represent combinations, extensions, or reinterpretations of
+existing approaches.
+\end{rev}
+
+\noindent We have added a positioning subsection that discusses each of these method
+families and states plainly which parts of our contribution are new and which are
+combinations or reinterpretations of established ideas.
+
+In outline: SpatialDE introduced Gaussian-process testing for spatially variable genes, and
+we share its use of a GP prior over space but not its goal, since we estimate and use the
+field itself rather than testing features for spatial variability. BOOST-GP is the closest
+methodological relative, in that it also places a Gaussian process within a Bayesian count
+model for spatial transcriptomics; our contribution relative to it is not the count-GP
+combination, which we do not claim as novel, but the downstream use of the posterior fields
+as continuous objects that are convolved and then analyzed jointly. Spatial Variance
+Component Analysis decomposes expression variance into spatial and non-spatial components,
+which is a variance-partitioning aim rather than a field-estimation one. SpatialDM tests
+ligand-receptor pairs for spatial association using a bivariate Moran's statistic, which
+targets significance of individual interactions where we target a continuous inferred field
+per interaction with quantified uncertainty.
+
+We have also added a discussion of CytoSignal (Liu et al., \emph{Nature Genetics}, 2026),
+concurrent work that appeared after our submission and that analyzes the same Stereo-seq
+mouse embryo dataset. It infers spatially resolved ligand-receptor signaling at cellular
+resolution using a score with a spatial-permutation null, and validates against experimental
+proximity-ligation ground truth. We do not claim novelty for spatially resolved
+ligand-receptor mapping in light of that work, and we have removed language that implied it.
+
+Stating our contribution precisely, and more narrowly than the original submission did: we
+contribute a generative Bayesian geostatistical treatment of spatialomics data with explicit
+uncertainty quantification propagated through to the interaction fields, an argument for
+modeling raw counts as absolute binding density rather than normalized expression, a
+comparison of convolution operators showing that the common minimum outperforms the product
+operator conventionally used, and the thesis that clustering the full high-dimensional
+signaling field without dimensionality reduction produces tissue domains that correspond to
+anatomy. The combination of a Gaussian process with a Bayesian count likelihood is not
+itself new, and we now say so.
+
+\todo{Write this into a new Discussion subsection and add the five citations. Verify the
+characterization of each method against its paper rather than from summary knowledge,
+particularly BOOST-GP and SVCA. Confirm the CytoSignal publication details and that the
+concurrency framing is accurate with respect to both submission timelines.}
+
+\subsection{R2.11. Generalizability claims} \status{DRAFTED}
+
+\begin{rev}
+Some claims of generalizability appear broader than the evidence provided. The study is
+demonstrated using a selected region from a public Stereo-seq mouse embryogenesis dataset.
+This is useful as a proof of concept, but spatial omics platforms differ in resolution,
+capture efficiency, sparsity, noise structure, segmentation assumptions, field of view, and
+biological scale. The authors should moderate broad claims about applicability to most
+spatial omics datasets or provide additional analyses and practical guidance for different
+platforms.
+\end{rev}
+
+\noindent We accept this and have moderated the claims rather than attempting to justify
+them with additional platforms.
+
+The revised manuscript states the scope of the demonstration explicitly wherever a general
+claim previously appeared: one field of view, from one section, of one embryo, on one
+platform, at one binning resolution. Claims of the form ``applicable to spatial omics data''
+have been narrowed to describe what we demonstrate, with the extension to other platforms
+stated as an expectation and its conditions given rather than asserted.
+
+We have added a short paragraph on what would need to hold for the approach to transfer,
+which we think is more useful to a reader than a broad claim: the observations must be
+counts with an interpretable exposure or offset, the spatial support must be dense enough
+that a Gaussian process is identifiable at the length scales of interest, and at
+single-cell-resolution platforms the binning step we rely on would need to be replaced by an
+explicit treatment of cell geometry. We also note that platforms with substantially sparser
+capture may favour a zero-inflated likelihood, which our Table 1 comparison found
+unnecessary at this sparsity but which the framework accommodates.
+
+\todo{Apply the softening pass across the manuscript. The Abstract, the end of the
+Introduction, and the Discussion are where the broad claims live. Check that the moderated
+scope is consistent everywhere, including the Abstract.}
+
+\subsection{R2.12. Caution in biological interpretation} \status{DRAFTED}
+
+\begin{rev}
+Finally, the biological interpretation should remain cautious. I appreciate that the
+authors acknowledge that transcript abundance is only used as a proxy for protein abundance.
+However, because downstream analyses involve inferred ligand-receptor interactions and
+morphogenic signaling fields, the manuscript should avoid language that implies direct
+evidence of protein-level interactions, ligand-receptor binding, signaling activity, or
+information transmission. Terms such as ``proxy,'' ``inferred field,'' ``model-derived
+estimate,'' or ``potential interaction'' would be more appropriate.
+\end{rev}
+
+\noindent We agree, and we have revised the language throughout.
+
+We have replaced formulations that implied observed protein-level events with formulations
+describing model-derived estimates from transcript measurements. Descriptions of
+ligand-receptor quantities now consistently use ``inferred interaction field'' or
+``potential interaction'' rather than wording that implies binding was observed; references
+to signaling activity are now phrased as transcriptional evidence consistent with potential
+signaling; and language implying information transmission between regions has been removed
+or explicitly marked as interpretation.
+
+We have also added an explicit statement of the inferential chain and its assumptions in the
+Discussion, so a reader can see exactly how far the claims are from the measurement:
+transcript counts are a proxy for transcript abundance, transcript abundance is a proxy for
+protein abundance, co-localization of ligand and receptor proxies is a proxy for the
+opportunity for interaction, and none of these steps is directly observed here.
+
+\todo{Perform the terminology pass across the full manuscript. Read the Results and
+Discussion specifically for verbs implying observation of binding or signaling. Keep
+terminology consistent: pick one term per concept and use it throughout.}
+
+\section{Additional corrections}
+
+\ifdraftmode
+\noindent\textcolor{red}{\textbf{Internal note:}} the item below was found by us, not by a
+reviewer. It should still be disclosed in the letter, since the reviewer will notice the
+numbers changed.
+\medskip
+\fi
+
+\noindent In preparing this revision we identified an internal inconsistency in the
+original manuscript's reporting of the number of features and interactions analyzed, which
+we have corrected throughout. The curated feature list contains 918 features; of these, 912
+produced converged model fits and were carried forward. The FANTOM5 mechanism list yields
+1477 ligand-receptor interactions for which both partners appear among the 912 converged
+features, not the 1481 reported in the original text and in the caption to Table 1. The
+caption to Table 1 also described 1481 ``modeled transcriptomic features,'' conflating
+interactions with features. All counts are now stated consistently, and we have added a
+sentence explaining the attrition from 918 to 912.
+
+\todo{Verify these four numbers against the canonical run before this goes in, and correct
+every occurrence in the manuscript and figure captions rather than only the ones we
+noticed.}
+
+\end{document}

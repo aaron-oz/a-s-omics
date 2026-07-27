@@ -4,3 +4,10 @@
 data-outputs/mouse-embryo-raw/controls/gene-field-matrix.rds
 data-outputs/mouse-embryo-raw/controls/bin50-subregion-raw.rds
 data-outputs/mouse-embryo-raw/controls/fov-markers-raw.tsv
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
