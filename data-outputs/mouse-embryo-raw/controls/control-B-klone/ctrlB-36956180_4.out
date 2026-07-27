@@ -1,0 +1,4 @@
+task 4 on n3275; TMPDIR=/tmp; cpus=16
+           used  (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells  3817303 203.9    7230067  386.2   5146297  274.9
+Vcells 29313480 223.7  263695868 2011.9 274600017 2095.1

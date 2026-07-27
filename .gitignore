@@ -11,3 +11,5 @@ data-outputs/mouse-embryo-raw/controls/fov-markers-raw.tsv
 *.out
 *.bbl
 *.blg
+# ...but SLURM job logs kept as run provenance are not build artifacts
+!data-outputs/mouse-embryo-raw/controls/control-B-klone/*.out
