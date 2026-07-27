@@ -13,3 +13,6 @@ data-outputs/mouse-embryo-raw/controls/fov-markers-raw.tsv
 *.blg
 # ...but SLURM job logs kept as run provenance are not build artifacts
 !data-outputs/mouse-embryo-raw/controls/control-B-klone/*.out
+
+# Built manuscript PDFs (regenerate with pdflatex; sources are tracked)
+Submission_PLOSOne/submission-2/plos-port/paper-plos.pdf

@@ -1,0 +1,222 @@
+% Some conventions: p = no of pars in model, k = no of covariates
+% No commas between repeat equations.
+\def \N{\mbox{N}}
+\def \v{\mbox{var}}
+\def \E{\mbox{E}}
+\def \bident{\mbox{\boldmath{I}}}
+\def \c{\mbox{cov}}
+\def \s2{\sigma^2}
+\def \hs2{\hat{\sigma}^2}
+\def \siga2{\sigma_{\alpha}^2}
+\def \sige2{\sigma_{\epsilon}^2}
+\def \sig2{\sigma^2}
+
+
+\font\BBb=msbm10
+
+\newcommand{\rA}{\mbox{\tiny{A}}}
+\newcommand{\rT}{\mbox{\tiny{T}}}
+\newcommand{\rM}{\mbox{\tiny{M}}}
+\newcommand{\rC}{\mbox{\tiny{C}}}
+\newcommand{\rL}{\mbox{\tiny{L}}}
+
+\newcommand{\bmA}{\mbox{\boldmath $A$}}
+\newcommand{\ba}{\mbox{\boldmath $a$}}
+\newcommand{\bma}{\mbox{\boldmath $a$}}
+\newcommand{\bA}{\mbox{\boldmath $A$}}
+
+\newcommand{\bmB}{\mbox{\boldmath $B$}}
+\newcommand{\bB}{\mbox{\boldmath $B$}}
+\newcommand{\bmb}{\mbox{\boldmath $b$}}
+\newcommand{\bb}{\mbox{\boldmath $b$}}
+
+\newcommand{\bmC}{\mbox{\boldmath $C$}}
+\newcommand{\bmc}{\mbox{\boldmath $c$}}
+\newcommand{\bC}{\mbox{\boldmath $C$}}
+
+\newcommand{\bmD}{\mbox{\boldmath $D$}}
+\newcommand{\bD}{\mbox{\boldmath $D$}}
+\newcommand{\bmd}{\mbox{\boldmath $d$}}
+\newcommand{\bd}{\mbox{\boldmath $d$}}
+
+\newcommand{\bme}{\mbox{\boldmath $e$}}
+\newcommand{\bmE}{\mbox{\boldmath $E$}}
+\newcommand{\bE}{\mbox{\boldmath $E$}}
+
+\newcommand{\bmf}{\mbox{\boldmath $f$}}
+\newcommand{\bmF}{\mbox{\boldmath $F$}}
+\newcommand{\bF}{\mbox{\boldmath $F$}}
+
+\newcommand{\bmG}{\mbox{\boldmath $G$}}
+\newcommand{\bG}{\mbox{\boldmath $G$}}
+\newcommand{\bmg}{\mbox{\boldmath $g$}}
+\newcommand{\bg}{\mbox{\boldmath $g$}}
+
+\newcommand{\bh}{\mbox{\boldmath $h$}}
+\newcommand{\bmh}{\mbox{\boldmath $h$}}
+\newcommand{\bH}{\mbox{\boldmath $H$}}
+\newcommand{\bmH}{\mbox{\boldmath $H$}}
+
+\newcommand{\bI}{\mbox{\boldmath $I$}}
+\newcommand{\bmI}{\mbox{\boldmath $I$}}
+
+\newcommand{\bj}{\mbox{\boldmath $j$}}
+\newcommand{\bmj}{\mbox{\boldmath $j$}}
+\newcommand{\bJ}{\mbox{\boldmath $J$}}
+\newcommand{\bmJ}{\mbox{\boldmath $J$}}
+
+\newcommand{\bk}{\mbox{\boldmath $k$}}
+\newcommand{\bmk}{\mbox{\boldmath $k$}}
+\newcommand{\bK}{\mbox{\boldmath $K$}}
+\newcommand{\bmK}{\mbox{\boldmath $K$}}
+
+\newcommand{\bl}{\mbox{\boldmath $l$}}
+\newcommand{\bml}{\mbox{\boldmath $l$}}
+\newcommand{\bL}{\mbox{\boldmath $L$}}
+\newcommand{\bmL}{\mbox{\boldmath $L$}}
+
+%\newcommand{\bm}{\mbox{\boldmath $m$}}
+\newcommand{\bmm}{\mbox{\boldmath $m$}}
+\newcommand{\bM}{\mbox{\boldmath $M$}}
+\newcommand{\bmM}{\mbox{\boldmath $M$}}
+
+\newcommand{\bn}{\mbox{\boldmath $n$}}
+\newcommand{\bmn}{\mbox{\boldmath $n$}}
+\newcommand{\bN}{\mbox{\boldmath $N$}}
+\newcommand{\bmN}{\mbox{\boldmath $N$}}
+
+\newcommand{\bmo}{\mbox{\boldmath $o$}}
+\newcommand{\bmO}{\mbox{\boldmath $O$}}
+\newcommand{\bo}{\mbox{\boldmath $o$}}
+\newcommand{\bO}{\mbox{\boldmath $O$}}
+
+\newcommand{\bmp}{\mbox{\boldmath $p$}}
+\newcommand{\bmP}{\mbox{\boldmath $P$}}
+\newcommand{\bp}{\mbox{\boldmath $p$}}
+\newcommand{\bP}{\mbox{\boldmath $P$}}
+
+\newcommand{\bmQ}{\mbox{\boldmath $Q$}}
+\newcommand{\bQ}{\mbox{\boldmath $Q$}}
+\newcommand{\bmq}{\mbox{\boldmath $q$}}
+
+\newcommand{\br}{\mbox{\boldmath $r$}}
+\newcommand{\bmr}{\mbox{\boldmath $r$}}
+\newcommand{\bmR}{\mbox{\boldmath $R$}}
+\newcommand{\bR}{\mbox{\boldmath $R$}}
+
+\newcommand{\bms}{\mbox{\boldmath $s$}}
+\newcommand{\bs}{\mbox{\boldmath $s$}}
+\newcommand{\bmS}{\mbox{\boldmath $S$}}
+\newcommand{\bS}{\mbox{\boldmath $S$}}
+
+\newcommand{\bt}{\mbox{\boldmath $t$}}
+\newcommand{\bmt}{\mbox{\boldmath $t$}}
+\newcommand{\bT}{\mbox{\boldmath $T$}}
+\newcommand{\bmT}{\mbox{\boldmath $T$}}
+
+\newcommand{\bmU}{\mbox{\boldmath $U$}}
+\newcommand{\bU}{\mbox{\boldmath $U$}}
+\newcommand{\bmu}{\mbox{\boldmath $u$}}
+\newcommand{\bu}{\mbox{\boldmath $u$}}
+
+\newcommand{\bmv}{\mbox{\boldmath $v$}}
+\newcommand{\bv}{\mbox{\boldmath $v$}}
+\newcommand{\bmV}{\mbox{\boldmath $V$}}
+\newcommand{\bV}{\mbox{\boldmath $V$}}
+
+\newcommand{\bmW}{\mbox{\boldmath $W$}}
+\newcommand{\bW}{\mbox{\boldmath $W$}}
+\newcommand{\bmw}{\mbox{\boldmath $w$}}
+\newcommand{\bw}{\mbox{\boldmath $w$}}
+
+\newcommand{\bmx}{\mbox{\boldmath $x$}}
+\newcommand{\bx}{\mbox{\boldmath $x$}}
+\newcommand{\bmX}{\mbox{\boldmath $X$}}
+\newcommand{\bX}{\mbox{\boldmath $X$}}
+
+\newcommand{\bmY}{\mbox{\boldmath $Y$}}
+\newcommand{\bY}{\mbox{\boldmath $Y$}}
+\newcommand{\bmy}{\mbox{\boldmath $y$}}
+\newcommand{\by}{\mbox{\boldmath $y$}}
+
+\newcommand{\bmZ}{\mbox{\boldmath $Z$}}
+\newcommand{\bZ}{\mbox{\boldmath $Z$}}
+\newcommand{\bmz}{\mbox{\boldmath $z$}}
+\newcommand{\bz}{\mbox{\boldmath $z$}}
+
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+\newcommand{\beqn}{\begin{eqnarray}}
+\newcommand{\eeqn}{\end{eqnarray}}
+
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+\newcommand{\Prob}{\mbox{Pr}}
+\newcommand{\romd}{\mathrm{d}}
+
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+\newcommand{\bmone}{\mbox{\bf 1}}
+\newcommand{\bmzero}{\mbox{\bf 0}}
+\newcommand{\bzero}{\mbox{\bf 0}}
+
+%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+\newcommand{\balpha}{\mbox{\boldmath $\alpha$}}
+\newcommand{\bmalpha}{\mbox{\boldmath $\alpha$}}
+
+\newcommand{\bmbeta}{\mbox{\boldmath $\beta$}}
+\newcommand{\bbeta}{\mbox{\boldmath $\beta$}}
+
+\newcommand{\bgamma}{\mbox{\boldmath $\gamma$}}
+\newcommand{\bmgamma}{\mbox{\boldmath $\gamma$}}
+\newcommand{\bGamma}{\mbox{\boldmath $\Gamma$}}
+
+\newcommand{\bdelta}{\mbox{\boldmath $\delta$}}
+\newcommand{\bmdelta}{\mbox{\boldmath $\delta$}}
+\newcommand{\bDelta}{\mbox{\boldmath $\Delta$}}
+\newcommand{\bmDelta}{\mbox{\boldmath $\Delta$}}
+
+\newcommand{\bmtheta}{\mbox{\boldmath $\theta$}}
+\newcommand{\btheta}{\mbox{\boldmath $\theta$}}
+\newcommand{\bmth}{\mbox{\boldmath $\theta$}}
+
+\newcommand{\bmpsi}{\mbox{\boldmath $\psi$}}
+
+\newcommand{\bmphi}{\mbox{\boldmath $\phi$}}
+\newcommand{\bphi}{\mbox{\boldmath $\phi$}}
+
+\newcommand{\bLambda}{\mbox{\boldmath $\Lambda$}}
+\newcommand{\bmlambda}{\mbox{\boldmath $\lambda$}}
+\newcommand{\blambda}{\mbox{\boldmath $\lambda$}}
+\newcommand{\bomega}{\mbox{\boldmath $\omega$}}
+\newcommand{\bmomega}{\mbox{\boldmath $\omega$}}
+
+\newcommand{\bkappa}{\mbox{\boldmath $\kappa$}}
+\newcommand{\bmnu}{\mbox{\boldmath $\nu$}}
+
+\newcommand{\bmeta}{\mbox{\boldmath $\eta$}}
+
+\newcommand{\bmmu}{\mbox{\boldmath $\mu$}}
+
+\newcommand{\bmepsilon}{\mbox{\boldmath $\epsilon$}}
+\newcommand{\bepsilon}{\mbox{\boldmath $\epsilon$}}
+
+\newcommand{\bmSigma}{\mbox{\boldmath $\Sigma$}}
+\newcommand{\bSigma}{\mbox{\boldmath $\Sigma$}}
+
+\newcommand{\bmtau}{\mbox{\boldmath $\tau$}}
+\newcommand{\btau}{\mbox{\boldmath $\tau$}}
+
+\newcommand{\bmpi}{\mbox{\boldmath $\pi$}}
+
+\newcommand{\bpi}{\mbox{\boldmath $\pi$}}
+
+\newcommand{\bmOmega}{\mbox{\boldmath $\Omega$}}
+\newcommand{\bOmega}{\mbox{\boldmath $\Omega$}}
+\newcommand{\bmupsilon}{\mbox{\boldmath $\upsilon$}}
+
+\newcommand{\bmxi}{\mbox{\boldmath $\xi$}}
+\newcommand{\bxi}{\mbox{\boldmath $\xi$}}
+
+\newcommand\overstarbf[1]{\ThisStyle{\ensurestackMath{%
+  \stackengine{0pt}{\SavedStyle\mathbf{#1}}{\smash{\SavedStyle*}}{O}{c}{F}{T}{S}}}}

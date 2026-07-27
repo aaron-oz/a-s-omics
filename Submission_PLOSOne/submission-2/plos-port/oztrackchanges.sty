@@ -1,0 +1,97 @@
+%% oztrackchanges.sty
+%%
+%% Minimal, CLASS-INDEPENDENT track-changes markup for manuscript revisions
+%% (journal resubmissions where reviewers/coauthors want to see what changed).
+%% Depends only on xcolor and ulem, so it drops into any document class:
+%% article, KOMA, elsarticle, the PLOS class, amsart, etc.
+%%
+%% Usage:
+%%   \usepackage{oztrackchanges}          % markup mode (default): colored changes
+%%   \usepackage[accept]{oztrackchanges}  % accept all changes -> clean copy
+%%                                         % (\add prints plain; \del, \ednote vanish)
+%%   \usepackage[clean]{oztrackchanges}   % synonym for [accept]
+%%
+%% PORTABILITY NOTE: the accept-mode option is `accept` (or `clean`), NOT `final`.
+%%   Many document classes (elsarticle, others) take their own global `final`
+%%   option, and global class options are broadcast to every package. If this
+%%   package keyed off `final`, then `\documentclass[final]{elsarticle}` would
+%%   silently accept all changes even when you wanted markup. Using a dedicated
+%%   option name that no class claims keeps markup/accept under your control
+%%   regardless of class. (Older docs that used [final] should switch to [accept].)
+%%
+%% Commands (short forms + always-available namespaced forms):
+%%   \add{...}   / \oztcadd{...}    added text   (blue; plain in accept mode)
+%%   \del{...}   / \oztcdel{...}    deleted text (red strikethrough; gone in accept)
+%%   \ednote{...}/ \oztcnote{...}   editorial note e.g. \ednote{NEW.} in a revised
+%%                                  caption (magenta bracketed bold; gone in accept)
+%%   \change{old}{new} / \oztcchange{old}{new}   = \del{old}\add{new}
+%%
+%%   The \oztc... forms are ALWAYS defined. The short forms are defined only if
+%%   they are free; if the class or another package already defines e.g. \add,
+%%   this package warns and leaves it alone, and you use \oztcadd instead.
+%%
+%% Limitations / conventions:
+%%   - \del uses \sout (ulem), which breaks across display math, \par, and most
+%%     structural material. For large or structural deletions, leave the content
+%%     in place (or comment it out) and mark it with \ednote{TO DELETE: ...}
+%%     rather than wrapping it in \del.
+%%   - \add is fine around display math and multi-paragraph text (a color group).
+%%   - In accept mode a deleted word can rarely leave a doubled interword space;
+%%     \ignorespaces handles the common case. The accept-mode output (the clean
+%%     accepted-changes copy) should get a proofread anyway.
+%%   - Colors are configurable after loading, e.g. \colorlet{oztcadd}{teal}.
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{oztrackchanges}[2026/07/09 v2.0 portable track-changes markup (add/del/ednote)]
+
+%% ---- mode option: markup (default) vs accept/clean ------------------------
+%% Deliberately does NOT declare `final` (see PORTABILITY NOTE above), so a
+%% document class's global `final`/`preprint`/`3p`/... options never reach us:
+%% none of them match a declared option name, so none of them fire.
+\newif\ifoztc@accept
+\oztc@acceptfalse
+\DeclareOption{accept}{\oztc@accepttrue}
+\DeclareOption{clean}{\oztc@accepttrue}
+\DeclareOption{markup}{\oztc@acceptfalse}
+\DeclareOption*{\PackageWarning{oztrackchanges}%
+  {Unknown option `\CurrentOption' ignored; use markup (default), accept, or clean}}
+\ProcessOptions\relax
+
+\RequirePackage{xcolor}
+% [normalem] keeps \emph as italics; without it ulem turns \emph into underline
+\RequirePackage[normalem]{ulem}
+
+% Change these with \colorlet after loading if the document needs other colors.
+% (These are color names; the \oztcadd/\oztcdel/\oztcnote below are commands.)
+\colorlet{oztcadd}{blue}
+\colorlet{oztcdel}{red}
+\colorlet{oztcnote}{magenta}
+
+%% ---- always-available namespaced commands ---------------------------------
+\ifoztc@accept
+  \newcommand{\oztcadd}[1]{#1}
+  \newcommand{\oztcdel}[1]{\ignorespaces}
+  \newcommand{\oztcnote}[1]{\ignorespaces}
+\else
+  \newcommand{\oztcadd}[1]{{\color{oztcadd}#1}}
+  \newcommand{\oztcdel}[1]{{\color{oztcdel}\sout{#1}}}
+  \newcommand{\oztcnote}[1]{{\color{oztcnote}\textbf{[#1]}}}
+\fi
+\newcommand{\oztcchange}[2]{\oztcdel{#1}\oztcadd{#2}}
+
+%% ---- short aliases, defined only if the name is free ----------------------
+%% #1 = short control sequence to try; #2 = namespaced command to alias to.
+\newcommand{\oztc@alias}[2]{%
+  \ifdefined#1%
+    \PackageWarning{oztrackchanges}{%
+      \string#1 is already defined (by the document class or another package);
+      not overriding it. Use \string#2 instead}%
+  \else
+    \let#1#2%
+  \fi}
+\oztc@alias{\add}{\oztcadd}
+\oztc@alias{\del}{\oztcdel}
+\oztc@alias{\ednote}{\oztcnote}
+\oztc@alias{\change}{\oztcchange}
+
+\endinput
