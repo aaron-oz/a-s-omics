@@ -51,11 +51,18 @@ array is roughly 1750 core-hours total. It was run on the UW Hyak `klone` cluste
 preemptible `ckpt` partition (job 36956180, all 50 tasks completed 2026-07-09).
 `control-B-README.md` has the staging, submission, and collection commands.
 
-The 50 cluster summary files are tracked in `controls/control-B-klone/`. They are kept
-separate from `controls/control-B-perm000.csv`, which is an independent workstation run of
-the same real reference permutation at 500 posterior draws rather than the cluster's 1000.
-The two agree closely (ELSA(d50) 0.065 locally versus 0.075 on the cluster, 20 domains in
-both), which is a useful reproduction check but means the files are not interchangeable.
+The 50 cluster summary files are tracked in `controls/control-B-klone/`, alongside the 50
+SLURM stdout logs (`ctrlB-36956180_*.out`) kept as run provenance. They record the job ID,
+the compute node, and per-task memory: the array ran across 33 distinct nodes at 16 CPUs
+per task, peaking near 2.1 GB of R vector memory per task. The corresponding `.err` files,
+which hold the per-permutation refit timings and any convergence warnings, were not
+retrieved; `message()` output goes to stderr, so the `.out` files do not contain them.
+
+These files are kept separate from `controls/control-B-perm000.csv`, which is an
+independent workstation run of the same real reference permutation at 500 posterior draws
+rather than the cluster's 1000. The two agree closely (ELSA(d50) 0.065 locally versus 0.075
+on the cluster, 20 domains in both), which is a useful reproduction check but means the
+files are not interchangeable.
 
 ## Inputs and where they come from
 
