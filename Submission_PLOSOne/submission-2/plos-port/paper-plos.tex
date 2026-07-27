@@ -1,8 +1,9 @@
 % Spatial Modeling of Tissues for Morphogenic Field Analysis
 % PLOS ONE resubmission (PONE-D-26-04349), ported from the elsarticle source.
 % Base: official PLOS LaTeX template (plos_latex_template.tex, 2025).
-% Track-changes markup via oztrackchanges (markup mode = review copy;
-%   [accept] = clean copy). Compile: pdflatex -> bibtex -> pdflatex x2.
+% Track changes are produced with latexdiff against the tag rev1-baseline, NOT with
+%   in-text markup commands. See ../README-build.md. Edit this file as ordinary LaTeX.
+% Compile: pdflatex -> bibtex -> pdflatex x2.
 
 \documentclass[10pt,letterpaper]{article}
 \usepackage[top=0.85in,left=2.75in,footskip=0.75in]{geometry}
@@ -57,7 +58,6 @@
 \graphicspath{{img/}}
 \input{definitions}                 % bold-math macros (\bs, \N, \btheta, \bgamma, ...) from the original source
 \newcommand{\numberthis}{\addtocounter{equation}{1}\tag{\theequation}} % used by the 3-likelihood display
-\usepackage{oztrackchanges}         % markup mode (default); [accept] -> clean copy
 % NOTE: figures are embedded here for a reviewable PDF. For the PLOS upload,
 % figures are submitted as separate files and stripped from the .tex.
 
