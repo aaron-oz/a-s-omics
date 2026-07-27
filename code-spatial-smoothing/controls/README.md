@@ -11,29 +11,73 @@ pairings convolved by common minimum.
 
 | Control | Question | Answer | Script |
 |---|---|---|---|
-| A | Does the true L-R pairing produce more spatially coherent domains than scrambled pairings? | Yes, modestly. Observed ELSA(d50) 0.057 vs a 99-shuffle null averaging 0.066; one-sided p = 0.040 | `control-A-lr-shuffle.R` |
+| A | Does the true L-R pairing produce more spatially coherent domains than scrambled pairings? | **WITHDRAWN 2026-07-27, do not cite.** The effect is smaller than the pipeline's own run-to-run variability. See "Withdrawn: Control A" below | `control-A-lr-shuffle.R` |
 | B | Does the spatial smoother manufacture coherent domains from noise? | No. Refitting under permuted coordinates collapses the domains: real ELSA(d50) 0.075 with 20 domains, versus a 49-permutation null averaging 0.470 with 4 to 12 domains; p = 0.020, the floor for 49 permutations | `control-B-klone.R` (+ `control-B-ckpt.sbatch`) |
 | C | Do the emergent domains recover known anatomy? | Yes. ARI 0.401, NMI 0.604, size-weighted purity 77.6%, p = 0.002 | `control-C-concordance.R` |
 
 Lower ELSA means more spatially coherent domains, so in Controls A and B the observed
 value should sit below the null distribution.
 
-Controls A and B are complementary rather than redundant. A holds the fitted fields fixed
-and scrambles only the pairing, which isolates the pairing's contribution but is a weak
-null, since scrambled pairings still reuse genuinely spatially structured gene fields.
-B destroys the spatial structure itself and refits from scratch, which is the direct test
-of the smoothing concern.
+Controls B and C are the two reported in the manuscript, renamed there as Controls A and B
+respectively since the original Control A was withdrawn. The file names in this directory
+keep the original A/B/C lettering.
+
+## Withdrawn: Control A (L-R pairing shuffle)
+
+**The domain-generating pipeline is not deterministic, and the Control A effect is smaller
+than its run-to-run variability. Do not cite `control-A-lr-shuffle.csv` or
+`control-A-clean.csv`.**
+
+`cluster_labels()` builds its nearest-neighbour graph with `hnsw_knn()`, which is an
+approximate method with randomized, order-dependent graph construction, called here with
+`n_threads = 4`. Neither that call nor `cluster_louvain()` is seeded before the observed
+evaluation. Measured 2026-07-27 on the identical unshuffled input:
+
+| | ELSA(d50) | domains |
+|---|---|---|
+| 8 unseeded replicates, identical input | mean 0.0619, sd 0.0045, range [0.0532, 0.0673] | 19 to 22 |
+| 3 replicates with `set.seed(42)` before each | 0.0576, 0.0590, 0.0614 | 19 to 21 |
+| reported Control A observed (single run) | 0.0572 | 20 |
+| Control A 99-shuffle null | mean 0.0657, sd 0.0053, range [0.0526, 0.0780] | 19 to 26 |
+
+Two things follow. First, seeding does not help: identical seed and identical input still
+give different answers, so the randomness is not drawn from R's RNG. The likely mechanism,
+not directly verified, is concurrent insertion during multithreaded HNSW graph construction.
+Second, the shuffle null's spread (sd 0.0053) is barely wider than pure pipeline noise
+(sd 0.0045), and the gap between the true pairing's replicate mean (0.0619) and the null
+mean (0.0657) is about 0.004, smaller than either standard deviation. The reported observed
+value of 0.0572 was a low draw. The published p = 0.040 therefore reflects that draw rather
+than a reliably measured pairing effect.
+
+This also resolves what first looked like a missing-script problem: `control-A-clean.csv`'s
+observed row (0.0496, 21 domains) differs from the plain control's (0.0572, 20 domains) not
+because it used a different mechanism set, but because of this nondeterminism. The
+mechanism set is identical in both, verified: 1477 pairs, no self-pairs, no duplicates.
+
+Rescuing the control would require replicating every condition and comparing distributions
+rather than single runs, roughly 120 evaluations at about 25 s each. It was judged not worth
+the compute for the weakest of the three tests, since even a scrambled pairing recombines
+per-feature fields that are themselves genuinely spatially structured.
+
+Note that the same variability applies to any single clustering run, including the published
+Figure 6 domains. It does not threaten Controls B or C, whose effects are far larger: B
+separates 0.075 from a null minimum of 0.412, and C compares fixed stored labels at ARI
+0.401 against a null maximum of 0.001.
+
+The scripts and result files are kept rather than deleted, so that the withdrawal is
+visible in the record.
 
 ## Run order
 
-Controls A and C reuse the fitted fields from the canonical 2025-04-10 run and need no
-model refitting. Control B refits every gene under each permutation and is the only
-expensive step.
+Control C reuses the fitted fields from the canonical 2025-04-10 run and needs no model
+refitting. Control B refits every gene under each permutation and is the only expensive
+step. (Control A is withdrawn; its command is retained below only because it is what builds
+the cached field matrix that Control B's input extraction reads.)
 
 ```
-# 0. one-time: assemble the per-gene field matrix from the 2025-04-10 prediction objects
-#    (done automatically on the first run of control A; cached thereafter)
-Rscript control-A-lr-shuffle.R 99 100          # Control A: 99 shuffles, seed base 100
+# 0. one-time: assemble the per-gene field matrix from the 2025-04-10 prediction objects.
+#    This is a side effect of control A's first run; the shuffle result itself is withdrawn.
+Rscript control-A-lr-shuffle.R 0 100           # 0 shuffles: build + cache the field matrix
 
 # 1. Control C needs the MOSTA anatomical annotation for the same section
 python extract-annotation.py                   # -> controls/e16-fov-annotation.csv
@@ -116,13 +160,15 @@ Treat these files as a record of exploratory work, not as results.
 
 - `control-A-clean.csv` records a stricter variant of Control A in which the shuffled
   pairings are repaired so that no scrambled pair coincides with a real FANTOM5 mechanism.
-  It gives a stronger result than the plain shuffle (p = 0.010 versus 0.040). **Its
-  generating script did not survive the session that produced it**, and its observed row
-  differs from the plain control's observed row (ELSA 0.0496 with 21 clusters, versus
-  0.0572 with 20), which indicates the mechanism list also differed in some way we cannot
-  now reconstruct. Do not cite these numbers in the manuscript unless the script is
-  rewritten deliberately and rerun. The plain `control-A-lr-shuffle.csv` is fully
-  reproducible and is what the response letter cites.
+  Its generating script did not survive the session that produced it. This is now moot,
+  since the whole Control A analysis is withdrawn (see above); the file is kept only as a
+  record. Note that neither Control A file is exactly reproducible even with its script,
+  because the pipeline is nondeterministic.
+- Nondeterminism affects every clustering result in this directory, not only Control A.
+  Anything that calls `cluster_labels()` or the equivalent block inside `control-B-klone.R`
+  will return a somewhat different partition on each run. For Controls B and C the effect
+  sizes are far larger than this variability, so the conclusions are unaffected, but any
+  future work here should replicate rather than rely on a single run.
 - The Control C figures (`control-C-sidebyside.png`, `control-C-heatmap.png`,
   `control-C-sidebyside-paperdomains.png`) and the domain-label objects
   (`observed-domain-labels.rds`, `paper-domain-labels.rds`) were produced ad hoc and have

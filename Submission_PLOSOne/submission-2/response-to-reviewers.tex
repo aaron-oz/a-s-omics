@@ -23,7 +23,8 @@
 %% ---------------------------------------------------------------------------
 \newif\ifdraftmode\draftmodetrue
 
-\newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+%% \long so a TODO may span paragraphs.
+\long\def\todo#1{\textcolor{red}{\textbf{[TODO: #1]}}}
 \newcommand{\status}[1]{\textcolor{gray}{\small\textsf{[#1]}}}
 
 %% Reviewer text, quoted verbatim.
@@ -60,12 +61,13 @@ time invested, and we think the manuscript is substantially better for the revis
 
 Reviewer 2 asked whether the framework identifies biologically meaningful spatial
 structure beyond smoothing, increased feature dimensionality, or clustering. We regarded
-this as the central question of the review, and we have addressed it directly with three
-new controls (Section R2.8): a ligand-receptor pairing shuffle, a coordinate shuffle with
-full model refitting, and a concordance test against the independent anatomical
-annotations published with the source dataset. The coordinate-shuffle control is the most
-informative of the three, and it is unambiguous: refitting the identical pipeline on
-spatially permuted data collapses the emergent domains entirely.
+this as the central question of the review, and we have addressed it directly with two new
+controls (Section R2.8): a coordinate shuffle with full model refitting, and a concordance
+test against the independent anatomical annotations published with the source dataset. The
+coordinate-shuffle control is the more informative of the two, and it is unambiguous:
+refitting the identical pipeline on spatially permuted data collapses the emergent domains
+entirely. We also report, in the same section, a third control that we ran and chose not to
+present, together with our reasons.
 
 We have also moderated the generalizability and biological-interpretation language
 throughout, clarified the statistical model and its implementation, and added a
@@ -114,7 +116,7 @@ R2.4  & Define metrics; Table 1 abbreviations and percentages & To do \\
 R2.5  & Rationale for Cd44 as representative feature & Needs author input \\
 R2.6  & Elongated-pixel distortion in Figs 3 and 4 & To do \\
 R2.7  & Clearer captions for Figs 5 and 6 & To do \\
-\textbf{R2.8} & \textbf{Controls and baselines} & \textbf{Done, all three} \\
+\textbf{R2.8} & \textbf{Controls and baselines} & \textbf{Done, two reported, one withdrawn} \\
 R2.9  & Reproducibility documentation & Partly done \\
 R2.10 & Positioning vs related methods & Drafted \\
 R2.11 & Moderate generalizability claims & Drafted \\
@@ -248,8 +250,8 @@ produce: the anatomical annotations published with the source dataset by Chen et
 (2022). This is a comparison to an independently derived, expression-based segmentation
 of the same tissue section.
 
-Third, we added shuffle-based null controls, which are the standard validation device in
-this literature.
+Third, we added a spatial-shuffle null control with full model refitting, which is the
+standard validation device in this literature.
 
 We want to be straightforward about what we have not done. We have not run a full
 method-versus-method benchmark against SpatialDE, BOOST-GP, SVCA, SpatialDM, or
@@ -378,10 +380,14 @@ We have also added an explicit paragraph connecting the abstract model to its
 implementation, and a supplementary table making the mapping object by object (R2.2).
 
 \todo{Write this into the ``A general spatial statistical model for spatialomics''
-subsection of paper-plos.tex. The numerical prior values above are read directly from the
-fitting code (\texttt{inla.spde2.pcmatern} with \texttt{prior.range = c(500, 0.95)},
-\texttt{prior.sigma = c(0.1, 0.05)}, \texttt{alpha = 2}, \texttt{constr = TRUE}); confirm
-they match the canonical 2025-04-10 run before the statement goes in the paper.}
+subsection of paper-plos.tex. The prior values above are VERIFIED against the canonical
+pipeline (\texttt{supp-4-lik-comparison/02-array-run-model.R} line 63, inside the Poisson
+branch: \texttt{matern.pri.feat.count <- c(500, .95, .1, .05)} passed to
+\texttt{inla.spde2.pcmatern} as \texttt{prior.range = c(500, 0.95)},
+\texttt{prior.sigma = c(0.1, 0.05)}, with \texttt{alpha = 2} and \texttt{constr = TRUE}).
+Note the file-level default at line 32 is \texttt{c(500, .95, 1, .05)}, with sigma 1 rather
+than 0.1; it is overridden inside the Poisson branch, so quote the line-63 values. Posterior
+summaries use \texttt{n.samp <- 1000} draws.}
 
 \subsection{R2.2. Notation-to-code mapping} \status{DRAFTED, TABLE NOT BUILT}
 
@@ -456,11 +462,21 @@ four are negatively oriented, so smaller values indicate better performance. We 
 the proper scoring rules, because the manuscript's argument concerns the quality of the
 predictive distribution and its uncertainty rather than point accuracy alone.
 
-\todo{This response is a skeleton and needs the actual justification for Poisson over ZIP
-and ZAP written against the Table 1 numbers, including the case where the metrics disagree.
-Also state exactly what the parenthetical percentages in Table 1 are (percentage of
-features for which that model won on that metric, if that is what they are; verify against
-the generating code). Write the metric definitions as equations in the Methods.}
+\todo{Still needs the actual justification for Poisson over ZIP and ZAP written against the
+Table 1 numbers, including the metrics that disagree (MDS favours ZAP at 82\% and ZIP at
+85\%, while MAE, RMSE and MLG favour Poisson), and the metric definitions written as
+equations in the Methods.
+Two things about Table 1 are now verified from \texttt{03-array-post-process.R} and can be
+stated directly. (i) The parenthetical percentages are the mean over features of the ratio
+of that model's score to the Poisson score \emph{for the same feature}, expressed as a
+percentage, so 100\% means indistinguishable from Poisson. They are NOT the ratio of the two
+averages printed in the table, which is why 0.29 against 0.21 shows as 111\% rather than
+138\%. The current caption calls this an ``average percentage difference,'' which is a
+misnomer for a ratio and should be reworded. (ii) The averages exclude features with
+abnormal values indicating nonconvergence, via the filter \texttt{MAE < 100 \&
+abs(MDS) < 100}, which the code comments say drops 4 and 3 features respectively. The
+caption's ``all 918 modeled ligand/receptor features'' is wrong on both counts and needs
+restating.}
 
 \subsection{R2.5. Rationale for Cd44 as the representative feature} \status{NEEDS AUTHOR INPUT}
 
@@ -524,10 +540,11 @@ increased feature dimensionality, or clustering.
 \end{rev}
 
 \noindent This was the most important comment in the review, and we have addressed it with
-three new controls, chosen from the reviewer's menu so that together they isolate the three
-mechanisms the reviewer names. All three are reported in a new subsection of the Results
-and a new supplementary figure, and the code and summary outputs are in the public
-repository.
+two new controls, chosen from the reviewer's menu: a spatial shuffling control and a
+comparison with previously annotated tissue regions. Both are reported in a new subsection
+of the Results and a new supplementary figure, and the code and summary outputs are in the
+public repository. We also attempted the ligand-receptor pair shuffling control the reviewer
+suggests, and we report below why we do not present a result from it.
 
 Throughout, spatial coherence of the resulting domain map is quantified with the
 entropy-based local indicator of spatial association (ELSA) computed on the categorical domain
@@ -536,26 +553,7 @@ values mean more spatially coherent domains. The domain-generating pipeline is h
 across observed and control runs, so any difference is attributable to the manipulation
 alone.
 
-\subsubsection*{Control A: ligand-receptor pairing shuffle}
-
-We scrambled the assignment of receptors to ligands across mechanisms, holding the fitted
-per-feature fields, the feature dimensionality, and the clustering procedure exactly fixed,
-and repeated the convolution, clustering, and scoring for each of 99 scrambled pairings.
-
-The observed pairing produced more spatially coherent domains than the scrambled pairings:
-ELSA at radius 50 was 0.057 for the true pairing versus a null mean of 0.066, with the null
-ranging from 0.053 to 0.078. Ninety-seven percent of scrambled pairings were less coherent
-than the observed one, giving a one-sided permutation $p = 0.040$ at both radii.
-
-Two aspects of this result deserve honest statement. First, the effect is modest, and it
-should be: even a scrambled pairing recombines fields that are themselves genuinely
-spatially structured, so this null is deliberately conservative and tests only the
-incremental contribution of the biological pairing. Second, the number of domains does not
-distinguish the observed pairing from the null at all (20 domains observed, against a null
-range of 19 to 26, $p = 0.98$). The true pairing yields domains that are more spatially
-coherent, not more numerous. We state both points in the manuscript.
-
-\subsubsection*{Control B: coordinate shuffle with full model refitting}
+\subsubsection*{Control A: coordinate shuffle with full model refitting}
 
 This is the direct test of whether the spatial smoother manufactures coherent structure
 from data with no spatial signal. We permuted the assignment of observed counts to spatial
@@ -578,7 +576,7 @@ Gaussian process to spatially meaningless data does not produce coherent tissue 
 produces a small number of incoherent fragments. The domains we report therefore reflect
 spatial structure present in the data, not structure imposed by the smoother.
 
-\subsubsection*{Control C: concordance with independent anatomical annotation}
+\subsubsection*{Control B: concordance with independent anatomical annotation}
 
 As a positive control we compared the emergent domains to the anatomical annotations
 published with the source dataset by Chen et al.\ (2022) for the same tissue section. These
@@ -603,14 +601,44 @@ The appropriate conclusion is that the emergent domains recover major anatomical
 while resolving additional substructure, not that they reproduce the anatomical
 segmentation.
 
-\subsubsection*{What the three controls establish together}
+\subsubsection*{A pair-shuffling control we ran but do not report}
 
-Control A shows that the biological ligand-receptor pairing contributes to the coherence of
-the domains, modestly. Control B shows that the spatial structure is real rather than an
-artifact of smoothing, decisively. Control C shows that the resulting structure corresponds
-to recognized anatomy, while also resolving substructure within it. We believe these
-address the reviewer's question of whether the method finds meaningful structure beyond
-smoothing, dimensionality, and clustering.
+We also implemented the ligand-receptor pair shuffling control the reviewer suggests,
+scrambling the assignment of receptors to ligands while holding the fitted fields, the
+feature dimensionality, and the clustering procedure fixed. We are not reporting a result
+from it, and we think the reason is worth stating rather than passing over in silence.
+
+While preparing this revision we checked whether the domain-generating pipeline is
+deterministic, and found that it is not. The nearest-neighbour graph construction is
+approximate and multithreaded, so repeated runs on identical input return somewhat
+different clusterings. Across eight replicate runs of the identical unshuffled input, ELSA
+at radius 50 ranged from 0.053 to 0.067, with a standard deviation of 0.0045 and between 19
+and 22 domains. The scrambled-pairing null across 99 shuffles had a standard deviation of
+0.0053, barely larger. The difference between the true pairing and the scrambled null was
+about 0.004 in the same units, which is smaller than the run-to-run variability of the
+pipeline itself.
+
+The pair-shuffling comparison as we ran it therefore cannot separate an effect of the
+biological pairing from the variability of the clustering algorithm, and any $p$-value we
+quoted from it would be misleading. Distinguishing the two would require replicating every
+condition and comparing distributions rather than single runs. We judged that this
+particular control is not worth that additional computation, because it is the weakest of
+the three tests by construction: even a scrambled pairing recombines per-feature fields
+that are themselves genuinely spatially structured, so it probes only an incremental
+contribution. The two controls we do report address the reviewer's concern directly and are
+not sensitive to this issue, since their effects are far larger than the variability we
+measured. We note that the underlying variability applies to any single clustering run,
+including the one shown in Figure 6, and we now say so in the manuscript.
+
+\subsubsection*{What the controls establish together}
+
+Control A shows that the spatial structure is real rather than an artifact of smoothing.
+Control B shows that the resulting structure corresponds to recognized anatomy, while also
+resolving substructure within it. Together we believe these address the reviewer's question
+of whether the method finds meaningful structure beyond smoothing, dimensionality, and
+clustering: the coordinate shuffle rules out the smoothing and dimensionality explanations,
+since the shuffled data pass through an identical pipeline of identical dimensionality, and
+the anatomical concordance shows the surviving structure is biologically interpretable.
 
 We have not added simulated datasets with known ground truth, the remaining item on the
 reviewer's menu. Our reasoning is that a simulation would have to be generated under a
@@ -770,18 +798,42 @@ numbers changed.
 \medskip
 \fi
 
-\noindent In preparing this revision we identified an internal inconsistency in the
-original manuscript's reporting of the number of features and interactions analyzed, which
-we have corrected throughout. The curated feature list contains 918 features; of these, 912
-produced converged model fits and were carried forward. The FANTOM5 mechanism list yields
-1477 ligand-receptor interactions for which both partners appear among the 912 converged
-features, not the 1481 reported in the original text and in the caption to Table 1. The
-caption to Table 1 also described 1481 ``modeled transcriptomic features,'' conflating
-interactions with features. All counts are now stated consistently, and we have added a
-sentence explaining the attrition from 918 to 912.
+\noindent In preparing this revision we audited the feature and interaction counts reported
+in the original manuscript against the analysis outputs, and found two errors that we have
+corrected throughout. We report them here because they change numbers that appear in the
+text, in Table 1, and in Figure 6.
 
-\todo{Verify these four numbers against the canonical run before this goes in, and correct
-every occurrence in the manuscript and figure captions rather than only the ones we
-noticed.}
+First, the attrition from the curated feature list was not described. The list contains 918
+ligand or receptor genes. Three (\emph{a}, \emph{Calcb}, \emph{Cckar}) were excluded before
+fitting, and three more (\emph{Fgf1}, \emph{Fzd7}, \emph{Trhr}) failed to converge, leaving
+912 features with fitted spatial fields. The original text stated that the spatial fields of
+all 918 features were modeled. The revised text gives the correct figure and explains the
+attrition.
+
+Second, the number of interaction fields was overstated by four. The manuscript reports 1481
+unique ligand-receptor interaction fields, and describes them as following from the 918-gene
+list. On inspection, the 1481-column object used for the high-dimensional clustering
+contains four pairs of exactly duplicated columns, which we traced to files that had been
+silently duplicated by a cloud file-synchronization conflict and then read in alongside their
+originals. The four affected interactions are PDGFC-PDGFRA, PDGFC-PDGFRB, PDGFD-PDGFRA, and
+PDGFD-PDGFRB; in each case the duplicate column is numerically identical to its counterpart.
+The correct number of distinct interaction fields computable from the 912 fitted features is
+therefore 1477. We have corrected the count wherever it appears, including the upper limit of
+the feature-depth sweep in Figure 6.
+
+We do not think this materially affects the results. The duplication gives four of 1477
+interactions twice their intended weight in a scaled clustering over more than a thousand
+dimensions, and it applies equally to every point in the analysis, so it cannot create
+spatial structure. We have not attempted to quantify the difference by re-running the
+clustering without the duplicates, because the clustering algorithm is not deterministic
+(see our response to R2.8), so a single re-run would not isolate an effect of this size from
+run-to-run variation.
+
+\todo{Apply these corrections to every occurrence in the manuscript and captions: 918 to 912
+at line 217; 1481 to 1477 at lines 213 and 251 and in the Fig 6 caption; and the Table 1
+caption, which averages over the fitted features that pass the score filter, not over ``all
+918 modeled ligand/receptor features.'' Decide with Raredon whether to name the
+synchronization conflict as the cause in the manuscript or to describe it more neutrally as
+duplicated input files.}
 
 \end{document}
