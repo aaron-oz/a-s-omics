@@ -453,25 +453,25 @@ if(exists("pred.poi")){
                             1 - dpois(0, pred.poi$expect$mean),
                             main = glue('{lr.n} - Poisson - Estimated Prob of Occurence'),
                             zlim = prob.zlim, nlevel = 256, col = prob.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   fields.style();quilt.plot(pred.poi$lambda$x,
                             pred.poi$lambda$y,
                             pred.poi$lambda$mean,
                             main = glue('{lr.n} - Poisson - Estimated Density'),
                             zlim = dens.zlim, nlevel = 256, col = dens.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   fields.style();quilt.plot(pred.poi$expect$x,
                             pred.poi$expect$y,
                             pred.poi$expect$mean,
                             main = glue('{lr.n} - Poisson - Estimated Count'),
                             zlim = cnt.zlim, nlevel = 256, col = cnt.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   fields.style();quilt.plot(pred.poi$expect$x,
                             pred.poi$expect$y,
                             run.dat$feat.count - pred.poi$expect$mean,
                             main = glue('{lr.n} - Poisson - Count Residuals'),
                             zlim = res.zlim, nlevel = 256, col = res.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
 }else{
   for(i in 1:4){ plot.new() }
 }
@@ -482,25 +482,25 @@ if(exists("pred.zip")){
                             1 - dpois(0, pred.zip$expect$mean),
                             main = glue('{lr.n} - ZIP - Estimated Prob of Occurence'),
                             zlim = prob.zlim, nlevel = 256, col = prob.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   fields.style();quilt.plot(pred.zip$lambda$x,
                             pred.zip$lambda$y,
                             pred.zip$lambda$mean,
                             main = glue('{lr.n} - ZIP - Estimated Density'),
                             zlim = dens.zlim, nlevel = 256, col = dens.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   fields.style();quilt.plot(pred.zip$expect$x,
                             pred.zip$expect$y,
                             pred.zip$expect$mean,
                             main = glue('{lr.n} - ZIP - Estimated Count'),
                             zlim = cnt.zlim, nlevel = 256, col = cnt.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   fields.style();quilt.plot(pred.zip$expect$x,
                             pred.zip$expect$y,
                             run.dat$feat.count - pred.zip$expect$mean,
                             main = glue('{lr.n} - ZIP - Count Residuals'),
                             zlim = res.zlim, nlevel = 256, col = res.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
 }else{
   for(i in 1:4){ plot.new() }
 }
@@ -511,25 +511,25 @@ if(exists("pred.zap")){
                             1 - dpois(0, pred.zap$expect$mean),
                             main = glue('{lr.n} - ZAP - Estimated Prob of Occurence'),
                             zlim = prob.zlim, nlevel = 256, col = prob.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   fields.style();quilt.plot(pred.zap$lambda$x,
                             pred.zap$lambda$y,
                             pred.zap$lambda$mean,
                             main = glue('{lr.n} - ZAP - Estimated Density'),
                             zlim = dens.zlim, nlevel = 256, col = dens.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   fields.style();quilt.plot(pred.zap$expect$x,
                             pred.zap$expect$y,
                             pred.zap$expect$mean,
                             main = glue('{lr.n} - ZAP - Estimated Count'),
                             zlim = cnt.zlim, nlevel = 256, col = cnt.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   fields.style();quilt.plot(pred.zap$expect$x,
                             pred.zap$expect$y,
                             run.dat$feat.count - pred.zap$expect$mean,
                             main = glue('{lr.n} - ZAP - Count Residuals'),
                             zlim = res.zlim, nlevel = 256, col = res.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
 }else{
   for(i in 1:4){ plot.new() }
 }
@@ -539,26 +539,26 @@ fields.style();quilt.plot(run.dat$x,
                           run.dat$feat.present,
                           main = glue('{lr.n} - Data - Prob of Occurence'),
                           zlim = prob.zlim, nlevel = 256, col = prob.cols,
-                          nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                          nx = qp.res.x, ny = qp.res.y, asp = 1)
 fields.style();quilt.plot(run.dat$x,
                           run.dat$y,
                           run.dat[, feat.count / total.count],
                           main = glue('{lr.n} - Data -  Density'),
                           zlim = dens.zlim, nlevel = 256, col = dens.cols,
-                          nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                          nx = qp.res.x, ny = qp.res.y, asp = 1)
 fields.style();quilt.plot(run.dat$x,
                           run.dat$y,
                           run.dat[, feat.count],
                           main = glue('{lr.n} - Data -  Counts'),
                           zlim = cnt.zlim, nlevel = 256, col = cnt.cols,
-                          nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                          nx = qp.res.x, ny = qp.res.y, asp = 1)
 
 fields.style();quilt.plot(run.dat$x,
                           run.dat$y,
                           run.dat[, total.count],
                           main = 'Data -  NUMI',
                           nlevel = 256, col = res.cols,
-                          nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                          nx = qp.res.x, ny = qp.res.y, asp = 1)
 dev.off()
 
 
@@ -573,25 +573,25 @@ if(exists("pred.poi")){
                             1 - dpois(0, pred.poi$expect$mean),
                             main = glue('{lr.n} - Poisson - Estimated Prob of Occurence'),
                             nlevel = 256, col = prob.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   fields.style();quilt.plot(pred.poi$lambda$x,
                             pred.poi$lambda$y,
                             pred.poi$lambda$mean,
                             main = glue('{lr.n} - Poisson - Estimated Density'),
                             nlevel = 256, col = dens.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   fields.style();quilt.plot(pred.poi$expect$x,
                             pred.poi$expect$y,
                             pred.poi$expect$mean,
                             main = glue('{lr.n} - Poisson - Estimated Count'),
                             nlevel = 256, col = cnt.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   fields.style();quilt.plot(pred.poi$expect$x,
                             pred.poi$expect$y,
                             run.dat$feat.count - pred.poi$expect$mean,
                             main = glue('{lr.n} - Poisson - Count Residuals'),
                             nlevel = 256, col = res.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
 }else{
   for(i in 1:4){ plot.new() }
 }
@@ -602,25 +602,25 @@ if(exists("pred.zip")){
                             1 - dpois(0, pred.zip$expect$mean),
                             main = glue('{lr.n} - ZIP - Estimated Prob of Occurence'),
                             nlevel = 256, col = prob.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   fields.style();quilt.plot(pred.zip$lambda$x,
                             pred.zip$lambda$y,
                             pred.zip$lambda$mean,
                             main = glue('{lr.n} - ZIP - Estimated Density'),
                             nlevel = 256, col = dens.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   fields.style();quilt.plot(pred.zip$expect$x,
                             pred.zip$expect$y,
                             pred.zip$expect$mean,
                             main = glue('{lr.n} - ZIP - Estimated Count'),
                             nlevel = 256, col = cnt.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   fields.style();quilt.plot(pred.zip$expect$x,
                             pred.zip$expect$y,
                             run.dat$feat.count - pred.zip$expect$mean,
                             main = glue('{lr.n} - ZIP - Count Residuals'),
                             nlevel = 256, col = res.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
 }else{
   for(i in 1:4){ plot.new() }
 }
@@ -631,25 +631,25 @@ if(exists("pred.zap")){
                             1 - dpois(0, pred.zap$expect$mean),
                             main = glue('{lr.n} - ZAP - Estimated Prob of Occurence'),
                             nlevel = 256, col = prob.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   fields.style();quilt.plot(pred.zap$lambda$x,
                             pred.zap$lambda$y,
                             pred.zap$lambda$mean,
                             main = glue('{lr.n} - ZAP - Estimated Density'),
                             nlevel = 256, col = dens.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   fields.style();quilt.plot(pred.zap$expect$x,
                             pred.zap$expect$y,
                             pred.zap$expect$mean,
                             main = glue('{lr.n} - ZAP - Estimated Count'),
                             nlevel = 256, col = cnt.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   fields.style();quilt.plot(pred.zap$expect$x,
                             pred.zap$expect$y,
                             run.dat$feat.count - pred.zap$expect$mean,
                             main = glue('{lr.n} - ZAP - Count Residuals'),
                             nlevel = 256, col = res.cols,
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
 }else{
   for(i in 1:4){ plot.new() }
 }
@@ -659,25 +659,25 @@ fields.style();quilt.plot(run.dat$x,
                           run.dat$feat.present,
                           main = glue('{lr.n} - Data - Prob of Occurence'),
                           nlevel = 256, col = prob.cols,
-                          nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                          nx = qp.res.x, ny = qp.res.y, asp = 1)
 fields.style();quilt.plot(run.dat$x,
                           run.dat$y,
                           run.dat[, feat.count / total.count],
                           main = glue('{lr.n} - Data -  Density'),
                           nlevel = 256, col = dens.cols,
-                          nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                          nx = qp.res.x, ny = qp.res.y, asp = 1)
 fields.style();quilt.plot(run.dat$x,
                           run.dat$y,
                           run.dat[, feat.count],
                           main = glue('{lr.n} - Data -  Counts'),
                           nlevel = 256, col = cnt.cols,
-                          nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                          nx = qp.res.x, ny = qp.res.y, asp = 1)
 fields.style();quilt.plot(run.dat$x,
                           run.dat$y,
                           run.dat[, total.count],
                           main = 'Data -  NUMI',
                           nlevel = 256, col = res.cols,
-                          nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                          nx = qp.res.x, ny = qp.res.y, asp = 1)
 dev.off()
 
 
@@ -921,28 +921,28 @@ rm(run.dat, fit.poi, fit.zip, fit.zap,
   ##     mai = c(.62, 0.82, .62, 1.22))
   ## fields.style();quilt.plot(run.dat[, x], run.dat[, y], run.dat[, feat.count],
   ##                           main = glue('Observed {lr.n} Counts'),
-  ##                           nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x, cex = 1.4)
+  ##                           nx = qp.res.x, ny = qp.res.y, asp = 1, cex = 1.4)
   ## fields.style();quilt.plot(run.dat[, x], run.dat[, y], run.dat[, feat.count / total.count],
   ##                           main = glue('Observed {lr.n} Counts per Total Counts'),
-  ##                           nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+  ##                           nx = qp.res.x, ny = qp.res.y, asp = 1)
   ## fields.style();quilt.plot(run.dat[, x], run.dat[, y], run.dat[, total.count],
   ##                           main = 'Total Counts',
-  ##                           nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+  ##                           nx = qp.res.x, ny = qp.res.y, asp = 1)
   ## fields.style();quilt.plot(pred.pois.pois$feat[, x],
   ##                           pred.pois.pois$feat[, y],
   ##                           pred.pois.pois$feat[, mean],
   ##                           main = glue('Estimated {lr.n} Counts' ),
-  ##                           nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+  ##                           nx = qp.res.x, ny = qp.res.y, asp = 1)
   ## fields.style();quilt.plot(pred.pois.pois$feat[, x],
 ##                           pred.pois.pois$feat[, y],
 ##                           pred.pois.pois$feat.density.per.count[, mean],
 ##                           main = glue('Estimated {lr.n} Counts per Total Counts' ),
-##                           nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+##                           nx = qp.res.x, ny = qp.res.y, asp = 1)
 ## fields.style();quilt.plot(pred.pois.pois$total[, x],
 ##                           pred.pois.pois$total[, y],
 ##                           pred.pois.pois$total[, mean],
 ##                           main = glue('Estimated Total Counts'),
-##                           nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+##                           nx = qp.res.x, ny = qp.res.y, asp = 1)
 ## if(!('feat.count' %in% colnames(pred.pois.pois$feat))){
 ##   pred.pois.pois$feat <-
 ##     merge(pred.pois.pois$feat,
@@ -952,18 +952,18 @@ rm(run.dat, fit.poi, fit.zip, fit.zap,
 ##                           pred.pois.pois$feat[, y],
 ##                           pred.pois.pois$feat[, feat.count] - pred.pois.pois$feat[, mean],
 ##                           main = glue('Residual {lr.n} Counts' ),
-##                           nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+##                           nx = qp.res.x, ny = qp.res.y, asp = 1)
 ## fields.style();quilt.plot(pred.pois.pois$feat[, x],
 ##                           pred.pois.pois$feat[, y],
 ##                           pred.pois.pois$feat[, feat.count / total.count] -
 ##                             pred.pois.pois$feat.density.per.count[, mean],
 ##                           main = glue('Residual {lr.n} Counts per Total Counts' ),
-##                           nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+##                           nx = qp.res.x, ny = qp.res.y, asp = 1)
 ## fields.style();quilt.plot(pred.pois.pois$total[, x],
 ##                           pred.pois.pois$total[, y],
 ##                           pred.pois.pois$feat[, total.count] - pred.pois.pois$total[, mean],
 ##                           main = glue('Residual Total Counts' ),
-##                           nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+##                           nx = qp.res.x, ny = qp.res.y, asp = 1)
 ## dev.off()
 
 ## # clean up

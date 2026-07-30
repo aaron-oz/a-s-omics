@@ -116,19 +116,19 @@ chosen as the representative feature, and no rationale was written, because we c
 invent one. Needs one sentence in the Results and one in the Fig~3 caption. If the real
 reason is visual clarity, that is a fine answer, but say so and point to the per-feature
 supplement. \\
-\emph{Letter:} \S R2.5 (line 694). \emph{Paper:} Results, ``Raw counts, rather than
+\emph{Letter:} \S R2.5 (line 725). \emph{Paper:} Results, ``Raw counts, rather than
 normalized counts\ldots'' (line 274, Cd44 named at line 276); Fig~3 caption (line 281).
 
 \item \textbf{Funder statement confirmation.} Both authors must confirm ``The funders had no
 role\ldots'' is accurate for T32GM086287 (NIGMS) and the Yale and Bucknell startup funds
 before it goes in the cover letter. \\
-\emph{Letter:} \S JR-2 (line 312). \emph{Paper:} nothing to change; this lives in the cover
+\emph{Letter:} \S JR-2 (line 322). \emph{Paper:} nothing to change; this lives in the cover
 letter and the Editorial Manager funding statement only.
 
 \item \textbf{How to describe the duplicated columns.} Name the cloud file-synchronization
 conflict as the cause, which is what the letter currently does, or describe it neutrally as
 duplicated input files. Whichever is chosen, the letter and the manuscript must agree. \\
-\emph{Letter:} \S Additional corrections (line 1083). \emph{Paper:} Materials and methods, ``Dataset
+\emph{Letter:} \S Additional corrections (line 1138). \emph{Paper:} Materials and methods, ``Dataset
 modeling'' (line 225).
 
 \end{enumerate}
@@ -143,7 +143,7 @@ a substantive judgement rather than a mechanical edit.
 \item \textbf{The CytoSignal novelty concession.} The Discussion now states plainly that we do
 not claim novelty for spatially resolved ligand-receptor mapping. This is a real concession
 and it has never been explicitly signed off. \\
-\emph{Letter:} \S R2.10 (line 921), \S JR-6 (line 369). \emph{Paper:} Discussion,
+\emph{Letter:} \S R2.10 (line 976), \S JR-6 (line 400). \emph{Paper:} Discussion,
 ``Relationship to existing methods'', CytoSignal paragraph (line 413).
 
 \item \textbf{The narrowed contribution statement}, which is now the paper's formal novelty
@@ -153,13 +153,13 @@ our contribution precisely'' (line 415).
 
 \item \textbf{The Abstract was rewritten wholesale}, to state what was done and on what, and
 to name the scope of the demonstration rather than assert general applicability. \\
-\emph{Paper:} Abstract (line 93). \emph{Letter:} \S R2.11 (line 989).
+\emph{Paper:} Abstract (line 93). \emph{Letter:} \S R2.11 (line 1044).
 
 \item \textbf{Publicly disclosing that the clustering is non-deterministic}, and that the
 published Fig~6 domains are one realization. This was decided before the drafting session,
 but it is the kind of statement worth re-reading before it reaches a reviewer. \\
 \emph{Paper:} Results, ``Run-to-run variability of the clustering'' (line 379); Fig~6 caption
-closing sentence (line 344). \emph{Letter:} \S R2.8 (line 761).
+closing sentence (line 344). \emph{Letter:} \S R2.8 (line 816).
 
 \item \textbf{S10 Fig was dropped.} A controls figure was considered and deliberately not
 added, because the existing control plots have no generating script and are not publication
@@ -181,26 +181,36 @@ regenerated or stripped. \\
 
 \begin{enumerate}[leftmargin=*, resume]
 
-\item \textbf{Figure regeneration}, covering three reviewer comments at once. Note one
-question is now settled: the elongated pixels in Figs~3 and 4 are a \emph{plotting} artifact,
-not real bin geometry. The binning steps \texttt{x.breaks} and \texttt{y.breaks} by the same
-\texttt{agg.size} and the chip pitch is isotropic, so the bins are genuinely square and
-rescaling the display is the correct fix. While regenerating, fix Fig~6's baked-in panel
-labels, which still read ``1481 Features'' where the corrected count is 1477. \\
-\emph{Letter:} \S R1.3 (line 460), \S R2.6 (line 710), \S R1.5 (line 503). \emph{Paper:}
+\item \textbf{Figure assembly and sizing.} The R2.6 aspect-ratio defect is now
+\emph{resolved}: the cause was \texttt{asp = qp.res.y / qp.res.x} (= 0.65) where
+\texttt{asp = 1} was required, it has been corrected at all 151 occurrences across the
+pipeline scripts, and Figs~3 and 4 have been regenerated into
+\texttt{Submission\_PLOSOne/submission-2/figures-regenerated/}. What still needs a person:
+final composite assembly and panel labelling, since the published figures were assembled by
+hand and no layout script exists for them; the R1.3 sizing and reorganization pass; the R1.5
+graphical abstract; Fig~6's baked-in ``1481 Features'' labels, which should read 1477; and the
+two Fig~4 layout differences noted in \S R2.6. Undo the Fig~5/6 scaling stopgap at the same
+time. \\
+\emph{Letter:} \S R1.3 (line 491), \S R2.6 (line 741), \S R1.5 (line 534). \emph{Paper:}
 Figs~3 and 4 (captions at lines 281 and 313); Fig~6 in-source note at line 339.
 
-\item \textbf{Supporting Information packaging.} Package the directories as PLOS SI files,
-confirm every S-number in the text matches the uploaded file, and decide whether the FigShare
-links stay alongside the uploads or are replaced by them. S9 Table is built and ready at
-\texttt{plos-port/S9-notation-to-code.tex}. \\
-\emph{Letter:} \S JR-5 (line 354). \emph{Paper:} Supporting information (line 433).
+\item \textbf{Supporting Information: an author decision, not a packaging job.} S9 Table is
+built and staged for upload at
+\texttt{submission-2/supporting-information/S9\_Table.pdf}, and every S-number cited in the
+text has been confirmed against its intended item. But S1--S8 total 53.5 GB across 12,275
+files, with a single 11.6 GB file, so they cannot be uploaded as Supporting Information, and
+the previous draft response claiming they had been was wrong. Choose between leaving them in
+the external repository, curating small representative extracts, or moving to DOI-minted
+deposits; converting the FigShare private share links to public DOIs is worth doing under any
+of the three. Measured inventory and the options are in
+\texttt{supporting-information/README-supporting-information.md}. \\
+\emph{Letter:} \S JR-5 (line 364). \emph{Paper:} Supporting information (line 433).
 
 \item \textbf{Repository reproducibility documentation}, the largest remaining piece and one
 the reviewer will actively check. Only the controls directory currently meets the standard;
 the main pipeline under \texttt{Supplements for Publication/code/} still needs run order,
 inputs, intermediates, figure scripts, and a session-info or lockfile capture. \\
-\emph{Letter:} \S R2.9 (line 896).
+\emph{Letter:} \S R2.9 (line 951).
 
 \end{enumerate}
 
@@ -220,7 +230,7 @@ practically alter the outputs.'' This has been weakened to ``no visible change, 
 quantified,'' because S3 File appears to contain joint-model outputs rather than a
 joint-versus-offset comparison. If that comparison exists elsewhere, the claim can be
 restored and strengthened. \\
-\emph{Letter:} \S R2.3 (line 592). \emph{Paper:} ``The status of the latent total-count
+\emph{Letter:} \S R2.3 (line 623). \emph{Paper:} ``The status of the latent total-count
 model'' (line 190); Results (line 276).
 
 \item \textbf{Supplement cross-reference mapping.} The original text cited ``Supplement
@@ -271,21 +281,21 @@ JR-1  & PLOS style and file naming & Done \\
 JR-2  & Role of funder statement & Needs author input \\
 JR-3  & Remove funding text from Acknowledgments & Done, none present \\
 JR-4  & PLOS \LaTeX{} template & Done \\
-JR-5  & Upload Supplemental Materials as SI & To do (packaging) \\
+JR-5  & Upload Supplemental Materials as SI & S9 uploaded; S1--S8 need an author decision \\
 JR-6  & Evaluate recommended citations & Done, five cited \\
 \midrule
 R1.1  & Comparative analysis vs existing methods & Done (see R2.8, R2.10) \\
 R1.2  & Tissue sample and methods detail & Done \\
-R1.3  & Figures too small, reorganize & To do (figures) \\
+R1.3  & Figures too small, reorganize & To do (assembly) \\
 R1.4  & Small-scale disease proof of concept & Done, pushback plus scope text \\
-R1.5  & Better graphical abstract & To do (figures) \\
+R1.5  & Better graphical abstract & To do (design) \\
 \midrule
 R2.1  & Define model parameters and priors at first use & Done \\
 R2.2  & Notation-to-code supplementary table & Done, S9 Table built \\
 R2.3  & Clarify that final analyses used observed nUMI & Done \\
 R2.4  & Define metrics; Table 1 abbreviations and percentages & Done \\
 R2.5  & Rationale for Cd44 as representative feature & Needs author input \\
-R2.6  & Elongated-pixel distortion in Figs 3 and 4 & To do (figures) \\
+R2.6  & Elongated-pixel distortion in Figs 3 and 4 & Cause found and fixed at source \\
 R2.7  & Clearer captions for Figs 5 and 6 & Done \\
 \textbf{R2.8} & \textbf{Controls and baselines} & \textbf{Done, two reported, one withdrawn} \\
 R2.9  & Reproducibility documentation & Partly done \\
@@ -351,20 +361,41 @@ Please update your submission to use the PLOS LaTeX template.
 the PLOS \LaTeX{} template, including the PLOS preamble, title and author block, and the
 \texttt{plos2025} bibliography style.
 
-\subsection{JR-5. Supporting Information upload} \status{TODO}
+\subsection{JR-5. Supporting Information upload} \status{PARTLY DONE}
 
 \begin{rev}
 Please upload a copy of Supporting Information Figure/Table/etc.\ ``Supplemental
 Materials'' which you refer to in your text on page 19.
 \end{rev}
 
-\noindent The supplemental materials, previously available only through external
-repository links, are now uploaded as Supporting Information files S1 through S8 and are
-cited individually at the appropriate points in the text.
+\noindent We have added one true Supporting Information file, S9 Table, the notation-to-code
+mapping requested in R2.2, and it is uploaded with this revision. We have also confirmed that
+every S-number cited in the text now matches its intended item; S1 and S9 had no citation in
+the original text, and the S3 through S8 pointers were reassigned, because the original
+manuscript cited ``Supplement 3/4/5'' under a numbering that did not correspond to the S1--S8
+list.
 
-\todo{Package the eight Supplements for Publication directories as PLOS SI files, confirm
-each S-number in the manuscript matches the uploaded file, and check the SI captions
-render.}
+We must, however, be straightforward about the rest. The eight supplements are research data
+archives rather than supplementary documents: together they are 53.5 GB across 12,275 files,
+and the largest single file is 11.6 GB. They cannot be uploaded as Supporting Information
+files, and we do not think a reader would want them to be. They remain deposited externally
+and are cited individually at the appropriate points in the text. We have prepared a manifest
+recording the exact size, file count, and content type of each, which is in the repository at
+\texttt{Submission\_PLOSOne/submission-2/supporting-information/}.
+
+We would welcome the editor's guidance on the preferred arrangement. We are ready to convert
+the deposits to public, DOI-minted records rather than private share links, which we think is
+the right thing to do regardless, and we can additionally prepare small curated extracts of
+individual supplements if the journal would prefer a reader to be able to open something
+without a large download.
+
+\todo{Author decision before submission: choose between (i) S9 Table uploaded and S1--S8
+left in the external repository, which is what the text above currently describes,
+(ii) additionally curating small representative extracts, or (iii) moving everything to
+DOI-minted deposits. Whichever is chosen, the manuscript's Supporting information section
+must match. The three options and their trade-offs are set out in
+\texttt{supporting-information/README-supporting-information.md}. Converting the FigShare
+private share links to public DOIs is worth doing under any of the three.}
 
 \subsection{JR-6. Recommended citations} \status{DRAFTED}
 
@@ -707,19 +738,43 @@ anatomical regions, so the raw-versus-normalized contrast is visible; it is a we
 characterized surface receptor. State the real reason, and if the feature was chosen for
 visual clarity, say so and note that the full per-feature results are in the supplement.}
 
-\subsection{R2.6. Elongated-pixel distortion in Figures 3 and 4} \status{TODO}
+\subsection{R2.6. Elongated-pixel distortion in Figures 3 and 4} \status{CAUSE FIXED, ASSEMBLY REMAINS}
 
 \begin{rev}
 Figures 3 and 4 appear visually distorted due to elongated rectangular pixels, which
 should be corrected or clearly identified as a visualization artifact.
 \end{rev}
 
-\noindent We have regenerated Figures 3 and 4 with a fixed one-to-one aspect ratio, so
-that spatial bins render as squares and distances are visually comparable along both axes.
+\noindent The reviewer is right, and we are grateful for the catch, because the cause turned
+out to be a genuine bug rather than a display preference.
 
-\todo{Regenerate with a fixed coordinate ratio. Check whether the distortion originated in
-the plotting call or in the underlying bin geometry; if the bins genuinely are not square,
-say so explicitly instead of rescaling the display.}
+We first checked whether the bins are actually square, since if they were not, the honest
+response would have been to say so rather than to rescale. They are: the binning routine steps
+the $x$ and $y$ breaks by the same \texttt{agg.size}, and the Stereo-seq spot pitch is
+isotropic, so a bin is 50 by 50 capture spots in both directions.
+
+The distortion came from the plotting call. Every panel was drawn with
+\texttt{asp = qp.res.y / qp.res.x}, which for this field of view is $130/200 = 0.65$. In R
+base graphics \texttt{asp} is the ratio of a $y$-unit length to an $x$-unit length, so
+setting it to 0.65 compresses the $y$ axis relative to $x$ and stretches every bin
+horizontally by $1/0.65 = 1.54$. The correct value is \texttt{asp = 1}. It appears the
+aspect ratio of the \emph{domain} was supplied where the aspect ratio of the \emph{units} was
+required.
+
+We have corrected this at source rather than only in the affected figures: all 151 occurrences
+across the pipeline scripts now use \texttt{asp = 1}, so any figure regenerated from this
+point is correct. Figures 3 and 4 have been regenerated, and the corrected panel grids are in
+the repository at \texttt{Submission\_PLOSOne/submission-2/figures-regenerated/}, together
+with the script that produces them.
+
+\todo{Two finishing items for whoever assembles the final figures. (i) The regenerated Fig 3
+matches the published layout exactly (3 columns by 3 rows, as the caption describes) and is a
+drop-in replacement. The regenerated Fig 4 is structurally close but not identical: it has
+three model rows where the published figure has a fourth raw-data row, and its first column is
+the probability of the observed count rather than the probability of a non-zero value. Either
+extend the figure or adjust the caption. (ii) The published composite figures were assembled
+by hand and no layout script exists for them, so final assembly, panel labelling, and the
+R1.3 sizing pass still need a person.}
 
 \subsection{R2.7. Captions for Figures 5 and 6} \status{DONE}
 

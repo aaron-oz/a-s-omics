@@ -410,11 +410,11 @@ for(ii in 1:exp.specs[, .N]){
     # row 1
     fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], l.conc.init,
                               main = glue("{l.n} count at time {ode.times[1]}"),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                              nx = qp.res.x, ny = qp.res.y, asp = 1,
                               zlim = lig.lim, xlim = x.plot.lim, ylim = y.plot.lim, col = viri)
     fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], l.conc.final,
                               main = glue("{l.n} count at time {tail(ode.times, 2)[1]}"),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                              nx = qp.res.x, ny = qp.res.y, asp = 1,
                               zlim = lig.lim, xlim = x.plot.lim, ylim = y.plot.lim, col = viri)
     plot(0,type='n',axes=FALSE,ann=FALSE)
     plot(0,type='n',axes=FALSE,ann=FALSE)
@@ -422,11 +422,11 @@ for(ii in 1:exp.specs[, .N]){
     # row 2
     fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], r.conc.init,
                               main = glue("{r.n} count at time {ode.times[1]}", ),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                              nx = qp.res.x, ny = qp.res.y, asp = 1,
                               zlim = rec.lim, xlim = x.plot.lim, ylim = y.plot.lim, col = plas)
     fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], r.conc.final,
                               main = glue("{r.n} count at time {tail(ode.times, 2)[1]}", ),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                              nx = qp.res.x, ny = qp.res.y, asp = 1,
                               zlim = rec.lim, xlim = x.plot.lim, ylim = y.plot.lim, col = plas)
     plot(0,type='n',axes=FALSE,ann=FALSE)
     plot(0,type='n',axes=FALSE,ann=FALSE)
@@ -434,15 +434,15 @@ for(ii in 1:exp.specs[, .N]){
     # row 3
     fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], seq.rate.init,
                               main = glue("{m.n} sequestration count at time {ode.times[1]}"),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                              nx = qp.res.x, ny = qp.res.y, asp = 1,
                               zlim = seq.lim, xlim = x.plot.lim, ylim = y.plot.lim, col = mako)
     fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], seq.rate.final,
                               main = glue("{m.n} sequestration count at time {tail(ode.times, 2)[1]}"),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                              nx = qp.res.x, ny = qp.res.y, asp = 1,
                               zlim = seq.lim, xlim = x.plot.lim, ylim = y.plot.lim, col = mako)
     fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], seq.total.init,
                               main = glue("{m.n} cumulative sequestration at time {tail(ode.times, 2)[1]}"),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x, xlim = x.plot.lim, ylim = y.plot.lim, col = mako)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1, xlim = x.plot.lim, ylim = y.plot.lim, col = mako)
     plot(0,type='n',axes=FALSE,ann=FALSE)
     plot(0,type='n',axes=FALSE,ann=FALSE)
 
@@ -506,55 +506,55 @@ for(ii in 1:exp.specs[, .N]){
 
       fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], l.conc.in,
                                 main = glue("Init {l.n} count at time {tt}"),
-                                nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                                nx = qp.res.x, ny = qp.res.y, asp = 1,
                                 zlim = lig.lim, xlim = x.plot.lim, ylim = y.plot.lim, col = viri)
       fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], l.conc.pp,
                                 main = glue("Post Prod {l.n} count at time {tt}", ),
-                                nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                                nx = qp.res.x, ny = qp.res.y, asp = 1,
                                 zlim = lig.lim, xlim = x.plot.lim, ylim = y.plot.lim, col = viri)
       if(seq.then.dif){
         fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], l.conc.ps,
                                   main = glue("Post Seq {l.n} count at time {tt}", ),
-                                  nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                                  nx = qp.res.x, ny = qp.res.y, asp = 1,
                                   zlim = lig.lim, xlim = x.plot.lim, ylim = y.plot.lim, col = viri)
         fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], l.conc.dl,
                                   main = glue("d({l.n})/dt at time {tt}", ),
-                                  nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                                  nx = qp.res.x, ny = qp.res.y, asp = 1,
                                   xlim = x.plot.lim, ylim = y.plot.lim, col = brbg)
         # post-diff at time i is the same as init at time i+1
         fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], l.conc.pd,
                                   main = glue("Post Diff {l.n} count at time {tt}", ),
-                                  nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                                  nx = qp.res.x, ny = qp.res.y, asp = 1,
                                   zlim = lig.lim, xlim = x.plot.lim, ylim = y.plot.lim, col = viri)
       }else{
         fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], l.conc.dl,
                                   main = glue("d({l.n})/dt at time {tt}", ),
-                                  nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                                  nx = qp.res.x, ny = qp.res.y, asp = 1,
                                   xlim = x.plot.lim, ylim = y.plot.lim, col = brbg)
         # post-diff at time i is the same as init at time i+1
         fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], l.conc.pd,
                                   main = glue("Post Diff {l.n} count at time {tt}", ),
-                                  nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                                  nx = qp.res.x, ny = qp.res.y, asp = 1,
                                   zlim = lig.lim, xlim = x.plot.lim, ylim = y.plot.lim, col = viri)
         fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], l.conc.ps1,
                                   main = glue("Post Seq {l.n} count at time {tt}", ),
-                                  nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                                  nx = qp.res.x, ny = qp.res.y, asp = 1,
                                   zlim = lig.lim, xlim = x.plot.lim, ylim = y.plot.lim, col = viri)
       }
 
       ## middle row: rec
       fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], r.conc.in,
                                 main = glue("Init {r.n} count at time {tt}"),
-                                nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                                nx = qp.res.x, ny = qp.res.y, asp = 1,
                                 zlim = rec.lim, xlim = x.plot.lim, ylim = y.plot.lim, col = plas)
       fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], r.conc.pp,
                                 main = glue("Post Prod {r.n} count at time {tt}", ),
-                                nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                                nx = qp.res.x, ny = qp.res.y, asp = 1,
                                 zlim = rec.lim, xlim = x.plot.lim, ylim = y.plot.lim, col = plas)
       if(seq.then.dif){
         fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], r.conc.ps,
                                   main = glue("Post Seq {r.n} count at time {tt}", ),
-                                  nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                                  nx = qp.res.x, ny = qp.res.y, asp = 1,
                                   zlim = rec.lim, xlim = x.plot.lim, ylim = y.plot.lim, col = plas)
         plot(0,type='n',axes=FALSE,ann=FALSE) # no derivative
         plot(0,type='n',axes=FALSE,ann=FALSE) # and no change post-diffusion
@@ -563,11 +563,11 @@ for(ii in 1:exp.specs[, .N]){
         # this is duplicated, but it allows alignment of the fields that go into sequestration
         fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], r.conc.pp,
                                   main = glue("Post Prod {r.n} count at time {tt}", ),
-                                  nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                                  nx = qp.res.x, ny = qp.res.y, asp = 1,
                                   zlim = rec.lim, xlim = x.plot.lim, ylim = y.plot.lim, col = plas)
         fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], r.conc.ps1,
                                   main = glue("Post Seq {r.n} count at time {tt+1}", ),
-                                  nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                                  nx = qp.res.x, ny = qp.res.y, asp = 1,
                                   zlim = rec.lim, xlim = x.plot.lim, ylim = y.plot.lim, col = plas)
       }
 
@@ -579,11 +579,11 @@ for(ii in 1:exp.specs[, .N]){
       }
       fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], seq.rate,
                                 main = glue("{m.n} sequestration count at time {tt}"),
-                                nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                                nx = qp.res.x, ny = qp.res.y, asp = 1,
                                 xlim = x.plot.lim, ylim = y.plot.lim, col = mako)
       fields.style();quilt.plot(x = xy.w.buff.map[, x], y = xy.w.buff.map[, y], seq.total,
                                 main = glue("{m.n} cumulative sequestration by time {tt}"),
-                                nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x,
+                                nx = qp.res.x, ny = qp.res.y, asp = 1,
                                 xlim = x.plot.lim, ylim = y.plot.lim, col = mako)
       if(seq.then.dif){
         plot(0,type='n',axes=FALSE,ann=FALSE)

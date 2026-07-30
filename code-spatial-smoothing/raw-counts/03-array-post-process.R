@@ -222,24 +222,24 @@ if(plot.preds){
                               res[, y],
                               res[, l.est],
                               main = glue('Estimated {l.n} Counts'),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
     fields.style();quilt.plot(res[, x],
                               res[, y],
                               res[, calc.conv(l.est, r.est, "prod")],
                               main = glue('Product of {l.n} and {r.n}'),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
 
     fields.style();quilt.plot(res[, x],
                               res[, y],
                               res[, calc.conv(l.est, r.est, "geom.mean")],
                               main = glue('Geometric Mean of {l.n} and {r.n}'),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
 
     fields.style();quilt.plot(res[, x],
                               res[, y],
                               res[, calc.conv(l.est, r.est, "min")],
                               main = glue('Minimum of {l.n} and {r.n}'),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -247,14 +247,14 @@ if(plot.preds){
                               res[, y],
                               res[, r.est],
                               main = glue('Estimated {r.n} Counts'),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
 
     for(kk in c(.1, .5, 1)){
       fields.style();quilt.plot(res[, x],
                                 res[, y],
                                 res[, calc.conv(l.est, r.est, "kinetic", k.d = kk)],
                                 main = glue('LR Complex Equil. Conc. of {l.n} and {r.n} with k.d={kk}'),
-                                nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                                nx = qp.res.x, ny = qp.res.y, asp = 1)
     }
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -263,24 +263,24 @@ if(plot.preds){
                               res[, y],
                               res[, l.est.d],
                               main = glue('Estimated {l.n} Density'),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
     fields.style();quilt.plot(res[, x],
                               res[, y],
                               res[, calc.conv(l.est.d, r.est.d, "prod")],
                               main = glue('Product of {l.n} and {r.n} Densities'),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
 
     fields.style();quilt.plot(res[, x],
                               res[, y],
                               res[, calc.conv(l.est.d, r.est.d, "geom.mean")],
                               main = glue('Geometric Mean of {l.n} and {r.n} Densities'),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
 
     fields.style();quilt.plot(res[, x],
                               res[, y],
                               res[, calc.conv(l.est.d, r.est.d, "min")],
                               main = glue('Minimum of {l.n} and {r.n} Densities'),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -288,14 +288,14 @@ if(plot.preds){
                               res[, y],
                               res[, r.est.d],
                               main = glue('Estimated {r.n} Densities' ),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
 
     for(kk in c(.1, .5, 1)){
       fields.style();quilt.plot(res[, x],
                                 res[, y],
                                 res[, calc.conv(l.est.d, r.est.d, "kinetic", k.d = kk)],
                                 main = glue('LR Complex Equil. Conc. of {l.n} and {r.n} Densities with k.d={kk}'),
-                                nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                                nx = qp.res.x, ny = qp.res.y, asp = 1)
     }
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -304,24 +304,24 @@ if(plot.preds){
                               res[, y],
                               res[, l],
                               main = glue('{l.n} Data'),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
     fields.style();quilt.plot(res[, x],
                               res[, y],
                               res[, calc.conv(l, r, "prod")],
                               main = glue('Product of {l.n} and {r.n} Data'),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
 
     fields.style();quilt.plot(res[, x],
                               res[, y],
                               res[, calc.conv(l, r, "geom.mean")],
                               main = glue('Geometric Mean of {l.n} and {r.n} Data'),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
 
     fields.style();quilt.plot(res[, x],
                               res[, y],
                               res[, calc.conv(l, r, "min")],
                               main = glue('Minimum of {l.n} and {r.n} Data'),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -329,14 +329,14 @@ if(plot.preds){
                               res[, y],
                               res[, r],
                               main = glue('{r.n} Data' ),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
 
     for(kk in c(.1, .5, 1)){
       fields.style();quilt.plot(res[, x],
                                 res[, y],
                                 res[, calc.conv(l, r, "kinetic", k.d = kk)],
                                 main = glue('LR Complex Equil. Conc. of {l.n} and {r.n} Data with k.d={kk}'),
-                                nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                                nx = qp.res.x, ny = qp.res.y, asp = 1)
     }
 
     dev.off()
@@ -385,50 +385,50 @@ if(plot.preds){
                               pred.l[, y],
                               pred.l[, mean],
                               main = glue('Estimated {l.n} Counts' ),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
     fields.style();quilt.plot(pred.l[, x],
                               pred.l[, y],
                               pred.l[, mean] / pred.t[, mean],
                               main = glue('Estimated {l.n} Counts per Total Counts' ),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
     fields.style();quilt.plot(pred.t[, x],
                               pred.t[, y],
                               pred.t[, mean],
                               main = glue('Estimated Total Counts'),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
 
     fields.style();quilt.plot(pred.r[, x],
                               pred.r[, y],
                               pred.r[, mean],
                               main = glue('Estimated {r.n} Counts' ),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
     fields.style();quilt.plot(pred.r[, x],
                               pred.r[, y],
                               pred.r[, mean] / pred.t[, mean],
                               main = glue('Estimated {r.n} Counts per Total Counts' ),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
     fields.style();quilt.plot(pred.t[, x],
                               pred.t[, y],
                               pred.t[, mean],
                               main = glue('Estimated Total Counts'),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
 
 
     fields.style();quilt.plot(pred.l[, x],
                               pred.l[, y],
                               pred.l[, mean] * pred.r[, mean],
                               main = glue('{l.n}-{r.n} Convolved Counts' ),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
     fields.style();quilt.plot(pred.l[, x],
                               pred.l[, y],
                               pred.l[, mean] * pred.r[, mean] /(pred.t[, mean] ^ 2),
                               main = glue('{l.n}-{r.n} Convolved Density' ),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
     fields.style();quilt.plot(pred.t[, x],
                               pred.t[, y],
                               pred.t[, mean] ^ 2,
                               main = expression('(Estimated Total Counts)' ^ 2),
-                              nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                              nx = qp.res.x, ny = qp.res.y, asp = 1)
     dev.off()
   }
 }
@@ -444,10 +444,10 @@ if(plot.preds){
                             run.dat[, y],
                             run.dat[, feat.count],
                             main = glue('observed {lr.n} counts' ),
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   fields.style();quilt.plot(run.dat[, x],
                             run.dat[, y],
                             pred$mean,
                             main = glue('Estimated {lr.n} Counts' ),
-                            nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                            nx = qp.res.x, ny = qp.res.y, asp = 1)
   dev.off()
