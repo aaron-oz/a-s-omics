@@ -1,0 +1,491 @@
+% Spatial Modeling of Tissues for Morphogenic Field Analysis
+% PLOS ONE resubmission (PONE-D-26-04349), ported from the elsarticle source.
+% Base: official PLOS LaTeX template (plos_latex_template.tex, 2025).
+% Track changes are produced with latexdiff against the tag rev1-baseline, NOT with
+%   in-text markup commands. See ../README-build.md. Edit this file as ordinary LaTeX.
+% Compile: pdflatex -> bibtex -> pdflatex x2.
+
+\documentclass[10pt,letterpaper]{article}
+\usepackage[top=0.85in,left=2.75in,footskip=0.75in]{geometry}
+
+\usepackage{amsmath,amssymb}
+\usepackage{changepage}
+\usepackage{textcomp,marvosym}
+\usepackage{cite}
+\usepackage{nameref,hyperref}
+\usepackage[right]{lineno}
+\usepackage[nopatch=eqnum]{microtype}
+\DisableLigatures[f]{encoding = *, family = * }
+\usepackage[table]{xcolor}
+\usepackage{array}
+
+\newcolumntype{+}{!{\vrule width 2pt}}
+\newlength\savedwidth
+\newcommand\thickcline[1]{%
+  \noalign{\global\savedwidth\arrayrulewidth\global\arrayrulewidth 2pt}%
+  \cline{#1}%
+  \noalign{\vskip\arrayrulewidth}%
+  \noalign{\global\arrayrulewidth\savedwidth}%
+}
+\newcommand\thickhline{\noalign{\global\savedwidth\arrayrulewidth\global\arrayrulewidth 2pt}%
+\hline
+\noalign{\global\arrayrulewidth\savedwidth}}
+
+\raggedright
+\setlength{\parindent}{0.5cm}
+\textwidth 5.25in
+\textheight 8.75in
+
+\usepackage[aboveskip=1pt,labelfont=bf,labelsep=period,justification=raggedright,singlelinecheck=off]{caption}
+\renewcommand{\figurename}{Fig}
+
+\bibliographystyle{plos2025}
+\makeatletter
+\renewcommand{\@biblabel}[1]{\quad#1.}
+\makeatother
+
+\usepackage{lastpage,fancyhdr,graphicx}
+\usepackage{epstopdf}
+\pagestyle{fancy}
+\fancyhf{}
+\rfoot{\thepage/\pageref{LastPage}}
+\renewcommand{\footrule}{\hrule height 2pt \vspace{2mm}}
+\fancyheadoffset[L]{2.25in}
+\fancyfootoffset[L]{2.25in}
+\lfoot{\today}
+
+% ---- manuscript-specific additions grafted onto the PLOS preamble ----
+\graphicspath{{img/}}
+\input{definitions}                 % bold-math macros (\bs, \N, \btheta, \bgamma, ...) from the original source
+\newcommand{\numberthis}{\addtocounter{equation}{1}\tag{\theequation}} % used by the 3-likelihood display
+% NOTE: figures are embedded here for a reviewable PDF. For the PLOS upload,
+% figures are submitted as separate files and stripped from the .tex.
+
+\begin{document}
+\vspace*{0.2in}
+
+\begin{flushleft}
+{\Large
+\textbf{Spatial modeling of tissues for morphogenic field analysis}
+}
+\newline
+\\
+Aaron Osgood-Zimmerman\textsuperscript{1\Yinyang*},
+Micha Sam Brickman Raredon\textsuperscript{2,3,4\Yinyang*}
+\\
+\bigskip
+\textbf{1} Department of Mathematics, Bucknell University, Lewisburg, PA, USA
+\\
+\textbf{2} Department of Anesthesiology, Yale School of Medicine, New Haven, CT, USA
+\\
+\textbf{3} Vascular Biology and Therapeutics, Yale University, New Haven, CT, USA
+\\
+\textbf{4} Program in Translational Biomedicine, Yale Biological and Biomedical Sciences, New Haven, CT, USA
+\\
+\bigskip
+
+\Yinyang These authors contributed equally to this work.
+
+* aaron.oz@bucknell.edu (AOZ); michasam.raredon@yale.edu (MSBR)
+
+\end{flushleft}
+
+\section*{Abstract}
+Tissues are shaped by extracellular signaling fields which convey information between cells. The cellular composition of tissues, and the extracellular signaling within the tissue, are innately spatially structured. Modern spatialomics data provide detailed measurement of ligand and receptor expressivity \textit{in situ} from tissue sections. Here we adapt geospatial statistical models to spatialomics data, fitting a continuous spatial field with quantified uncertainty to the raw counts of each of 912 ligand and receptor genes across a single field of view from a mouse embryo section, and convolving these into 1,477 inferred ligand-receptor interaction fields. Clustering this high-dimensional set of fields without dimensionality reduction yields spatially coherent tissue domains. Refitting the entire pipeline on spatially permuted data collapses the domains, which argues that they are not manufactured by the spatial smoother or by the high dimensionality of the clustering. The domains also agree, well above chance, with the anatomical annotation published independently for the same section (adjusted Rand index 0.401), while subdividing several organs into multiple territories. We also report that the clustering step is not deterministic, so the specific domain count and boundaries should be read as one realization. Because the inferred fields are derived from transcript counts, they are a proxy for protein abundance and do not constitute direct evidence of ligand-receptor binding. Our demonstration uses one field of view, from one section, on one platform, at one binning resolution; rather than asserting general applicability, we set out the conditions we expect would need to hold for the approach to transfer to other spatial omics platforms.
+
+\linenumbers
+
+\section*{Introduction}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=1\linewidth]{img/Project Schematic.png}
+    \caption{{\bf Project schematic.} The purple arrows represent true tissue processing and activity. The blurred regions represent coarse estimates captured by spatialomics or created by spatial modeling.}
+    \label{fig:proj_schema}
+\end{figure}
+
+\subsection*{Morphogenic field interactions are fundamental to tissue biology and regenerative medicine}
+
+Cells within tissues are continuously processing information and updating their states, receiving cues from their local microenvironment and contributing cues to their local milieu. The study of cellular connectivity (the potential for information flow between cells) and cell-to-cell signaling (information flow between cells) is fundamental to the study of tissue biology. Accurate modeling of cellular connectivity and cell-to-cell signaling, particularly through ligand-receptor syntax, provides a quantitative foundation for understanding tissue-scale changes and dynamics (Fig~\ref{fig:proj_schema}).
+
+It has long been understood that tissues are shaped by morphogenic signaling between cells \cite{Vainio1997,Basson2012,Hagolani2019,Wu2023}. During development, homeostasis, disease, and regenerative remodeling, cells within tissues release signaling molecules which diffuse through the extracellular matrix and can be locally received and processed by resident cells. Until recently, it has only been possible to capture data on a small number of morphogenic mechanisms at once from a single tissue. However, it is the \textit{holistic set} of soluble and insoluble cue intensities -- taken together as a single combinatoric `input' \cite{Li2019,Klumpe2022,Granados2024}-- that encodes the full spectrum of locally-transducable signaling information, often irreducible to the individual cues themselves \cite{Brennan2012,Ellison2016,Scuderi2025}. In other words, extracellular signaling is intrinsically high-dimensional (information is encoded via specific combinations of cues at particular levels, which are processed in parallel by resident cells) and is intrinsically spatially patterned: as an organism develops, intersecting 3-dimensional signaling gradients combine to drive tightly localized cellular differentiation, proliferation, and migration events. These morphogenic field interactions are major governors of tissue-scale emergent behavior including developmental morphogenesis and adult tissue inflammation \& homeostasis \cite{Weaver1997,Hironaka2012,Meizlish2021,Kicheva2023}. To understand tissue-scale change, therefore, we need robust tools to study high-dimensional signaling and connectivity dynamics in both time and space.
+
+Spatialomics is newly presenting scientists with an opportunity to estimate proxies for thousands of morphogenic fields at once, at both the raw and relative information level, thereby allowing us to model and visualize patterns that are consistent with the extracellular signaling thought to control cellular differentiation and transition in living tissues. However, to properly handle and analyze these data, we need appropriately designed statistical approaches. This paper presents one such approach, and shows that by adapting techniques common in geospatial data analysis, we are able to model and visualize, with quantified uncertainty, the high-dimensional patterns of extracellular signaling that have long been theorized to be fundamental to tissue growth and change.
+
+\subsection*{The critical need for spatial statistics in tissue biology}
+
+Spatialomics data differ from the true state of the tissue in two important ways. First, regardless of platform resolution, all spatialomics data collection methods collect data at discrete locations, necessarily creating error in reported spatial sampling coordinates. Second, no bulk RNA, single cell, or spatialomics methods perform true censuses -- that is, they do not measure every single molecule within every sample, and in many cases measure only a small fraction of the total present molecules \cite{Yue2023,Wang2023}. As a result, observed data from all spatial transcriptomic methods is subject to sampling variability. Ignoring sampling variability while performing data-analysis can lead to bias, over- or under-confidence in results, and false findings \cite{li2019a}. Properly accounting for the sampling variability in any dataset requires a statistical model aligned with the data-generating mechanism.
+
+Our statistical goal in this work was to take spatialomics data observations as input and to produce output which estimates the true state of the tissue, acknowledging and accounting for the important ways in which the data differs from the tissue itself. That is, we need statistical models to take transcriptomic data measured at \textbf{discrete} spatial locations as input and to produce estimates of \textbf{continuous} spatial fields as outputs, along with estimates of uncertainty, which act as a statistical prediction of transcriptomic counts across the spatial observation domain. Spatial statistics has a rich literature of tools to leverage which are designed exactly for this purpose. Furthermore, they account for the spatial autocorrelation present within these datasets, which, if ignored, can again lead to incorrect uncertainty estimates and false findings \cite{cannon2001}.
+
+\subsection*{Biological tissues are spatially structured}
+
+Advances in genetics data collection methodologies have led to rich, beautiful datasets which can easily be mistaken to be ``the truth."  Spatialomics, loosely defined as the group of technologies capable of measuring molecular characteristics of tissues within their natural spatial alignment, has justifiably been heralded as a transformative frontier in life sciences. However, the quickly developing methods, and the immense amounts of data produced, have outpaced \textit{analysis techniques}, which need to mature \cite{bressan2023}.
+
+Spatialomics collection methods have been developed precisely because there is observable and necessary spatial structure apparent in tissues. Yet, this fact isn't often explicitly incorporated in analyses. The spatial structure of healthy vs. diseased tissues is often radically dissimilar, but many currently-practiced computational methods are descendants of single cell techniques which were necessarily non-spatial. Ignoring the spatial organization, at best, may omit useful information and, at worst, may lead to an incorrect interpretation of the data. When approaching morphogenic field analysis, i.e., the quantitative study of high-dimensional extracellular signaling mediated by ligand-receptor binding interactions via the extracellular milieu, it is essential to take these principles into account, or we risk misinterpreting statistically spurious findings.
+
+In this manuscript we introduce a flexible continuous spatial modeling framework that can be used to estimate one or more features measured via spatialomics. The proposed approach also provides uncertainty estimates of each quantity over space, which allows propagation of uncertainty to downstream outputs (such as ligand-receptor binding density, the main biologic focus of this paper.) The modeling in this manuscript is  meant to be a launchpad for the use of powerful, existing frameworks to learn more readily and deeply from spatialomics data, thereby decreasing the chance of generating unreproducible results. We use our bespoke pipeline to quantitatively assess a portion of a public dataset capturing mammalian embryonic organogenesis. Our results show that, in the tissue section studied here, complex domain architecture can be derived from inferred spatial ligand-receptor patterns alone, without study of transcripts coding for intracellular proteins.
+
+\section*{Materials and methods}
+
+\subsection*{Overview}
+
+\subsubsection*{Principles of ligand-receptor analysis}
+
+Our focus in this paper was to model a useful proxy for local ligand-receptor binding \textit{density}. This is different from local ligand-receptor connectivity \textit{character}, which is the primary focus of many cell-to-cell communication inference tools including our prior work \cite{Raredon2022}. This distinction is non-trivial. When ligand-receptor connectivity \textit{character} is computed, individual feature values represent a proxy for \textit{relative} signal strength; when ligand-receptor binding \textit{density} is computed, individual feature values represent a proxy for \textit{absolute} signal strength. Our focus on binding density in this paper, rather than character, allows us to propagate our outputs to downstream models more easily and with fewer artifacts, as is shown in the Results section. By applying spatial statistics to the raw counts in spatial transcriptomics, rather than the normalized counts, our model outputs can be treated as a distinct layer of information for multi-modal data analysis, one that estimates a proxy for local ligand-receptor binding density within the tissue. This output can then be normalized, similarly to how we usually normalize local gene counts to relative values, to yield proxies for local ligand-receptor connectivity \textit{character} more familiar to most in the field.
+
+All connectivity tools require us to convolve information from the ligand field with information from the receptor field. Historically, this has been done by computing either the product \cite{Raredon2022} or the geometric mean \cite{Wilk2024} of all subunits involved. Here, we tested alternative approaches to convolving the ligand and the receptor values. Assuming that the counts of individual transcripts are proportional to the counts of individual proteins (an almost certainly \textit{incorrect} assumption, but one that we are forced to accept at this time) we may treat ligand-receptor binding as a stoichiometric process, i.e., a function of the concentration of the ligand and the concentration of the receptor.
+
+Ligands diffuse locally, with a characteristic diffusion distance roughly proportional to the molecular weight and chemical character of the molecular species and how it interacts with other matrix elements. Extracellular ligands can be sensed and processed by tissue-resident cells expressing specific receptor profiles. The computational approaches we are aware of address this fundamental property of tissue biology by first creating local neighborhoods in histologic space and then computing cell-to-cell ligand-receptor connectivity within each neighborhood. When working with continuous field models, as is demonstrated here, local neighborhood construction is no longer necessary, because the spatial field, intrinsically, can be considered as a filter which takes in noisy spatial data and returns a smoothed version. Although the smoothed output is technically an estimate of the underlying state of the tissue, in practice the smoothing process can be viewed as sharing locally-measured information between nearby areas. This modeling approach thereby provides a framework for convolution of ligand and receptor fields. The fields themselves can be independently tuned to reflect specific molecular properties, and the convolution approach customized to reflect binding kinetics.
+
+\subsubsection*{Principles of spatial modeling}
+
+Spatial statistics is a field of statistics used to study datasets in which the location of the data observations is recorded. Typically, a spatial statistical model will explicitly account for spatial dependence among observations to acknowledge that spatially nearby observations are often more strongly correlated than observations that are located further apart. The purpose of most statistical models is to use imperfect data to provide an estimate of a population-level target of interest and the associated uncertainty of that estimate (from which statistical inference, e.g. confidence intervals or hypothesis tests can be calculated and performed). Leveraging spatial correlation when it exists can result in more precise estimates and ignoring it when it exists leads to incorrect (typically overly confident) uncertainty estimates \cite{valcu2010}. Non-probabilistic interpolation techniques cannot account for the sampling variability or produce reliable uncertainty estimates. In this work, we demonstrate a spatial statistical model that can be used to estimate biological fields across the tissue from which the spatialomics data sample was collected. The estimated fields represent the result that would be expected if the experiment were repeated many times.
+
+One of the primary decisions to make when performing a spatial statistical analysis is whether the spatial domain (and thus the model) should be discrete or continuous in nature. Despite that many of the contemporary spatialomics data collection tools generate data on discrete ``spot" arrays, the underlying tissue- and cellular-level \textit{processes}, which are the target of our study, are not constrained to occur only at data observation locations (spots) or any finite set of locations.
+
+For this reason, we have chosen to pursue a continuous spatial modeling approach. This does not mean that we believe there to be continuous distributions of discrete morphogen molecules at all points in space -- we know this is not true -- but rather that our estimate shows at each point in space the average values, and that spread of the values, that we would expect to see if we could repeat the experiment (of performing spatialomics data collection on a tissue slice) many times. Our goal with the spatial statistical models is two-fold: 1) to estimate the unknown underlying population field while 2) acknowledging the uncertainty in our estimate due to the sampling variability present in the observed dataset.
+
+\subsubsection*{A general approach to spatial hierarchical modeling}
+
+We formulate our model in a generalizable Bayesian hierarchical modeling framework that can generally be thought of as having three stages:
+\begin{alignat*}{2}
+&\mbox{Stage 1, data generation:} &\mbox{Data } &| \mbox{ Process}\\
+&\mbox{Stage 2, the (latent) process: }  &\mbox{Process } &| \mbox{ Hyperparameters }\\
+&\mbox{Stage 3: hyperparameters }  &\mbox{Hyperparameters } &| \mbox{ Priors}
+\end{alignat*}
+
+This broad framework is broadly applicable to many data collection settings where 1) data observations, which depend on some underlying process, are collected, 2) the underlying process, called the latent process since it cannot be directly observed, can be represented as a probability distribution whose parameters can be inferred from the data observations, and 3) the latent process itself may depend on some additional parameters. This simple yet powerful framework is well-established and a useful pedagogical tool for describing hierarchical modeling \cite{cressie2011statistics}. To make this concrete in the spatialomics setting, we could define the following three stages as follows:
+\begin{enumerate}
+    \item mRNA is collected across a tissue using a spatial transcriptomics data collection technique. At each location where data is collected, only a subset of all possible mRNA at that location is collected. Furthermore, the actual levels of mRNA at any particular location stochastically vary as mRNA is created and destroyed in accordance with the unobserved cell state at and around that location. The latent cellular state cannot directly be observed, but we aim to infer something about cell state using the observable mRNA counts.
+    \item The cell state, the latent process, is also a stochastic process. Conditional on the cell type, cell size, cellular microenvironment and signaling networks a cell is involved in, the state of the cell follows a probabilistic distribution. The state of the cell and the previously listed cell characteristics drive the stochastic mRNA production discussed in the above description of the data collection stage.
+    \item To complete the Bayesian specification, some of the values that the cell state depends upon (e.g. the microenvironment of a cell) can also be viewed as stochastic processes whose parameters can be specified with prior distributions.
+\end{enumerate}
+
+\subsubsection*{A general spatial statistical model for spatialomics}
+
+The geostatistical model described in \eqref{eq:one-feat-model} is applicable to spatialomics datasets that report counts at a set of spatial locations together with a measure of local sampling effort; the conditions under which we expect it to transfer to other platforms are set out in the \nameref{sec:discussion} section. Unlike many contemporary spatialomics and genomics data analyses which use some version of standardized (``normalized'') counts, we have proposed to directly model the ``raw'' counts from the spatialomics platform. This allows us to work with a generative model: the proposed model can be viewed as one capable of generating the data that is actually observed and collected when one uses a spatialomics platform.
+
+Let $\bs\in\mathcal{S}$ denote a spatial location over the continuous spatial domain $\mathcal{S}$, which here is the two-dimensional field of view of the tissue section. We write $F_i(\bs)$ for the count of the $i^{th}$ feature (a single ligand or receptor gene) at location $\bs$, treated as a random variable, and $y_i(\bs)$ for an observed realization of it. We write $\N(\bs)$ for the total counts at $\bs$, that is, the number of unique molecular identifiers (nUMI) recovered at that location.
+
+To explicitly account for the differences between the raw counts and standardized counts, we specify the \textit{expected} counts from feature $i$ as the product of the total counts, $\N(\bs)$, and a rate parameter, $\lambda_i(\bs)$, which represents the expected counts of the $i^{th}$ feature per unit of total counts at location $\bs$. That is, $\E\big(F_i(\bs)\big) = \N(\bs)\times \lambda_i(\bs)$, so that $\N(\bs)$ enters as an exposure term and $\lambda_i(\bs)$ carries the spatial signal for feature $i$.
+
+The general hierarchical model then takes the form:
+
+\begin{equation}
+\label{eq:one-feat-model}
+\begin{alignedat}{999}
+& \mbox{Data stage} & F_i(\bs) & \, | \, \lambda_i(\bs), \N(\bs) &&\sim \mbox{Poisson}\big( \N(\bs)\times\lambda_i(\bs)\big)\\
+& & \N(\bs) & \, | \, \lambda_N(\bs) &&\sim \mbox{Poisson}\big( \lambda_N(\bs)\big)\\
+&&&&&\\
+&\mbox{Process stage} \ \ \ \ \ & \mbox{log}\,\lambda_i(\bs)& = \alpha_i + u_i(\bs), \ \ u_i(\cdot)\,|\,\btheta_i &&\sim GP\big(0, \Sigma(\btheta_i)\big)\\
+&\ \ \ \ \ & \mbox{log}\,\lambda_N(\bs)& = \alpha_N + u_N(\bs), \ \ u_N(\cdot)\,|\,\btheta_N &&\sim GP\big(0, \Sigma(\btheta_N)\big)\\
+&&&&&\\
+&\mbox{Prior stage} & \bgamma_i \equiv (\alpha_i,\alpha_N,&\btheta_i,\btheta_N) &&\sim \pi_\gamma.
+\end{alignedat}
+\end{equation}
+
+Each symbol is defined as follows. In the data stage, the counts of feature $i$ at location $\bs$ are Poisson with mean equal to the total counts at $\bs$ multiplied by the rate $\lambda_i(\bs)$. In the process stage, $\log\lambda_i(\bs)$ is decomposed into a feature-specific scalar intercept, $\alpha_i$, which sets the overall level of feature $i$ across the field of view, and $u_i(\bs)$, a zero-mean Gaussian process over $\mathcal{S}$ which carries all spatial variation in the rate. The notation $GP\big(0,\Sigma(\btheta_i)\big)$ means that any finite collection of values of $u_i$ is multivariate Gaussian with mean zero and covariance matrix $\Sigma(\btheta_i)$, whose $(\bs,\bs')$ entry is a Mat\'ern covariance function evaluated at the distance between $\bs$ and $\bs'$. The vector $\btheta_i$ collects the two parameters of that covariance function for feature $i$: the range $\rho_i$, which is the distance at which the correlation between two locations has decayed to approximately $0.13$, and the marginal standard deviation $\sigma_i$, which is the standard deviation of $u_i(\bs)$ at any single location. We do not estimate the Mat\'ern smoothness. In the stochastic partial differential equation (SPDE) representation described below, we fix the order of the operator at 2 (the \texttt{alpha = 2} setting in the implementation), which corresponds to a Mat\'ern smoothness of $\nu=1$ in two spatial dimensions, so that $\btheta_i = (\rho_i, \sigma_i)$ and nothing further. Note that this order parameter is unrelated to the intercepts $\alpha_i$ and $\alpha_N$, and we avoid writing it as a symbol for that reason. The symbols $\lambda_N(\bs)$, $\alpha_N$, $u_N(\bs)$, $\btheta_N = (\rho_N,\sigma_N)$ and $\Sigma(\btheta_N)$ are the corresponding objects for the latent model of the total counts. The Bayesian specification is completed by the hyperprior $\pi_\gamma$ over the collection of hyperparameters $\bgamma_i$.
+
+\paragraph*{The status of the latent total-count model.} The second line of the data stage, and with it every symbol carrying an $N$ subscript, specifies a \textit{latent} model for the total counts. We retain it in \eqref{eq:one-feat-model} because it is the general form of the framework and because we did fit it; the per-feature outputs of those joint fits are the panels in S3 File. However, no result reported in this manuscript uses it. In every fit reported in the figures and in Table~\ref{tab:lik-comp}, $\N(\bs)$ is the \textit{observed} nUMI at location $\bs$, entered as a fixed and known offset rather than modeled, so the reported model is the first data-stage line together with the first process-stage line alone. Fitting the joint latent model did not visibly alter the estimated feature fields in the comparison we ran, and we adopted the offset specification for the full feature set because it is simpler and cheaper to fit; we did not quantify the difference with a summary statistic, so we make no stronger claim than that.
+
+\paragraph*{Priors.} We set independent wide Gaussian priors on the intercepts $\alpha_i$ and $\alpha_N$. On the Mat\'ern parameters we place the joint penalized complexity prior of Fuglstad et al.\ \cite{fuglstad2019}, which is specified by one tail probability for each component. For the analyses reported here we set $P(\rho_i < 500) = 0.95$ and $P(\sigma_i > 0.1) = 0.05$, identically for every feature $i$, with the range expressed in the raw coordinate units of the Stereo-seq chip. Five hundred coordinate units is ten bins at the bin-50 resolution used throughout, and about one twentieth of the width of the field of view, so the range prior places most of its mass on fields that vary over distances well short of the field of view, and the marginal standard deviation prior shrinks $u_i$ toward a constant field unless the data indicate otherwise. A sum-to-zero constraint is imposed on each fitted field so that $\alpha_i$ and $u_i(\bs)$ are separately identifiable.
+
+\paragraph*{From the model to the implementation.} The Gaussian processes are not represented by a dense covariance matrix. We use the SPDE representation \cite{lindgren2011}, in which a Mat\'ern field is approximated by a Gaussian Markov random field defined on the nodes of a triangulated mesh over $\mathcal{S}$; $\Sigma(\btheta_i)$ is therefore realized in the code as a sparse precision matrix indexed by mesh nodes rather than by observation locations. The mesh used for the reported analyses has approximately 10{,}200 nodes covering the 26{,}000 observation bins. Inference is by integrated nested Laplace approximation \cite{rue2009}, using the \texttt{R-INLA} and \texttt{inlabru} packages, and posterior summaries and predictive scores are computed from 1{,}000 posterior samples per feature. Because the correspondence between the notation above and the analysis code is not otherwise obvious, S9 Table gives a row for each mathematical object in \eqref{eq:one-feat-model}, naming the script and the code object that implements it.
+
+Due to the large number zeros often present in transcriptomics datasets, we also tested variations on the modeling framework wherein we replaced the Poisson likelihood for the $i^{th}$ feature with either a zero-inflated Poisson (ZIP) process or a zero-adjusted Poisson (ZAP) process. Both of these alternatives allow for a spatially varying probability of observing no counts. In these variants, the data generating mechanism can then viewed as first flipping a coin to determine if any counts from feature $i$ will be observed, followed by a data observation from a Poisson process if the coin flip succeeds. Additional detail can be found in the \nameref{sec:meth-model-comp} section.
+
+\subsubsection*{Quantification of categorical spatial structure}
+\label{sec:elsa}
+
+To assess the impact of our modeling choices, we desired a way of quantifying the spatial coherence of our final output clusters, represented as a categorical variable. To this end, we employed ELSA (entropy-based local indicator of spatial association), which is applicable to categorical variables and does not depend on the number of categories \cite{naimi2019elsa}. ELSA is calculated by multiplying a spatially localized (scaled) Shannon entropy calculation with a localized measure of spatial dissimilarity to produce a measure of spatial association. Each of these components are bounded between 0 and 1, ensuring that ELSA is also bounded between 0 and 1. Locations with high values of ELSA indicate spatial regions where the variable of interest is less structured and spatially disparate while low values of ELSA suggest higher levels of spatial coherence within the local neighborhood.
+
+\subsection*{Computational experiments}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=1\linewidth]{img/Data Parameters.png}
+        \caption{{\bf Data parameters.} The 1\textsuperscript{st} columns shows total counts within the selected field of view from \cite{Chen2022}. The 2\textsuperscript{nd} column shows ligand information, and the 3\textsuperscript{rd} column shows receptor information. For latter two columns, the 1\textsuperscript{st} row is total ligand or receptor counts, the 2\textsuperscript{nd} row is total ligand or receptor features, and the 3\textsuperscript{rd} row is fraction of the total counts that are ligand or receptor counts.}
+    \label{fig:data_param}
+\end{figure}
+
+\subsubsection*{Dataset selection}
+To demonstrate our approach in detail, we use data from Chen et al.\ 2022 \cite{Chen2022}, the Mouse Organogenesis Spatiotemporal Transcriptomic Atlas (MOSTA), a spatial time-course atlas of mouse embryogenesis acquired with the spatial transcriptomics platform Stereo-seq. The material analyzed here is therefore a mouse embryo section drawn from a public atlas. No new tissue was collected for this study, no human or patient material is involved, and we did not perform the tissue processing or sequencing ourselves; readers should consult the original publication for the experimental protocol. We selected this resource because it is publicly available, information-rich, straightforward to interpret anatomically, and relevant to both developmental and regenerative biology.
+
+Stereo-seq captures polyadenylated RNA on a chip patterned with DNA nanoball spots, each bearing capture probes that carry a coordinate identity barcode encoding the spot's position, a unique molecular identifier, and a poly-T tail. Spots are approximately 220 nm across, with a center-to-center spacing of either 500 or 715 nm depending on the chip variant; the source publication does not state which variant carried the embryo sections, so we report positions below in spot units rather than converting them to physical distances. Because the spacing is far finer than a cell, individual spots are very sparse, and counts are conventionally aggregated into square bins before analysis. We follow that practice.
+
+From this atlas we selected a single section from embryonic day 16.5, section identifier \texttt{E16.5\_E1S3}, and within it a single field of view spanning $x$ from 15000 to 25000 and $y$ from 11500 to 18000 in raw chip coordinates (Fig~\ref{fig:data_param}). One unit of those coordinates is one nanoball spot, so the field of view is 10,000 by 6,500 spots; its size in millimetres depends on which chip variant was used, which the source publication does not specify. The field of view was chosen to be visually recognizable to both experts and non-specialists and to contain several distinct organs, allowing close study of morphogenic field interactions during development. At the bin size used throughout (bin 50, meaning a $50\times50$ block of capture spots), this field of view comprises 26,000 spatial locations, each of which is an observation in the models below.
+
+\subsubsection*{Dataset preprocessing}
+
+Raw count data were loaded into \texttt{R} and restricted to the field of view described above. We then filtered the transcriptomic features to only those measured within this boundary and, following the workflow from the original publication, collapsed the ultra-high resolution, sparse data into square spatial bins at three sizes (10, 25, and 50). All results shown in the figures of this manuscript use the bin-50 data, which divides the field of view into a $200\times130$ grid of 26,000 bins; S1 File documents this raw-to-bin step and its outputs. Bin 50 was chosen as the coarsest of the three, and therefore the least sparse per observation; the choice of binning is a modeling decision rather than a property of the platform, and results at other bin sizes are not reported here.
+
+To identify ligand and receptor genes, we cross-referenced the mouse version of the FANTOM5 database \cite{Ramilowski2015} against the feature names of the binned data, yielding 974 distinct genes that were either ligands or receptors. We further refined this gene list to only include ligands or receptors showing at least two counts in at least one bin, and at least one-quarter-of-one-percent of the bins in the field of view expressing the gene at any non-zero level (S2 File shows the visual outputs which were used to decide this threshold). This final step of feature selection yielded a curated list of 918 individual ligand or receptor genes.
+
+\subsubsection*{Dataset modeling}\label{sec:meth-models}
+
+We individually modeled the spatial field of the counts of each curated feature using a spatial Gaussian process model with Poisson observations, as defined in \eqref{eq:one-feat-model}, with the observed nUMI at each bin as a fixed offset. The models were fit using \texttt{R-INLA} and \texttt{inlabru}, and predictions from these models were then used in downstream analyses.
+
+Not every curated feature yielded a usable field. Of the 918 genes on the curated list, three (\textit{a}, \textit{Calcb} and \textit{Cckar}) were excluded before fitting, and three further genes (\textit{Fgf1}, \textit{Fzd7} and \textit{Trhr}) did not produce a converged fit. All downstream analyses therefore use the 912 features with fitted spatial fields. Of the FANTOM5 ligand-receptor pairings, 1477 have both partners among these 912 features, and these 1477 pairs define the interaction fields analyzed in the remainder of the manuscript.
+
+\subsubsection*{Comparison of 3 data models}\label{sec:meth-model-comp}
+
+We experimented with three different likelihood models: a Poisson likelihood, a zero-inflated Poisson (ZIP) likelihood, and a zero-adjusted Poisson likelihood (ZAP). The ZIP and ZAP models provide extra flexibility to acknowledge that the raw count data is often very sparse, with many spots returning a measurement of 0 for any particular feature:
+
+Writing $\mu_i(\bs) = \N(\bs)\,\lambda_i(\bs)$ for the Poisson mean of \eqref{eq:one-feat-model}, so that the observed total counts enter as an exposure term in all three cases, the likelihoods are
+
+\begin{equation}\label{eq:three-lik}
+\begin{aligned}
+    \mbox{Poisson:}\  &P\left(F_i(\bs)=y\ |\ \mu_i(\bs)\right) &&= \mbox{Poisson}\big(y\ |\ \mu_i(\bs)\big)\\
+    \mbox{ZIP:}\  &P\left(F_i(\bs) = y\ |\ \mu_i(\bs), p_i(\bs)\right) &&= p_i(\bs)\mathcal{I}_{y=0}  + (1-p_i(\bs))\mbox{Poisson}\big(y\ |\  \mu_i(\bs)\big) \\
+    \mbox{ZAP:}\  &P\left(F_i(\bs)= y\ |\ \mu_i(\bs), p_i(\bs)\right) &&= p_i(\bs)\mathcal{I}_{y=0}  + (1-p_i(\bs)) \mbox{Poisson}\big(y\ |\  y>0, \mu_i(\bs)\big),
+\end{aligned}
+\end{equation}
+
+where $p_i(\bs)$ is a spatially varying probability of a 0 observation for feature $i$, which is modeled with its own spatial Gaussian random field using a logit link, and $\mathcal{I}_{y=0}$ is an indicator function which takes a value of 1 if $y=0$ and takes a value of 0 otherwise. The ZIP and ZAP models differ in that the probability of a 0 in the ZAP model is directly governed by $p_i(\bs)$ and allows for the probability of a 0 to be less than a standard Poisson, whereas the ZIP models can only increase the probability of a 0. ZAP models are typically selected when the process for a 0 occurrence differs substantially from the process driving the non-0 values.
+
+At each observed location, $\bs_j$, model performance was assessed by comparing the observed count of feature $i$ at that location, $y_i(\bs_j)$, against the posterior predictive distribution of $F_i(\bs_j)$. Writing $\E(\cdot|\mbox{data})$, $\v(\cdot|\mbox{data})$ and $\mbox{med}(\cdot|\mbox{data})$ for the mean, variance and median of that posterior predictive distribution, the four location-level scores we used are
+\begin{align*}
+    AE_i(\bs_j)&=\left|y_i(\bs_j) - \mbox{med}\big(F_i(\bs_j)|\mbox{data}\big)\right|\\
+    SE_i(\bs_j)&=\left(y_i(\bs_j)-  \E\big(F_i(\bs_j)|\mbox{data}\big)\right)^2\\
+    DS_i(\bs_j)  &= \frac{\left(y_i(\bs_j) - \E\big(F_i(\bs_j)|\mbox{data}\big)\right)^2}{\v\big(F_i(\bs_j)|\mbox{data}\big)} + \log\left(\v\big(F_i(\bs_j)|\mbox{data}\big)\right)\\
+    LS_i(\bs_j)&=-\log\left(P\big(F_i(\bs_j)=y_i(\bs_j)|\mbox{data}\big)\right).
+\end{align*}
+
+The absolute error (AE) and the squared error (SE) are point-forecast measures: they compare a single summary of the predictive distribution against the observation and ignore its spread. The Dawid-Sebastiani score (DS) is a proper scoring rule combining the predictive mean and variance, and the (negated) logarithmic score (LS) is a strictly proper scoring rule which uses the entire predictive distribution \cite{gneiting2007strictly}. All four are negatively oriented, so that a smaller value indicates better performance; note that DS may be negative, because it contains a log-variance term, so ``smaller'' means more negative for that score.
+
+These location-level scores are reduced to the four per-feature quantities reported in Table~\ref{tab:lik-comp}. For feature $i$, the mean absolute error is $MAE_i = \mbox{mean}_j\, AE_i(\bs_j)$, the root mean squared error is $RMSE_i = \sqrt{\mbox{mean}_j\, SE_i(\bs_j)}$, the mean Dawid-Sebastiani score is $MDS_i = \mbox{mean}_j\, DS_i(\bs_j)$, and the mean log score is $MLG_i = \mbox{mean}_j\, LS_i(\bs_j)$, each averaged over the observation locations $\bs_j$. Table~\ref{tab:lik-comp} then reports the average of each of these across features.
+
+\subsubsection*{Quantitative optimization of ligand-receptor convolution}
+\label{sec:meth-conv-comp}
+
+We experimented with multiple different approaches to ligand-receptor convolution. In all approaches studied, we did not consider ligand nor receptor sequestration due to binding, nor did we consider cross-mechanism inhibition or competitive interference, which can be the focus of future studies. We tested product, geometric mean, and a new approach labeled `common minimum convolution', which computes an upper bound on the number of local binding events that the estimated ligand and receptor levels would imply, under the assumption that all ligand and all receptor bind to one another in a 1:1 fashion. As with every quantity in this paper, that bound is model-derived from transcript counts rather than measured. We also explored a prototype approach based on chemical kinetics, using the rate equation with a tunable dissociation constant to model local steady-state ratio between bound and unbound ligand.
+
+Our goal was to learn which methods yielded the most fine-grained and spatially organized clusters by looking for methods that maximized the number of clusters while minimizing the spatial entropy as quantified by ELSA (see the \nameref{sec:elsa} section). We therefore performed a targeted optimization experiment to identify which combination of parameters, models, and data inputs, all else being equal, resolved the largest number of distinct local microenvironments while minimizing inter-cluster spatial entropy. ELSA was calculated locally and averaged across the modeling region to produce a single comprehensive score. This provided a means to visualize the boundaries between clusters, assessing how well they segregate in space, and to rank each computational approach by both number of clusters identified (all other parameters being equal) and the global spatial entropy of cluster segregation.
+
+\subsubsection*{Quantifying the relationship between spatial structure and hyperfield dimensionality}
+
+We use \textit{hyperfield} throughout for the full collection of inferred ligand-receptor interaction fields treated as a single high-dimensional object, and \textit{hyperfield dimensionality} for the number of those fields entering an analysis at once.
+
+We used the results from a specific optimized workflow (Raw Counts - Poisson Model - Common Minimum Convolution) to examine how spatial domain architecture varies with the dimensionality of the signaling hyperfield, meaning the number of inferred interaction fields entering the clustering at once. We did this because contemporary biologic theory posits that the complex spatial domains observed in tissues are likely a multivariable function of high-dimensional signal combinations rather than of a small set of select mechanisms. We therefore performed an experiment in which we iteratively increased the number of individual features considered for latent-space embedding and clustering, holding the rest of the workflow fixed. This sweep varies one quantity, the feature count, and so characterizes that one dependence rather than the relationship in full. Individual ligand-receptor mechanism features were first ranked based on system-scale variance, and then a for-loop was written to embed and cluster the data, with otherwise fixed algorithmic parameters, using increasingly many ligand-receptor features (10, 50, 100, 150, ..., 1477). Ligand-receptor connectivity field data were scaled (though, importantly, not sum-normalized first) and processed without any principal-component analysis. Latent-space neighborhood graph construction and clustering parameters were held constant to allow isolation of the effect of feature number. ELSA was run in all instances, with a scan across the local distance parameter. All outputs from each step were stored for downstream visualization and analysis.
+
+\section*{Results}
+
+\subsection*{Raw counts, rather than normalized counts, are the appropriate input for spatial modeling}
+
+Our experiments first indicated that commonly-applied count-normalization approaches can introduce topological artifacts when applied to these spatial data, a pattern also noted by others \cite{Bhuva2024}. Low individual-feature counts  can be transformed into local hotspots when the raw values are count-normalized within spots of low total RNA density. See Fig~\ref{fig:raw_v_norm} for a demonstration with a single feature (Cd44); the same comparison for a further 23 selected features can be observed in S3 File. Because we aimed to model raw ligand-receptor \textit{binding density} within tissues, the results from this experiment made clear to us that it was most physically appropriate to convolve continuous ligand and receptor fields which estimate \textit{raw} ligand and receptor topology, rather than fields which estimate the commonly-used \textit{count-normalized} topology. Nevertheless, we decided to carry forward both approaches in parallel experimentally, so that we could identify and compare project-relevant differences downstream. As a secondary result, we also learned from these early experiments that spatially modeling $\N(\bs)$, the nUMI, in addition to a ligand or receptor feature, $F_i(\bs)$, produced no visible change in the estimated feature fields. We did not quantify that comparison with a summary statistic, so we claim no more than the absence of a visible difference. On that basis the remainder of the results were run using the nUMI directly, as measured in the data, which is also the cheaper specification to fit.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=1\linewidth]{img/Raw vs Normalized Comparison Plot.png}
+    \caption{{\bf Raw vs.\ count-normalized topology.} Example comparison between raw count topology vs. count-normalized topology for a single feature (Cd44). 1\textsuperscript{st} column is observed Cd44 counts, 2\textsuperscript{nd} column is observed Cd44 counts divided by the total counts. 3\textsuperscript{rd} column is the total counts. 1\textsuperscript{st} row is raw data, 2\textsuperscript{nd} row are estimates from the spatial model, 3\textsuperscript{rd} row is the residual (difference between model and raw data.) In this example, count-normalization substantially changes the spatial topology. On this basis, and on the comparable panels for 23 further features in S3 File, we avoid normalization prior to connectivity computations in the work reported here.}
+    \label{fig:raw_v_norm}
+\end{figure}
+
+\subsection*{Poisson likelihood model outperforms ZIP and ZAP models}
+
+We compared three spatial modeling approaches: Poisson, ZIP, and ZAP (see \nameref{sec:meth-model-comp}). We found that the relative simplicity of the spatial Poisson model proved most suited, in these particular exercises, to the task of estimating feature counts. Table~\ref{tab:lik-comp} gives the four prediction scores by likelihood.
+
+Of the four scores, we prioritized the two proper scoring rules, MDS and MLG, over the point-forecast measures MAE and RMSE, because what this framework offers downstream is a predictive distribution with quantified uncertainty rather than a point estimate, and only the proper scoring rules assess that distribution as a whole. In this particular comparison the choice of criterion does not change the conclusion, since the Poisson model gives the best average value on all four scores. This is not evident from the parenthetical percentages, which fall below 100\% for MDS. That is an artifact of expressing a negative score as a ratio: because MDS is negative, a ratio below 100\% corresponds to a score nearer zero and therefore worse, and the raw MDS values ($-2.15$ for Poisson against $-1.78$ for ZIP and $-1.77$ for ZAP) should be compared directly.
+
+Nor is the average driven by a small number of extreme features. Comparing the three likelihoods feature by feature, across all 912 features and without the score filter applied to the table averages, the Poisson model gave the lowest score for 814 features on MAE, 880 on RMSE, 734 on MDS, and 829 on MLG, and was best on all four scores simultaneously for 645 of the 912. Predictive plots showed that the empirical distribution of the probability integral transform (PIT) values from the Poisson models was routinely closest to a uniform distribution, which is the distribution a calibrated predictive model would produce, when compared to the empirical distribution of the PIT values from the ZIP and ZAP models. Spatial residual plots revealed that the poorer average performance by the ZIP and ZAP models appears attributable to oversmoothing as evidenced by the predictions and residuals. See Fig~\ref{fig:model_comp} for comparison between models for a single feature, and S4 File for corresponding plots for all features.
+
+We read this as evidence that the extra flexibility of a zero-inflated or zero-adjusted likelihood was not needed at the sparsity of this dataset at bin-50 resolution, not as a general result about count likelihoods for spatialomics. A platform or binning choice that produced substantially sparser data could well favour a zero-inflated likelihood, and the framework accommodates one.
+
+\begin{table}[!ht]
+\centering
+\caption{{\bf Comparison of the Poisson, ZIP and ZAP likelihoods.} Abbreviations: MAE, mean absolute error; RMSE, root mean squared error; MDS, mean Dawid-Sebastiani score; MLG, mean log score; ZIP, zero-inflated Poisson; ZAP, zero-adjusted Poisson. Each score is first averaged over the observation locations within a feature, and the table reports the average of those per-feature values across features; the scores are defined in the \nameref{sec:meth-model-comp} section. All four scores are negatively oriented, so the smallest value in a column is the best. MDS is negative because it contains a log-variance term. The Poisson model gives the best value on all four scores. Values in parentheses are the mean across features of the ratio of that model's score to the Poisson score \emph{for the same feature}, expressed as a percentage, so 100\% denotes a model whose average per-feature score equals Poisson's. Note that this is an average of ratios and carries no dispersion, so a value near 100\% indicates comparable average performance rather than statistical indistinguishability. These are ratios rather than differences, and they are not the ratio of the two averages printed in the table. For MAE, RMSE and MLG, which are positive, a value above 100\% indicates worse performance than Poisson; for MDS, which is negative, a value below 100\% indicates a score closer to zero and therefore also worse, so the raw MDS values should be compared directly instead. Averages are taken over the 912 features with converged fits, excluding feature-by-model combinations whose scores took extreme values indicating nonconvergence. That exclusion removes 4 of the 2,736 combinations from the absolute averages and 7 from the parenthetical ratios, in both cases affecting only the ZIP row, which is therefore averaged over 908 features for the absolute values and 905 for the ratios.}
+\label{tab:lik-comp}
+\begin{tabular}{|l|rrrr|}
+  \hline
+  Model & MAE & RMSE & MDS & MLG \\
+  \hline
+Poisson & 0.21 & 0.42 & -2.15 & 0.31 \\
+ZIP & 0.29 (111\%) & 0.54 (116\%) & -1.78 (85\%) & 0.33 (111\%) \\
+ZAP & 0.23 (111\%)& 0.47 (116\%)& -1.77 (82\%)& 0.35 (122\%)\\
+   \hline
+\end{tabular}
+\end{table}
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=1\linewidth]{img/Model Comparison Plot.png}
+    \caption{{\bf Likelihood model comparison.} The 1\textsuperscript{st}, 2\textsuperscript{nd}, and 3\textsuperscript{rd} rows, respectively, show the outputs from the Poisson, ZIP, and ZAP models. The 4\textsuperscript{th} row shows raw data. The 1\textsuperscript{st} column shows the probability of a non-zero value at that point in space. The 2\textsuperscript{nd} column shows the density for that feature, i.e., counts/nUMI. The third column shows the feature counts. The top three rows in the 4\textsuperscript{th} column show the residuals, the difference between estimated counts and data counts, and the bottom right panel shows the nUMI from the data. The Poisson model resulted in the smallest residuals and was the best performing of the three spatial models tested.}
+    \label{fig:model_comp}
+\end{figure}
+
+\subsection*{Common minimum convolution gave the most spatially structured output of the operators tested}
+
+\begin{figure}[p]
+    \centering
+    % Scaled to fit page alongside its (long) caption; for the PLOS upload this
+    % figure is submitted as a separate full-resolution file (see README-build.md).
+    \includegraphics[width=0.705\linewidth]{img/Convolution Comparison Plot.png}
+    \captionsetup{font=small}
+    \caption{{\bf Comparison of ligand-receptor convolution operators.} Columns compare three operators for combining a ligand field with a receptor field: the product (labeled \texttt{m.est.prod} in the panel titles), the geometric mean (\texttt{m.est.gm}), and the common minimum (\texttt{m.est.min}). All three columns use the same field of view and the same underlying fitted fields, so the operator is the only thing deliberately varied between columns; the clustering step is not deterministic, so run-to-run variation also contributes (see the \nameref{sec:controls} section). Top block: four example ligand-receptor mechanisms (WNT4-FZD6, RSPO1-LGR6, DHH-PTCH1, and VEGFA-KDR). Within each, the two small panels on the left show the separately estimated ligand field (\texttt{l.est}) and receptor field (\texttt{r.est}), and the large panel on the right shows the inferred interaction field that column's operator produces from them. Absolute values differ between operators and matter less than the relative spatial topology, because these fields are scaled before high-dimensional analysis. Middle: the tissue domains obtained by clustering that operator's full set of inferred interaction fields under a fixed workflow (see the \nameref{sec:meth-conv-comp} section). Cluster colors and numbers are arbitrary labels, so what is comparable across columns is the number of domains and their spatial organization, not the color assignment. Below that: the corresponding `entrogram', a map of the entropy-based local indicator of spatial association (ELSA) \cite{naimi2019elsa} computed on the domain labels and scaled from 0 to 1, in which high values (orange) mark locations where domain labels are locally mixed, so that coherent domains appear as blue interiors bounded by thin high-ELSA borders. Bottom row, spanning all three columns: mean ELSA against the ELSA neighborhood radius \texttt{param\_d} for a subset of the assays (left), and mean ELSA against the number of clusters recovered, one point per assay tested (right), with the arrow marking the common minimum. Lower ELSA and more clusters are both preferred, so the favorable region of the right-hand panel is its lower right. Of the operators tested, the common minimum gave the largest number of clusters at the lowest ELSA.}
+    \label{fig:convolution_compare}
+\end{figure}
+
+We assessed the output spatial structure that resulted from clustering 32 distinct spatial assays, summarized in S5 File. Three in particular are detailed in Fig~\ref{fig:convolution_compare}. Of the operators we tested, the `common minimum' approach, which simply takes the common minimum between the ligand and receptor subunits, gave the largest number of clusters together with the lowest spatial entropy. Of note, the common minimum approach closely approximates the outputs produced when $k$, the dissociation constant, is decreased to 0, which within that kinetic model corresponds to total binding without any dissociation. Because of these results, we carried this output forward for downstream experimentation. For full results from this experiment, see S6 File.
+
+Two caveats attach to this ranking. It rests on single runs of a clustering step that we later found to be non-deterministic (see the \nameref{sec:controls} section), so while the separation between the three operators shown in Fig~\ref{fig:convolution_compare} is several times the run-to-run variability we measured, small differences between closely ranked operators should not be over-interpreted. It is also a comparison of operators within our own pipeline on one dataset, not a general result about which convolution is correct.
+
+\subsection*{High-dimensional morphogenic field analysis resolves spatial domains}
+
+\begin{figure}[p]
+    \centering
+    % Scaled to fit page alongside its (long) caption; for the PLOS upload this
+    % figure is submitted as a separate full-resolution file (see README-build.md).
+    % NOTE (revision): the in-figure panel labels still read "1481 Features"; the
+    % corrected count is 1477. Update the panel labels when this figure is
+    % regenerated for R1.3 (size/organization). The caption already says 1,477.
+    \includegraphics[width=0.745\linewidth]{img/Spatial Domains.png}
+    \captionsetup{font=small}
+    \caption{{\bf Tissue domains emerge as the number of inferred interaction fields increases.} Top five rows: clustering of the inferred ligand-receptor interaction fields at five feature depths, with features entering in order of decreasing system-scale variance. Rows are, from top to bottom, 10, 150, 650, 1300, and all 1,477 interaction fields. Every other algorithmic parameter is held constant and no principal-component analysis is applied, so the number of features is the only thing deliberately varied between rows; as noted at the end of this caption, run-to-run variation of the clustering also contributes. Column 1: uniform manifold approximation and projection (UMAP) embedding of the spatial bins, colored by cluster. Column 2: the same cluster labels rendered in histologic space, which are the spatial domains; cluster colors are arbitrary. Column 3: the corresponding `entrogram', a map of the entropy-based local indicator of spatial association (ELSA) \cite{naimi2019elsa} computed on the domain labels and scaled from 0 to 1, in which coherent domains appear as dark interiors separated by bright high-ELSA boundaries. Column 4: summary curves for the sweep as a whole, with the portion up to the depth shown in that row highlighted in red, giving mean ELSA against number of features at several ELSA neighborhood radii (top), the ranked variance of the interaction fields, which sets the order in which features enter (middle), and the number of clusters against number of features (bottom). Domains become more numerous and more spatially organized as features are added. Bottom two rows: eight selected inferred interaction fields rendered as three-dimensional density surfaces over the tissue sub-region outlined by the dotted white box in the bottom panel of column 2, with both height and color encoding the inferred field value. These are model-derived estimates from transcript counts, not direct measurements of ligand-receptor binding. The domain map shown is one realization of a clustering step that is not deterministic, so the exact domain count and boundaries would differ somewhat on a rerun; see the \nameref{sec:controls} section.}
+    \label{fig:spatial_domains}
+\end{figure}
+
+To test our central hypothesis, that tissue spatial domains reflect the structure of the high-dimensional signaling field rather than of a few individual mechanisms, we performed a targeted parameter sweep experiment in which we iteratively increased the number of signaling features, ranking them by variance, while holding all else equal. We iteratively added more features to our analysis and quantified the output number of clusters and their spatial entropy to observe changes in spatial domain architecture in both histologic space and a uniform manifold approximation and projection (UMAP) embedding. Our results are summarized in Fig~\ref{fig:spatial_domains}, and full results may be found in S7 File.
+
+In this tissue section, the recovered spatial domain architecture depended on many inferred interaction fields at once rather than on a small number of them. The effect is non-linear, in that an individual feature's variance did not predict the effect of adding that feature into the joint analysis, which is consistent with the hyperfield information being non-reducible. Of the configurations we swept, clustering the data without any principal-component analysis (PCA) gave the greatest spatial complexity and coherence. Clustering the tissue within the full 1,477-dimension feature-space gave the greatest spatial complexity and coherence of the depths we swept, and resolved local detail, such as inter-organ fascial planes, that was not apparent when fewer features were included or when dimensional-reduction was employed via PCA.
+
+We examined the inferred hyperfield structure in a small sub-region of the embryo, outlined by a dotted-white boundary in Fig~\ref{fig:spatial_domains}. Selected feature-level topologies (individual inferred ligand-receptor interaction fields) have been rendered as three-dimensional surfaces at the bottom of Fig~\ref{fig:spatial_domains}. HTML files for all 1,477 fields within this region, allowing user-interactive zoom, value estimation and rotation in space, are available in S8 File.
+
+\subsection*{Controls: the domains survive a spatial null and match independent anatomy}
+\label{sec:controls}
+
+The experiments above show that clustering the full signaling hyperfield yields spatially coherent domains, but not that those domains reflect structure present in the tissue. Two properties of the pipeline could in principle manufacture coherent domains on their own: the spatial model smooths, and the clustering operates in a space of more than a thousand dimensions. We therefore ran two controls. In both, the domain-generating pipeline is held fixed between the observed and the control runs, so that any difference is attributable to the manipulation alone. Spatial coherence is quantified throughout with ELSA at neighborhood radii of 50 and 100 units (see the \nameref{sec:elsa} section); ELSA is negatively oriented, so lower values indicate more spatially coherent domains.
+
+\subsubsection*{A coordinate shuffle destroys the domains}
+
+To test whether the spatial smoother manufactures coherent structure from data carrying no spatial signal, we permuted the assignment of the observed counts to spatial locations. This destroys spatial structure while preserving the observed count distribution exactly. We then refit the spatial model for every one of the 912 features from scratch on the permuted data, and passed the refit fields through the identical convolution, clustering, and scoring pipeline. Refitting, rather than reshuffling fields that were fitted on the real coordinates, is what makes this a test of the smoother: the model sees only spatially meaningless data. Because each permutation requires 912 model fits, the experiment was run on a high-throughput computing cluster, with 49 permutations.
+
+The observed data yielded 20 domains, with an ELSA at radius 50 of 0.075. The 49 coordinate-shuffled replicates yielded between 4 and 12 domains, with ELSA at radius 50 averaging 0.470 and ranging from 0.412 to 0.583. The null mean is 6.3 times the observed value, and the lowest of the 49 shuffled replicates is still 5.5 times it, so the observed and null values do not overlap. The permutation $p$-value is 0.020, which is the smallest value attainable with 49 permutations; the test is therefore limited by the number of replicates we could afford rather than by any overlap between the observed value and the null distribution.
+
+Fitting a spatial Gaussian process to spatially permuted data does not, then, produce coherent tissue domains: it produces a small number of incoherent fragments. Because the permuted data pass through a pipeline of identical dimensionality, this speaks to the smoothing and the dimensionality explanations at once.
+
+\subsubsection*{The domains correspond to independently annotated anatomy}
+
+As a positive control, we compared the emergent domains against the anatomical annotations published with the source dataset \cite{Chen2022} for the same tissue section. These annotations were produced by a different group, by a different method, and without any reference to our labels, which our pipeline in turn never sees; in that sense they are an independent reference. All 26,000 modeled bins matched an annotated bin.
+
+For completeness about what the reference is: Chen et al.\ derived these labels by spatially constrained clustering, combining a nearest-neighbor graph over spatial position with one over expression, and then labeling each resulting cluster by hand from its marker genes against a reference embryo atlas. The comparison is therefore between two partitions of the same tissue section, which is unavoidable, since a concordance check is only meaningful against annotations of the same specimen. The two partitions are nonetheless built from very different features: theirs from binned expression across all genes, ours from 1477 convolved ligand-receptor interaction fields, and the manual labeling step brings in external anatomical knowledge from outside the dataset entirely.
+
+Agreement was well above chance. The adjusted Rand index between our domains and the anatomical labels was 0.401 and the normalized mutual information was 0.604, against a permutation null whose mean adjusted Rand index was 0.00003 and whose maximum over 499 permutations was 0.001, giving $p = 0.002$, again the floor for the number of permutations used. The mean size-weighted purity of the emergent domains with respect to the anatomical labels was 77.6\%. Several individual domains recover recognized structures cleanly: spinal cord at 97\% purity, liver at 96\%, one heart domain at 99\%, and meninges at 92\%, with lung, muscle, thymus, and cartilage primordium also recovered.
+
+We would not read an adjusted Rand index of 0.401 as showing that the signaling domains reproduce the anatomical segmentation; it is well above chance but far from perfect agreement. The disagreement is also structured rather than random, in that our domains subdivide several organs, most visibly the heart, into multiple territories. We interpret this as a consequence of partitioning the tissue on a different quantity: the published annotation partitions by overall expression profile, labeled by cell-type markers, whereas these domains partition by inferred ligand-receptor signaling context, and there is no reason for the two to coincide. The conclusion we draw is the narrower one, that the emergent domains recover major anatomical structures while resolving additional substructure within them.
+
+The two controls answer different questions, and we do not want them read as interchangeable. The coordinate shuffle asks whether the structure is real, and it is the one that can rule out the smoothing and dimensionality explanations, because it manipulates the data and refits everything. The concordance comparison asks whether the structure that survives is anatomically meaningful, which is what makes it the natural complement rather than a substitute.
+
+\subsubsection*{Run-to-run variability of the clustering}
+
+While preparing these controls we established that the domain-generating pipeline is not deterministic. The nearest-neighbor graph is built by an approximate, multithreaded method, and repeated runs on identical input return somewhat different clusterings. Fixing the random seed does not remove the variation, which indicates that it does not originate in the random number generator; the likely source, which we have not verified directly, is concurrent insertion during multithreaded graph construction. Across eight replicate runs on identical unshuffled input, ELSA at radius 50 ranged from 0.053 to 0.067, with a standard deviation of 0.0045, and the number of domains ranged from 19 to 22.
+
+These replicate runs were carried out on a workstation, at a smaller number of posterior draws than the cluster runs used for the coordinate-shuffle control, so their absolute ELSA values are not directly comparable to the 0.075 quoted above; on a matched reference run the two configurations gave 0.065 and 0.075 respectively, with 20 domains in both. What transfers between them is the \textit{spread}, which is the quantity at issue here.
+
+We state two consequences explicitly. First, the domain map in Fig~\ref{fig:spatial_domains} is one realization rather than a uniquely determined result, and a rerun would give a somewhat different domain count and different boundaries. Readers should treat the specific number of domains as approximate. Second, this sets a resolution limit on the pipeline: an effect smaller than roughly 0.005 ELSA units cannot be distinguished from run-to-run variation by comparing single runs. The two controls reported above are not affected, because their effect sizes are far larger, and because the anatomical comparison comes from fixed stored labels rather than a fresh clustering.
+
+That limit is why we do not report a third control. We also implemented the ligand-receptor pair-shuffling control, in which receptors are reassigned to ligands while the fitted fields, the feature dimensionality, and the clustering procedure are held fixed. The difference between the true pairing and the scrambled null was about 0.004 ELSA units, below the variability of the pipeline itself, so that experiment as we ran it cannot separate an effect of the biological pairing from the noise of the clustering algorithm, and we do not quote a $p$-value from it. Separating the two would require replicating every condition and comparing distributions rather than single runs. We judged this the weakest of the three tests by construction, since even a scrambled pairing recombines per-feature fields that are themselves genuinely spatially structured, and so probes only an incremental contribution.
+
+\section*{Discussion}\label{sec:discussion}
+
+A central question in tissue biology is how and why tissues develop, retain, and lose their form. This broad question is fundamental to developmental biology, tissue engineering, regenerative medicine, and multicellular biology across species. For the better part of a century, we have understood that extracellular signaling plays a critical role in the patterning and organization of cells within tissues. Local intercellular cues preserve adult stem cell niches, govern cellular differentiation, and regulate tissue response to injury. However, despite this knowledge, our ability to \textit{understand} cellular communication in tissues, i.e., to deliberately influence it to induce healing or desired change, is woefully limited.
+
+Recent research has revealed that the grammar of cellular communication is intrinsically high-dimensional, with cells communicating on hundreds-to-thousands of wavelengths at once and processing/interpreting these cues via whole-cell parallel processing \cite{Granados2024}. This means that in order to properly model and visualize cell-to-cell communication, we must be comfortable observing and interpreting high-dimensional signaling 'hyper-fields' as single, holistic objects of study in histologic space. The work in this paper has been carried out with this principle in mind.
+
+We see the outputs from these models as the start of a growing foundation for what we envision as 'morphogenic field analysis': the interdisciplinary study of how morphogenic field interactions, gradients, dynamics, and perturbations shape tissue organization and control cellular differentiation, ideally in three-dimensions over time. Although the data analysis shown here is exclusively two-dimensional, and does not include a time dimension, there are many datasets emerging which do allow spatiotemporal analysis and there are incoming tools allowing affordable 3D profiling \cite{Reynolds2025}. The geostatistical framework we use extends in principle to three spatial dimensions and to a time dimension, since the same Gaussian-process machinery is routinely applied in those settings in other fields, though we have not done so here. Applied to timeseries datasets, longitudinal modeling could be used to ask whether tissue field dynamics precede, align with, or follow cellular growth and change during tissue remodeling.
+
+We have demonstrated this approach on a single field of view, from one section of one embryo, on one platform, at one binning resolution, and we do not want to claim more reach than that supports. It seems more useful to state what we think would need to hold for the approach to transfer. The observations must be counts accompanied by an interpretable exposure or offset, since the model treats the local total as known sampling effort. The spatial support must be dense enough that a Gaussian process is identifiable at the length scales of interest, which is a joint property of a platform's resolution, its capture efficiency, and the binning applied. Platforms with substantially sparser capture than the data used here may favor a zero-inflated likelihood, which our comparison found unnecessary at this sparsity but which the framework accommodates. At single-cell-resolution and imaging-based platforms, where segmentation rather than binning defines the observation unit, the binning step we rely on would need to be replaced by an explicit treatment of cell geometry; spot-based and imaging-based data should not be treated identically, because their measurement methods and organization differ. Tissue-specific customization is likewise possible but is not automatic: we are separately experimenting with an adaptation for lung tissue that excludes large lumens and alveolar airspaces from the tissue fields.
+
+Applying the framework to diseased tissue is a natural next step, and one motivation for developing it, but it is future work rather than something this manuscript demonstrates. This work is a methodological proof of concept on healthy developing tissue. Doing the diseased case properly would require matched healthy and diseased tissue, attention to the confounding between disease state and tissue composition, and enough replication to separate a disease effect from between-sample variation. Carried out on a single additional section, it would yield an illustrative figure that we could not defend statistically, which is the opposite of what we are arguing for here.
+
+\subsection*{Relationship to existing methods}
+
+Several established methods place a Gaussian process over space in transcriptomic data, and it is worth stating precisely which parts of the present approach are new and which are combinations or reinterpretations of existing ideas.
+
+SpatialDE \cite{Svensson2018} introduced Gaussian-process modeling for spatial transcriptomics, decomposing each gene's expression variance into a spatial component parameterized by a covariance kernel and a non-spatial noise component, then testing the spatial component by a likelihood ratio test. We share its use of a Gaussian process prior over space, but not its inferential target: SpatialDE asks which genes are spatially variable, whereas we estimate the field itself and then use it downstream.
+
+BOOST-GP \cite{Li2021} is the closest methodological relative. It places a gene-specific zero-mean Gaussian process on the spatial random effect inside a zero-inflated negative binomial count model, with Bayesian variable selection over whether that spatial component is present, and its stated goal is likewise the identification of spatially variable genes. The combination of a Gaussian process with a Bayesian count likelihood is therefore not something we claim as novel. What differs is what is done with the posterior: we retain the fitted fields as continuous objects with quantified uncertainty, convolve them pairwise, and analyze the resulting high-dimensional collection jointly.
+
+Spatial Variance Component Analysis (SVCA) \cite{Arnol2019} fits an additive Gaussian-process random-effect model that decomposes the variance of each gene or protein into intrinsic, environmental, cell-cell interaction, and noise components, and tests whether the interaction component is nonzero. Its aim is variance partitioning rather than field estimation, and it was developed for imaging-based data.
+
+SpatialDM \cite{Li2023} is the closest in biological target. It tests ligand-receptor pairs for spatial co-expression using a bivariate extension of Moran's $I$, both globally, selecting which pairs are spatially co-expressed across the tissue, and locally, identifying the spots that drive the association, with significance from an analytically derived null distribution. It targets the significance of individual interactions, whereas we target a continuous inferred field per interaction with propagated uncertainty, and then cluster across all of them at once.
+
+CytoSignal \cite{Liu2026} appeared after our original submission and analyzes the same Stereo-seq mouse embryo atlas. It computes a per-cell ligand-receptor score as the product of spatially aggregated ligand and receptor expression, using a Gaussian kernel for diffusion-dependent interactions and Delaunay neighbors for contact-dependent ones, assesses significance against a spatial-permutation null, and validates predicted interactions against proximity ligation assays performed on adjacent tissue sections. It is the one method in this list that, like ours, produces a spatially resolved signaling quantity rather than a per-feature test statistic. In light of that work we do not claim novelty for spatially resolved ligand-receptor mapping. Our operator comparison (Fig~\ref{fig:convolution_compare}) is relevant here, in that the common minimum yielded more spatially coherent domains on this dataset than the product operator that CytoSignal uses, but that is a comparison of two convolution operators inside our own pipeline, not a comparison of the two methods.
+
+Stating our contribution precisely, and more narrowly than our original submission did, it consists of a generative Bayesian geostatistical treatment of raw spatialomics counts with uncertainty quantification propagated through to the interaction fields; the argument for modeling raw counts as a proxy for absolute binding density rather than modeling normalized expression; a quantitative comparison of convolution operators; and the finding that clustering the full high-dimensional signaling field without dimensionality reduction produces tissue domains that correspond to major anatomical structures while resolving substructure within them.
+
+We have not run a head-to-head benchmark against any of these methods, and we would rather be direct about that than leave it implicit. They answer different questions: SpatialDE and BOOST-GP test genes for spatial variability, SpatialDM tests ligand-receptor pairs for spatial association, and SVCA partitions variance into components. There is no shared target quantity on which an accuracy comparison would be meaningful without first defining a benchmark task and a ground truth, which we regard as a separate piece of work. A reader who wants a significance test for individual features or individual interactions should use one of the methods above; the framework presented here is aimed at estimating the fields and analyzing them jointly.
+
+The statistical models presented here have some limitations. First, they must be tuned to each input type of data: Xenium, Visium, Stereo-seq (shown here), CurioTrekker, CosMx, COMET, and others. We have fitted the model only to Stereo-seq data in this work, so our expectation that adapting it to other platforms is straightforward remains an expectation rather than a demonstrated result. Second, we currently are ignoring three major considerations: 1. each signaling mechanism is treated the same (there is no incorporation of molecule-specific diffusion coefficients based on molecular weight), 2. there is no accommodation for variable extracellular matrix properties (competitive binding, protein-density-diffusion limitations), and 3. there is no accommodation for ligand-receptor sequestration due to binding (complex non-linear modeling required). These deficits shall be addressed in future studies, and present many interesting opportunities for further experimentation.
+
+``All models are wrong, but some are useful". The modeling outputs shown here are a \textit{proxy} for high-dimensional information flow \textit{potential} within tissues. It is worth setting out the inferential chain explicitly, so a reader can see how far these outputs sit from the measurement. Transcript counts are a proxy for local transcript abundance, subject to the sampling variability this framework is designed to model. Transcript abundance is in turn a proxy for protein abundance, a step which is known to be imperfect and which we do not attempt to correct. Co-localization of a ligand proxy and a receptor proxy is a proxy for the \textit{opportunity} for those molecules to interact, and the convolution operators we compare are alternative ways of quantifying that opportunity under stated stoichiometric assumptions. None of the intermediate quantities, and no binding event, is directly observed in this work. Further data must be acquired at the protein level and the intracellular level before any of these model outputs are treated as evidence of actual information transmission or transduction. The experimental cost of doing this, however, can be high, particularly if the patterns of interest are high-dimensional and cannot be reduced to targeted cell-scale, pathway-scale, or molecule-scale experiments. Therefore, in our opinion, the value of the modeling approach described in this paper lies not in its ability to predict single-mechanism interactions. Rather, it lies in its potential to support mappings, with quantified uncertainty, between estimates of the holistic high-dimensional extracellular signaling milieu and cell-state-specific intracellular state changes and transitions. A cell within a tissue experiences hundreds to thousands of cues at once, and processes these cues in parallel, as a single, holistic, high-dimensional signal. Our modeling approach allows us to locally estimate a transcript-derived proxy for this high-dimensional signal while providing measures of statistical uncertainty. When paired with \textit{intra}cellular data, such as that regarding transcription factor activation, cytoskeletal remodeling, metabolic reprogramming and mechanoresponse, we are newly provided with an opportunity to quantitatively study the precise ways that different cells, in different states, process and respond to high-dimensional dynamics in their local extracellular milieu: that is, how the holistic cellular microenvironment governs cellular state, and therefore how extracellular milieus might be targeted in the future to induce regenerative healing.
+
+Our code is open access on GitHub, and we have included all of our work from this project so that others can rerun our analyses, see how we have organized our inputs and outputs, and experiment on their own. We note that rerunning the clustering stage will not reproduce the published domain map exactly, for the reasons given in the \nameref{sec:controls} section; the fitted fields and the stored domain labels are provided so that downstream work does not depend on reproducing it. The images presented in the figures of this paper are a small fraction of our model outputs, and we encourage interested readers to download the supporting information included with this paper as a way to explore the scale and structure of the inferred signaling fields. We look forward to working with the community to explore morphogenic field analysis in additional tissue datasets and to brainstorm ways to influence spatial extracellular signaling for therapeutic means.
+
+\section*{Code availability}
+
+All code used to create this work is available on GitHub at \url{https://github.com/aaron-oz/a-s-omics}.
+
+\section*{Data availability}
+
+Raw data used to create the figures in this manuscript can be downloaded from \cite{Chen2022} at \url{https://db.cngb.org/data_resources/project/CNP0001543}.
+
+\section*{Supporting information}
+
+We have provided a set of documents on FigShare which capture key intermediate- and end-outputs of the modeling described in this paper. They can be downloaded from the following links:
+
+\paragraph*{S1 File.}
+\label{S1_File}
+\textbf{Raw-to-bin.} \url{https://figshare.com/s/e921e8e36296cd8c57da}
+
+\paragraph*{S2 File.}
+\label{S2_File}
+\textbf{Feature refining.} \url{https://figshare.com/s/6656c05d4552a59afa05}
+
+\paragraph*{S3 File.}
+\label{S3_File}
+\textbf{Raw vs.\ norm, selected features.} \url{https://figshare.com/s/4885d58ba45b2f2e7689}
+
+\paragraph*{S4 File.}
+\label{S4_File}
+\textbf{Model comparison, all features.} \url{https://figshare.com/s/9d266d5f0fd39632986d}
+
+\paragraph*{S5 File.}
+\label{S5_File}
+\textbf{HD embeddings.} \url{https://figshare.com/s/7bbe3feb729a9731acfa}
+
+\paragraph*{S6 File.}
+\label{S6_File}
+\textbf{ELSA analysis.} \url{https://figshare.com/s/4867799e0e8b68fba5a8}
+
+\paragraph*{S7 File.}
+\label{S7_File}
+\textbf{Clusters vs.\ features.} \url{https://figshare.com/s/2e305ce9ee20efd7ee47}
+
+\paragraph*{S8 File.}
+\label{S8_File}
+\textbf{Morphogen fields.} \url{https://figshare.com/s/2f66def6d22f1549b312}
+
+\paragraph*{S9 Table.}
+\label{S9_Table}
+\textbf{Notation-to-code mapping.} A row for each mathematical object in the model
+specification, giving its meaning, the script in which it is constructed, and the name of
+the corresponding object in the analysis code.
+
+% NOTE (revision): an S10 Fig showing the control domain maps and null distributions was
+% considered but is NOT included, because the existing control plots were produced ad hoc
+% with no generating script and are not publication quality. The Controls section is
+% self-contained numerically. If such a figure is produced, add it here and cite it there.
+
+\section*{Acknowledgments}
+% JR-3: no funding text appears in this section or elsewhere in the manuscript.
+% Funding is declared only in the Editorial Manager Funding Statement.
+The authors thank the members of the Raredon laboratory for helpful discussion. We also
+thank the reviewers, whose request for controls prompted the analyses reported in the
+\nameref{sec:controls} section.
+
+\nolinenumbers
+
+\bibliography{references-aoz,references-msbr}
+
+\end{document}

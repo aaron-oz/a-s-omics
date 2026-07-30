@@ -1,0 +1,4 @@
+task 31 on n3249; TMPDIR=/tmp; cpus=16
+           used  (Mb) gc trigger   (Mb)  max used   (Mb)
+Ncells  3817303 203.9    7230060  386.2   5146311  274.9
+Vcells 29313480 223.7  263695868 2011.9 274600017 2095.1

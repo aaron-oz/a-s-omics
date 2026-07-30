@@ -179,28 +179,28 @@ par(mfrow = c(3, 3),
     mai = c(.62, 0.82, .62, 1.22))
 fields.style();quilt.plot(run.dat[, x], run.dat[, y], run.dat[, feat.count],
                           main = glue('Observed {lr.n} Counts'),
-                          nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x, cex = 1.4)
+                          nx = qp.res.x, ny = qp.res.y, asp = 1, cex = 1.4)
 fields.style();quilt.plot(run.dat[, x], run.dat[, y], run.dat[, feat.count / total.count],
                           main = glue('Observed {lr.n} Counts per Total Counts'),
-                          nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                          nx = qp.res.x, ny = qp.res.y, asp = 1)
 fields.style();quilt.plot(run.dat[, x], run.dat[, y], run.dat[, total.count],
                           main = 'Total Counts',
-                          nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                          nx = qp.res.x, ny = qp.res.y, asp = 1)
 fields.style();quilt.plot(pred.poi.poi$feat[, x],
                           pred.poi.poi$feat[, y],
                           pred.poi.poi$feat[, mean],
                           main = glue('Estimated {lr.n} Counts' ),
-                          nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                          nx = qp.res.x, ny = qp.res.y, asp = 1)
 fields.style();quilt.plot(pred.poi.poi$feat[, x],
                           pred.poi.poi$feat[, y],
                           pred.poi.poi$feat.density.per.count[, mean],
                           main = glue('Estimated {lr.n} Counts per Total Counts' ),
-                          nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                          nx = qp.res.x, ny = qp.res.y, asp = 1)
 fields.style();quilt.plot(pred.poi.poi$total[, x],
                           pred.poi.poi$total[, y],
                           pred.poi.poi$total[, mean],
                           main = glue('Estimated Total Counts'),
-                          nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                          nx = qp.res.x, ny = qp.res.y, asp = 1)
 if(!('feat.count' %in% colnames(pred.poi.poi$feat))){
   pred.poi.poi$feat <-
     merge(pred.poi.poi$feat,
@@ -210,18 +210,18 @@ fields.style();quilt.plot(pred.poi.poi$feat[, x],
                           pred.poi.poi$feat[, y],
                           pred.poi.poi$feat[, feat.count] - pred.poi.poi$feat[, mean],
                           main = glue('Residual {lr.n} Counts' ),
-                          nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                          nx = qp.res.x, ny = qp.res.y, asp = 1)
 fields.style();quilt.plot(pred.poi.poi$feat[, x],
                           pred.poi.poi$feat[, y],
                           pred.poi.poi$feat[, feat.count / total.count] -
                             pred.poi.poi$feat.density.per.count[, mean],
                           main = glue('Residual {lr.n} Counts per Total Counts' ),
-                          nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                          nx = qp.res.x, ny = qp.res.y, asp = 1)
 fields.style();quilt.plot(pred.poi.poi$total[, x],
                           pred.poi.poi$total[, y],
                           pred.poi.poi$feat[, total.count] - pred.poi.poi$total[, mean],
                           main = glue('Residual Total Counts' ),
-                          nx = qp.res.x, ny = qp.res.y, asp = qp.res.y / qp.res.x)
+                          nx = qp.res.x, ny = qp.res.y, asp = 1)
 dev.off()
 
 
