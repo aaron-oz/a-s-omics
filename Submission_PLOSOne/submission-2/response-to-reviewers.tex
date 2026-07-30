@@ -132,26 +132,14 @@ flagged below as needing the authors are the ones no amount of further drafting 
 as the file is edited, so treat the section names as the reliable anchor and the numbers as a
 hint. Items are ordered by consequence, not by reviewer number.
 
-\subsection*{A. Blocked on the authors, cannot be drafted}
+\subsection*{A. Blocked on the authors}
 
-\begin{enumerate}[leftmargin=*]
-
-\item \textbf{The Cd44 rationale is missing from the manuscript entirely.} This is the only
-place where a reviewer's request currently has no answer in the text: R2.5 asked why Cd44 was
-chosen as the representative feature, and no rationale was written, because we could not
-invent one. Needs one sentence in the Results and one in the Fig~3 caption. If the real
-reason is visual clarity, that is a fine answer, but say so and point to the per-feature
-supplement. \\
-\emph{Letter:} \S R2.5 (line 725). \emph{Paper:} Results, ``Raw counts, rather than
-normalized counts\ldots'' (line 274, Cd44 named at line 276); Fig~3 caption (line 281).
-
-\item \textbf{Funder statement confirmation.} Both authors must confirm ``The funders had no
-role\ldots'' is accurate for T32GM086287 (NIGMS) and the Yale and Bucknell startup funds
-before it goes in the cover letter. \\
-\emph{Letter:} \S JR-2 (line 322). \emph{Paper:} nothing to change; this lives in the cover
-letter and the Editorial Manager funding statement only.
-
-\end{enumerate}
+\noindent \emph{Nothing remains in this group.} The three items that were here are now
+settled: the funder statement is confirmed accurate by both authors (JR-2), the duplicated
+columns are described neutrally as duplicated input files rather than naming their cause, and
+the Cd44 rationale is written (R2.5: chosen for clarity against the spine as an unambiguous
+landmark, one clean example among many, with pointers to S2 and S3 File so a reader can check
+how general the pattern is).
 
 \subsection*{B. Decisions taken on the authors' behalf that should be ratified}
 
@@ -269,7 +257,34 @@ where intended. \\
 
 \end{enumerate}
 
-\subsection*{E. Mechanics, immediately before upload}
+\subsection*{E. Roadmap beyond this revision, deliberately not started}
+
+\noindent Neither of these is needed to answer a reviewer. Both are recorded so they are not
+lost, and both are explicitly sequenced after the current submission.
+
+\begin{enumerate}[leftmargin=*, resume]
+
+\item \textbf{An online visualiser, to replace bulk downloads.} To be built \emph{last}, once
+we have finalised everything we want it to show. The case is strong: S8 is already 1,481
+standalone interactive HTML files, and S2, S4, S7 and S8 together are about 11.6 GB across
+roughly 8,400 files that are all ``browse one thing at a time'' material. S1 and S5, roughly
+42 GB of matrices and R objects, are archival data and would stay a repository deposit.
+Two interactions are wanted specifically: click two points to draw a transect and show how a
+selected set of features varies along that line, with uncertainty, so a reader can see what
+these fields actually are; and select a box or circle and show the distribution of feature
+values within it. This would also answer R2.9 more convincingly than a README.
+
+\item \textbf{Apply the method to other spatialomics platforms.} The generalisability comment
+(R2.11) is currently answered by narrowing the claim. Demonstrating it directly would be
+better. We already hold much of the data and code for the mouse brain dataset. Two things need
+settling first: which platforms to include, chosen to span genuinely different collection
+geometries (different grid dimensions, gridded versus ungridded), and precisely what each
+additional dataset is meant to demonstrate, since a second dataset that shows the same thing
+again adds little. Scope this before running anything.
+
+\end{enumerate}
+
+\subsection*{F. Mechanics, immediately before upload}
 
 \begin{enumerate}[leftmargin=*, resume]
 
@@ -321,7 +336,7 @@ R2.1  & Define model parameters and priors at first use & Done \\
 R2.2  & Notation-to-code supplementary table & Done \\
 R2.3  & Clarify that final analyses used observed nUMI & Done \\
 R2.4  & Define metrics; Table 1 abbreviations and percentages & Done \\
-R2.5  & Rationale for Cd44 as representative feature & To do, needs author input \\
+R2.5  & Rationale for Cd44 as representative feature & Done \\
 R2.6  & Elongated-pixel distortion in Figs 3 and 4 & Incomplete, cause fixed at source \\
 R2.7  & Clearer captions for Figs 5 and 6 & Done \\
 \textbf{R2.8} & \textbf{Controls and baselines} & \textbf{Done, two reported, one withdrawn} \\
@@ -753,21 +768,28 @@ combinations for the absolute averages and 7 for the parenthetical ratios. In bo
 only the ZIP row is affected, so ZIP is averaged over 908 features for the absolute values
 and 905 for the ratios, while Poisson and ZAP use all 912.
 
-\subsection{R2.5. Rationale for Cd44 as the representative feature} \status{TODO}
+\subsection{R2.5. Rationale for Cd44 as the representative feature} \status{DONE}
 
 \begin{rev}
 For example, the rationale for selecting Cd44 as a representative example should be
 explained.
 \end{rev}
 
-\noindent We have added the rationale to the text and to the figure caption.
+\noindent We have added the rationale to the text and to the figure caption, and the honest
+answer is that Cd44 was chosen for clarity of illustration rather than for any property that
+makes it special.
 
-\todo{Needs the authors' actual reason. Candidate justifications, to be confirmed rather
-than assumed: Cd44 sits at a typical expression level and sparsity for the modeled feature
-set, so it is representative rather than favourable; it is broadly expressed across several
-anatomical regions, so the raw-versus-normalized contrast is visible; it is a well
-characterized surface receptor. State the real reason, and if the feature was chosen for
-visual clarity, say so and note that the full per-feature results are in the supplement.}
+The point Fig 3 makes is that count-normalisation can change spatial topology. Many features
+show that effect. Cd44 shows it against an unambiguous anatomical landmark, the developing
+spine, which makes the raw and normalised panels easy to compare side by side in adjacent
+plots. That is why it was picked. We now say so, rather than leaving a reader to infer that
+Cd44 was somehow representative in a statistical sense.
+
+Because a single chosen example invites exactly the reviewer's question, we also point the
+reader to where the same comparison can be checked more broadly: S3 File gives it for a
+further 23 selected features, and S2 File gives per-feature outputs for the whole curated set.
+A reader who suspects we cherry-picked can therefore verify how general the pattern is, which
+we think is a better answer than asserting that we did not.
 
 \subsection{R2.6. Elongated-pixel distortion in Figures 3 and 4} \status{INCOMPLETE}
 
