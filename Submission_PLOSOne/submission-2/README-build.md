@@ -104,18 +104,43 @@ the ones that have no `\todo` marker of their own, each cross-referenced to the 
 response subsection and to the manuscript section, figure, or line it concerns. That is the
 single place to look for what is left; start there.
 
-**Before submitting**, set `\draftmodefalse` in the preamble. That removes the internal
-banner, the Open-items section, and the status-summary table in one step (verified
-2026-07-27: 19 pages drops to 16, with zero internal content in the output). Note that
-`\todo` markers deliberately still render after the switch, as a loud safety net, so also
-confirm none remain:
+### The two markup systems, which are deliberately different
+
+The letter tracks two separate things, and they used to both be called "TODO", which was
+ambiguous. They are now distinct:
+
+- **`\status{...}`** is the state of a whole reviewer item, and is exactly one of
+  `COMPLETE`, `PARTIAL`, or `NOT STARTED`. Nothing else is allowed.
+- **`\action{...}`** and **`\authors{...}`** are individual outstanding tasks within an item.
+  `\action` is a task anyone competent could do; `\authors` is a fact, confirmation, or
+  decision only the authors can supply. They render as red `[ACTION: ...]` and
+  `[AUTHORS: ...]`.
+
+The invariant is that an item is `COMPLETE` if and only if it carries neither marker. Run
 
 ```bash
-grep -c '\\todo{' response-to-reviewers.tex   # must be 0
+python3 check-response-letter.py
 ```
 
-The `\todo` macro is defined `\long` so a marker may span paragraphs. `\textcolor` and
-`\textbf` are not long, so a blank line inside a `\todo{}` will still break the build with
+to verify all three properties at once: closed status vocabulary, the invariant, and
+agreement between each subsection's status and its row in the summary table. It exits
+non-zero on any problem. These three had all silently drifted before the check existed.
+
+**Before submitting**, set `\draftmodefalse` in the preamble. That removes the internal
+banner, the Open-items section, and the status-summary table in one step (verified
+2026-07-27: 21 pages drops to 17, with zero internal content in the output). Note that the
+`\action` and `\authors` markers deliberately still render after the switch, as a loud
+safety net, so also confirm none remain:
+
+```bash
+# Use -F (fixed strings). Regex forms silently match nothing here, because the
+# backslash-a is consumed as an escape, so a broken gate looks like a passing one.
+# Verified 2026-07-27: returns 8 with markers present.
+grep -c -F -e '\action{' -e '\authors{' response-to-reviewers.tex   # must be 0
+```
+
+The `\action` and `\authors` macros are defined `\long` so a marker may span paragraphs.
+`\textcolor` and `\textbf` are not long, so a blank line inside a marker will still break the build with
 "Paragraph ended before \@textcolor was complete."
 
 ## Figures

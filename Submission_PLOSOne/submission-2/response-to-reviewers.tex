@@ -29,8 +29,26 @@
 %% ---------------------------------------------------------------------------
 \newif\ifdraftmode\draftmodetrue
 
-%% \long so a TODO may span paragraphs.
-\long\def\todo#1{\textcolor{red}{\textbf{[TODO: #1]}}}
+%% ---------------------------------------------------------------------------
+%% Two DIFFERENT things, deliberately given different names so they cannot be
+%% confused (they both used to be called "TODO", which was ambiguous):
+%%
+%%   status         the state of a whole reviewer item. Exactly one of three:
+%%                   COMPLETE    response written, manuscript updated, verified
+%%                   PARTIAL     real work done and in the manuscript, but
+%%                               specific actions remain
+%%                   NOT STARTED nothing done yet
+%%
+%%   ACTION marker  a specific outstanding task that anyone competent could do
+%%   AUTHORS marker a specific outstanding item only the authors can supply
+%%                 (a fact, a confirmation, or a decision)
+%%
+%% INVARIANT, worth checking before submission: an item is COMPLETE if and only
+%% if it carries neither marker.
+%% ---------------------------------------------------------------------------
+%% \long so a marker may span paragraphs.
+\long\def\action#1{\textcolor{red}{\textbf{[ACTION: #1]}}}
+\long\def\authors#1{\textcolor{red}{\textbf{[AUTHORS: #1]}}}
 \newcommand{\status}[1]{\textcolor{gray}{\small\textsf{[#1]}}}
 
 %% Reviewer text, quoted verbatim.
@@ -49,11 +67,18 @@
 \begin{center}
 \fcolorbox{red}{red!5}{\parbox{0.95\textwidth}{\centering
 \textcolor{red}{\textbf{INTERNAL DRAFT, NOT FOR SUBMISSION.}}\\[2pt]
-\small Items marked \textcolor{red}{\textbf{[TODO: \ldots]}} are not yet done. Statuses: \status{DONE} the work is
-finished and verified; \status{DRAFTED} response text is written but the corresponding
-manuscript edit has not been made; \status{TODO} not started. Set
-\texttt{\textbackslash draftmodefalse} and confirm no \texttt{\textbackslash todo}
-remains before submitting.}}
+\small Two separate things are marked up, and they mean different things.\\[3pt]
+\textbf{Item status}, one per reviewer item, exactly one of three:
+\status{COMPLETE} response written, manuscript updated, verified, nothing remains;
+\status{PARTIAL} real work is done and in the manuscript, but specific tasks remain;
+\status{NOT STARTED} nothing done yet.\\[3pt]
+\textbf{Outstanding tasks}, zero or more per item:
+\textcolor{red}{\textbf{[ACTION: \ldots]}} a task anyone competent could do;
+\textcolor{red}{\textbf{[AUTHORS: \ldots]}} a fact, confirmation or decision only the
+authors can supply.\\[3pt]
+An item is \status{COMPLETE} if and only if it carries neither marker. Every outstanding
+task also appears in the consolidated Open items section below. Before submitting, set
+\texttt{\textbackslash draftmodefalse} and confirm no marker remains.}}
 \end{center}
 \vspace{0.5em}
 \fi
@@ -100,8 +125,13 @@ Aaron Osgood-Zimmerman and Micha Sam Brickman Raredon
 
 \medskip
 
-\noindent This is the single consolidated list. Every open item is here, including ones that
-have no \texttt{\textbackslash todo} marker of their own. ``Paper'' references are to
+\noindent This is the single consolidated list, and it is the authoritative one. Every
+outstanding task is here, including several that carry no inline marker of their own.
+Terminology, so the two systems are not confused: an item's \status{PARTIAL} or
+\status{NOT STARTED} label describes the state of that reviewer item as a whole, whereas an
+inline \textcolor{red}{\textbf{[ACTION]}} or \textcolor{red}{\textbf{[AUTHORS]}} marker is one
+specific task remaining within it. An item is \status{COMPLETE} exactly when it carries
+neither marker. ``Paper'' references are to
 \texttt{plos-port/paper-plos.tex}; the line numbers were current on 2026-07-27 and will drift
 as the file is edited, so treat the section names as the reliable anchor and the numbers as a
 hint. Items are ordered by consequence, not by reviewer number.
@@ -277,38 +307,38 @@ R2.1.
 \textbf{Item} & \textbf{Ask} & \textbf{Status} \\
 \midrule
 \endhead
-JR-1  & PLOS style and file naming & Done \\
-JR-2  & Role of funder statement & Needs author input \\
-JR-3  & Remove funding text from Acknowledgments & Done, none present \\
-JR-4  & PLOS \LaTeX{} template & Done \\
-JR-5  & Upload Supplemental Materials as SI & S9 uploaded; S1--S8 need an author decision \\
-JR-6  & Evaluate recommended citations & Done, five cited \\
+JR-1  & PLOS style and file naming & Complete \\
+JR-2  & Role of funder statement & Partial, needs author confirmation \\
+JR-3  & Remove funding text from Acknowledgments & Complete \\
+JR-4  & PLOS \LaTeX{} template & Complete \\
+JR-5  & Upload Supplemental Materials as SI & Partial, needs author decision \\
+JR-6  & Evaluate recommended citations & Complete \\
 \midrule
-R1.1  & Comparative analysis vs existing methods & Done (see R2.8, R2.10) \\
-R1.2  & Tissue sample and methods detail & Done \\
-R1.3  & Figures too small, reorganize & To do (assembly) \\
-R1.4  & Small-scale disease proof of concept & Done, pushback plus scope text \\
-R1.5  & Better graphical abstract & To do (design) \\
+R1.1  & Comparative analysis vs existing methods & Complete \\
+R1.2  & Tissue sample and methods detail & Complete \\
+R1.3  & Figures too small, reorganize & Not started \\
+R1.4  & Small-scale disease proof of concept & Complete \\
+R1.5  & Better graphical abstract & Not started \\
 \midrule
-R2.1  & Define model parameters and priors at first use & Done \\
-R2.2  & Notation-to-code supplementary table & Done, S9 Table built \\
-R2.3  & Clarify that final analyses used observed nUMI & Done \\
-R2.4  & Define metrics; Table 1 abbreviations and percentages & Done \\
-R2.5  & Rationale for Cd44 as representative feature & Needs author input \\
-R2.6  & Elongated-pixel distortion in Figs 3 and 4 & Cause found and fixed at source \\
-R2.7  & Clearer captions for Figs 5 and 6 & Done \\
-\textbf{R2.8} & \textbf{Controls and baselines} & \textbf{Done, two reported, one withdrawn} \\
-R2.9  & Reproducibility documentation & Partly done \\
-R2.10 & Positioning vs related methods & Done \\
-R2.11 & Moderate generalizability claims & Done \\
-R2.12 & Cautious biological language & Done \\
+R2.1  & Define model parameters and priors at first use & Complete \\
+R2.2  & Notation-to-code supplementary table & Complete \\
+R2.3  & Clarify that final analyses used observed nUMI & Complete \\
+R2.4  & Define metrics; Table 1 abbreviations and percentages & Complete \\
+R2.5  & Rationale for Cd44 as representative feature & Not started, needs author input \\
+R2.6  & Elongated-pixel distortion in Figs 3 and 4 & Partial, cause fixed at source \\
+R2.7  & Clearer captions for Figs 5 and 6 & Complete \\
+\textbf{R2.8} & \textbf{Controls and baselines} & \textbf{Complete, two reported, one withdrawn} \\
+R2.9  & Reproducibility documentation & Partial \\
+R2.10 & Positioning vs related methods & Complete \\
+R2.11 & Moderate generalizability claims & Complete \\
+R2.12 & Cautious biological language & Complete \\
 \bottomrule
 \end{longtable}
 \fi
 
 \section{Journal requirements}
 
-\subsection{JR-1. PLOS ONE style requirements and file naming} \status{DONE}
+\subsection{JR-1. PLOS ONE style requirements and file naming} \status{COMPLETE}
 
 \begin{rev}
 Please ensure that your manuscript meets PLOS ONE's style requirements, including those
@@ -319,7 +349,7 @@ for file naming.
 headings, title capitalization, the reference style, and file naming now follow the PLOS
 ONE guidelines. See also JR-4.
 
-\subsection{JR-2. Role of the funder} \status{NEEDS AUTHOR INPUT}
+\subsection{JR-2. Role of the funder} \status{PARTIAL}
 
 \begin{rev}
 Please state what role the funders took in the study. If the funders had no role, please
@@ -335,10 +365,10 @@ The funders had no role in study design, data collection and analysis, decision 
 publish, or preparation of the manuscript.
 \end{quote}
 
-\todo{Both authors must confirm this is accurate for T32GM086287 (NIGMS) and for the Yale
+\authors{Both authors must confirm this is accurate for T32GM086287 (NIGMS) and for the Yale
 and Bucknell startup funds before it goes in the cover letter.}
 
-\subsection{JR-3. Funding text in the Acknowledgments} \status{DONE}
+\subsection{JR-3. Funding text in the Acknowledgments} \status{COMPLETE}
 
 \begin{rev}
 We note that you have provided funding information that is not currently declared in your
@@ -351,7 +381,7 @@ we have checked the full manuscript text for funding, grant, and sponsor languag
 confirmed that none remains anywhere in it. The funding information appears solely in the
 Funding Statement, and our updated statement is reproduced in the cover letter.
 
-\subsection{JR-4. PLOS \LaTeX{} template} \status{DONE}
+\subsection{JR-4. PLOS \LaTeX{} template} \status{COMPLETE}
 
 \begin{rev}
 Please update your submission to use the PLOS LaTeX template.
@@ -361,7 +391,7 @@ Please update your submission to use the PLOS LaTeX template.
 the PLOS \LaTeX{} template, including the PLOS preamble, title and author block, and the
 \texttt{plos2025} bibliography style.
 
-\subsection{JR-5. Supporting Information upload} \status{PARTLY DONE}
+\subsection{JR-5. Supporting Information upload} \status{PARTIAL}
 
 \begin{rev}
 Please upload a copy of Supporting Information Figure/Table/etc.\ ``Supplemental
@@ -389,7 +419,7 @@ the right thing to do regardless, and we can additionally prepare small curated 
 individual supplements if the journal would prefer a reader to be able to open something
 without a large download.
 
-\todo{Author decision before submission: choose between (i) S9 Table uploaded and S1--S8
+\authors{Author decision before submission: choose between (i) S9 Table uploaded and S1--S8
 left in the external repository, which is what the text above currently describes,
 (ii) additionally curating small representative extracts, or (iii) moving everything to
 DOI-minted deposits. Whichever is chosen, the manuscript's Supporting information section
@@ -397,7 +427,7 @@ must match. The three options and their trade-offs are set out in
 \texttt{supporting-information/README-supporting-information.md}. Converting the FigShare
 private share links to public DOIs is worth doing under any of the three.}
 
-\subsection{JR-6. Recommended citations} \status{DRAFTED}
+\subsection{JR-6. Recommended citations} \status{COMPLETE}
 
 \begin{rev}
 If the reviewer comments include a recommendation to cite specific previously published
@@ -430,7 +460,7 @@ responses below describe each change.
 
 \section{Reviewer 1}
 
-\subsection{R1.1. Comparative analysis with existing spatial modeling techniques} \status{DONE}
+\subsection{R1.1. Comparative analysis with existing spatial modeling techniques} \status{COMPLETE}
 
 \begin{rev}
 Recommend the authors to perform a comparative analysis with other existing techniques
@@ -464,7 +494,7 @@ task, which we regard as its own piece of work. We have instead positioned our a
 against each of these methods conceptually and explicitly (R2.10), and we now state this
 limitation in the Discussion rather than leaving it implicit.
 
-\subsection{R1.2. Detail on the tissue sample and methods} \status{DONE}
+\subsection{R1.2. Detail on the tissue sample and methods} \status{COMPLETE}
 
 \begin{rev}
 The methods on the tissue/patient sample obtained here is missing and lacks details.
@@ -488,7 +518,7 @@ converged fits and the 1477 ligand-receptor pairs computable from them. We have 
 removed the sentence describing the dataset as ``beautiful,'' which was not a reason for
 selecting it, and replaced it with our actual reasons.
 
-\subsection{R1.3. Figure size and organization} \status{TODO}
+\subsection{R1.3. Figure size and organization} \status{NOT STARTED}
 
 \begin{rev}
 The data presented in the figure is on the small side of the spectrum, recommend the
@@ -500,10 +530,10 @@ and reorganized several panels so that the comparisons a reader is asked to make
 adjacent. Figures 3 and 4 have also been corrected for the aspect-ratio distortion noted
 by Reviewer 2 (R2.6).
 
-\todo{Regenerate all figures. Coordinate with R2.6 (aspect ratio) and R2.7 (captions) so
+\action{Regenerate all figures. Coordinate with R2.6 (aspect ratio) and R2.7 (captions) so
 each figure is touched once.}
 
-\subsection{R1.4. Small-scale disease proof of concept} \status{DONE, PUSHBACK}
+\subsection{R1.4. Small-scale disease proof of concept} \status{COMPLETE}
 
 \begin{rev}
 Since the author claims the spatial modelling provides multidimensional information to
@@ -531,7 +561,7 @@ opposite of what this manuscript argues for. We have noted the application to di
 tissue as clearly future work in the Discussion, alongside the lung-tissue direction
 already mentioned there.
 
-\subsection{R1.5. Graphical abstract} \status{TODO}
+\subsection{R1.5. Graphical abstract} \status{NOT STARTED}
 
 \begin{rev}
 Minor comment: The graphical abstract submitted did not do the work justice, consider a
@@ -541,7 +571,7 @@ better images rather than copy-pasting from the data section.
 \noindent We agree, and we have replaced the graphical abstract with a purpose-designed
 schematic rather than panels reused from the figures.
 
-\todo{Design and produce the new graphical abstract. Raredon.}
+\action{Design and produce the new graphical abstract. Raredon.}
 
 \section{Reviewer 2}
 
@@ -549,7 +579,7 @@ schematic rather than panels reused from the figures.
 identified real gaps, particularly the absence of controls, and the manuscript is
 materially stronger as a result.
 
-\subsection{R2.1. Precision of the statistical model specification} \status{DONE}
+\subsection{R2.1. Precision of the statistical model specification} \status{COMPLETE}
 
 \begin{rev}
 First, the statistical model is not specified with sufficient precision. The manuscript
@@ -593,7 +623,7 @@ We have added an explicit paragraph connecting the abstract model to its impleme
 including the SPDE representation, the mesh, the inference method, and the number of
 posterior draws, and a supplementary table making the mapping object by object (R2.2).
 
-\subsection{R2.2. Notation-to-code mapping} \status{DONE}
+\subsection{R2.2. Notation-to-code mapping} \status{COMPLETE}
 
 \begin{rev}
 Second, the correspondence between the notation in the manuscript and the public code
@@ -620,7 +650,7 @@ posterior predictive \emph{median} while the squared error and Dawid-Sebastiani 
 the mean. The manuscript equations now reflect that difference, which the original text did
 not.
 
-\subsection{R2.3. Treatment of total counts $N(s)$} \status{DONE}
+\subsection{R2.3. Treatment of total counts $N(s)$} \status{COMPLETE}
 
 \begin{rev}
 Third, the treatment of total counts $N(s)$ requires clarification. The manuscript
@@ -656,7 +686,7 @@ simpler and cheaper to fit, and we make no stronger claim than that. We would ra
 the weaker, supportable version than leave a quantitative-sounding claim standing behind a
 qualitative check.
 
-\subsection{R2.4. Prediction metrics and model comparison} \status{DONE}
+\subsection{R2.4. Prediction metrics and model comparison} \status{COMPLETE}
 
 \begin{rev}
 Fourth, the prediction metrics and model comparison need clearer explanation. The
@@ -722,7 +752,7 @@ and 905 for the ratios, while Poisson and ZAP use all 912. We reproduced the pub
 from the archived per-feature score files to confirm this, and both halves reproduce
 exactly.
 
-\subsection{R2.5. Rationale for Cd44 as the representative feature} \status{NEEDS AUTHOR INPUT}
+\subsection{R2.5. Rationale for Cd44 as the representative feature} \status{NOT STARTED}
 
 \begin{rev}
 For example, the rationale for selecting Cd44 as a representative example should be
@@ -731,14 +761,14 @@ explained.
 
 \noindent We have added the rationale to the text and to the figure caption.
 
-\todo{Needs the authors' actual reason. Candidate justifications, to be confirmed rather
+\authors{Needs the authors' actual reason. Candidate justifications, to be confirmed rather
 than assumed: Cd44 sits at a typical expression level and sparsity for the modeled feature
 set, so it is representative rather than favourable; it is broadly expressed across several
 anatomical regions, so the raw-versus-normalized contrast is visible; it is a well
 characterized surface receptor. State the real reason, and if the feature was chosen for
 visual clarity, say so and note that the full per-feature results are in the supplement.}
 
-\subsection{R2.6. Elongated-pixel distortion in Figures 3 and 4} \status{CAUSE FIXED, ASSEMBLY REMAINS}
+\subsection{R2.6. Elongated-pixel distortion in Figures 3 and 4} \status{PARTIAL}
 
 \begin{rev}
 Figures 3 and 4 appear visually distorted due to elongated rectangular pixels, which
@@ -767,7 +797,7 @@ point is correct. Figures 3 and 4 have been regenerated, and the corrected panel
 the repository at \texttt{Submission\_PLOSOne/submission-2/figures-regenerated/}, together
 with the script that produces them.
 
-\todo{For Raredon, who holds the Illustrator files. The 22 individual sub-panels for Figs 3
+\action{For Raredon, who holds the Illustrator files. The 22 individual sub-panels for Figs 3
 and 4 are exported at 1:1 as separate files in
 \texttt{submission-2/figures-regenerated/panels/}, colour bars included, no baked-in titles,
 8x5in at 300 dpi, so they drop into the existing layouts. Placement table in
@@ -782,7 +812,7 @@ those maps are also not at 1:1. Still needed from a person: final composite asse
 labelling, the R1.3 sizing pass, Fig 6's ``1481 Features'' labels, and the R1.5 graphical
 abstract.}
 
-\subsection{R2.7. Captions for Figures 5 and 6} \status{DONE}
+\subsection{R2.7. Captions for Figures 5 and 6} \status{COMPLETE}
 
 \begin{rev}
 Figures 5 and 6 require clearer captions, definitions of abbreviations, explanation of
@@ -819,7 +849,7 @@ in Figure 6 still read ``1481 Features''; the corrected count is 1477, which the
 gives. The panel labels need to be updated when the figure is regenerated for R1.3 and R2.6,
 and we have left a note to that effect in the manuscript source.
 
-\subsection{R2.8. Controls and baselines} \status{DONE}
+\subsection{R2.8. Controls and baselines} \status{COMPLETE}
 
 \begin{rev}
 The manuscript would also benefit from additional controls or comparative analyses. At
@@ -954,7 +984,7 @@ model that recovering the truth would demonstrate self-consistency rather than v
 The coordinate-shuffle control tests the same concern using the real data and without that
 circularity.
 
-\subsection{R2.9. Reproducibility documentation} \status{PARTLY DONE}
+\subsection{R2.9. Reproducibility documentation} \status{PARTIAL}
 
 \begin{rev}
 Reproducibility also needs improvement. Although the repository contains a substantial
@@ -974,12 +1004,12 @@ large derived objects that are not. Every untracked derived object is now regene
 tracked script, and the documentation names that script. Where a generating script did not
 survive, we say so explicitly rather than implying the artifact is reproducible.
 
-\todo{Only the new controls directory is documented to this standard so far. The main paper
+\action{Only the new controls directory is documented to this standard so far. The main paper
 pipeline under \texttt{Supplements for Publication/code/} still needs the same treatment:
 run order, inputs, intermediates, figure scripts, and a session-info or lockfile capture.
 This is the largest remaining task after the figures, and the reviewer will check it.}
 
-\subsection{R2.10. Scientific positioning relative to existing work} \status{DONE}
+\subsection{R2.10. Scientific positioning relative to existing work} \status{COMPLETE}
 
 \begin{rev}
 The scientific positioning of the manuscript should also be strengthened. The authors
@@ -1047,7 +1077,7 @@ quantity on which an accuracy comparison would be meaningful without first defin
 benchmark task and a ground truth, which we regard as a separate piece of work. We would
 rather say that than leave the omission implicit.
 
-\subsection{R2.11. Generalizability claims} \status{DONE}
+\subsection{R2.11. Generalizability claims} \status{COMPLETE}
 
 \begin{rev}
 Some claims of generalizability appear broader than the evidence provided. The study is
@@ -1094,7 +1124,7 @@ tested,'' which is not supportable in a manuscript that fits only Stereo-seq dat
 says that we have fitted the model only to Stereo-seq data here, so our expectation that
 adaptation is straightforward is an expectation rather than a demonstrated result.
 
-\subsection{R2.12. Caution in biological interpretation} \status{DONE}
+\subsection{R2.12. Caution in biological interpretation} \status{COMPLETE}
 
 \begin{rev}
 Finally, the biological interpretation should remain cautious. I appreciate that the
@@ -1141,7 +1171,7 @@ to explore the scale and structure of the inferred fields. We also removed sever
 intensifiers that editorialized rather than described, including ``statistically-powerful,''
 ``experimentally pioneered,'' and two uses of ``significant'' in a non-statistical sense.
 
-\section{Additional corrections}
+\section{Additional corrections} \status{PARTIAL}
 
 \ifdraftmode
 \noindent\textcolor{red}{\textbf{Internal note:}} the item below was found by us, not by a
@@ -1190,7 +1220,7 @@ Table 1 caption, and in the Figure 6 caption. The one place the old number still
 inside the Figure 6 image itself, whose panel labels read ``1481 Features''; those labels
 will be corrected when the figure is regenerated for R1.3 and R2.6.
 
-\todo{Author decision, not a blocker for drafting: decide whether the manuscript should
+\authors{Author decision, not a blocker for drafting: decide whether the manuscript should
 name the file-synchronization conflict as the cause, as the paragraph above currently does,
 or describe it more neutrally as duplicated input files. The response letter should say
 whichever the manuscript says.}
