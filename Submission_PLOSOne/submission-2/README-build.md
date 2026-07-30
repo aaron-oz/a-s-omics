@@ -104,27 +104,31 @@ the ones that have no `\todo` marker of their own, each cross-referenced to the 
 response subsection and to the manuscript section, figure, or line it concerns. That is the
 single place to look for what is left; start there.
 
-### The two markup systems, which are deliberately different
+### Status vocabulary: three words, used for both the item and the marker
 
-The letter tracks two separate things, and they used to both be called "TODO", which was
-ambiguous. They are now distinct:
+"TODO" used to mean two different things: the inline red marker meant "something remains",
+while `\status{TODO}` meant "not started", so an item could be `DONE` and still carry a red
+`[TODO]`. There is now one vocabulary, three states, used for both:
 
-- **`\status{...}`** is the state of a whole reviewer item, and is exactly one of
-  `COMPLETE`, `PARTIAL`, or `NOT STARTED`. Nothing else is allowed.
-- **`\action{...}`** and **`\authors{...}`** are individual outstanding tasks within an item.
-  `\action` is a task anyone competent could do; `\authors` is a fact, confirmation, or
-  decision only the authors can supply. They render as red `[ACTION: ...]` and
-  `[AUTHORS: ...]`.
+| State | Meaning |
+|---|---|
+| `DONE` | finished and verified; nothing remains |
+| `INCOMPLETE` | started, with real work already in the manuscript, but not finished |
+| `TODO` | not started |
 
-The invariant is that an item is `COMPLETE` if and only if it carries neither marker. Run
+`\status{...}` labels a reviewer item as a whole. `\incomplete{...}` and `\todo{...}` mark one
+specific outstanding task inside an item, and always carry the same word as that item's
+status, so the two cannot disagree. A `DONE` item carries no marker.
+
+Run
 
 ```bash
 python3 check-response-letter.py
 ```
 
-to verify all three properties at once: closed status vocabulary, the invariant, and
-agreement between each subsection's status and its row in the summary table. It exits
-non-zero on any problem. These three had all silently drifted before the check existed.
+to verify: the closed vocabulary, the invariant, that the marker word matches the item status,
+and that each subsection's status agrees with its row in the summary table. It exits non-zero
+on any problem. All of those had drifted silently before the check existed.
 
 **Before submitting**, set `\draftmodefalse` in the preamble. That removes the internal
 banner, the Open-items section, and the status-summary table in one step (verified
@@ -133,13 +137,16 @@ banner, the Open-items section, and the status-summary table in one step (verifi
 safety net, so also confirm none remain:
 
 ```bash
-# Use -F (fixed strings). Regex forms silently match nothing here, because the
-# backslash-a is consumed as an escape, so a broken gate looks like a passing one.
-# Verified 2026-07-27: returns 8 with markers present.
-grep -c -F -e '\action{' -e '\authors{' response-to-reviewers.tex   # must be 0
+python3 check-response-letter.py    # also reports how many markers remain, and where
 ```
 
-The `\action` and `\authors` macros are defined `\long` so a marker may span paragraphs.
+Do not try to count the markers with a bare `grep`: the obvious pattern silently matches
+nothing (the leading backslash-a is consumed as an escape, so a broken gate looks like a
+passing one), and a fixed-string grep additionally counts the two `\long\def` definitions in
+the preamble. The checker splits the file by section, so it counts only real markers.
+
+
+The `\todo` and `\incomplete` macros are defined `\long` so a marker may span paragraphs.
 `\textcolor` and `\textbf` are not long, so a blank line inside a marker will still break the build with
 "Paragraph ended before \@textcolor was complete."
 
