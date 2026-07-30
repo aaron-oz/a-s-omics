@@ -767,14 +767,20 @@ point is correct. Figures 3 and 4 have been regenerated, and the corrected panel
 the repository at \texttt{Submission\_PLOSOne/submission-2/figures-regenerated/}, together
 with the script that produces them.
 
-\todo{Two finishing items for whoever assembles the final figures. (i) The regenerated Fig 3
-matches the published layout exactly (3 columns by 3 rows, as the caption describes) and is a
-drop-in replacement. The regenerated Fig 4 is structurally close but not identical: it has
-three model rows where the published figure has a fourth raw-data row, and its first column is
-the probability of the observed count rather than the probability of a non-zero value. Either
-extend the figure or adjust the caption. (ii) The published composite figures were assembled
-by hand and no layout script exists for them, so final assembly, panel labelling, and the
-R1.3 sizing pass still need a person.}
+\todo{For Raredon, who holds the Illustrator files. The 22 individual sub-panels for Figs 3
+and 4 are exported at 1:1 as separate files in
+\texttt{submission-2/figures-regenerated/panels/}, colour bars included, no baked-in titles,
+8x5in at 300 dpi, so they drop into the existing layouts. Placement table in
+\texttt{README-panels.md}. Two caveats: (i) the ZIP and ZAP ``probability of a non-zero
+value'' panels are NOT included, because the saved prediction objects store only lambda,
+expect and obs\_prob, so the spatially varying zero probability was never written to disk;
+either rerun those two models saving it, or drop that column for those rows and say so in the
+caption. (ii) Figs 5 and 6 have a separate, unflagged version of the same defect: their
+spatial panels come from ggplot in \texttt{Sup6 - ELSA Analysis.R} and
+\texttt{Sup7 - Clustering vs Features.R}, neither of which uses \texttt{coord\_fixed()}, so
+those maps are also not at 1:1. Still needed from a person: final composite assembly and
+labelling, the R1.3 sizing pass, Fig 6's ``1481 Features'' labels, and the R1.5 graphical
+abstract.}
 
 \subsection{R2.7. Captions for Figures 5 and 6} \status{DONE}
 
