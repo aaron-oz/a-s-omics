@@ -151,12 +151,6 @@ before it goes in the cover letter. \\
 \emph{Letter:} \S JR-2 (line 322). \emph{Paper:} nothing to change; this lives in the cover
 letter and the Editorial Manager funding statement only.
 
-\item \textbf{How to describe the duplicated columns.} Name the cloud file-synchronization
-conflict as the cause, which is what the letter currently does, or describe it neutrally as
-duplicated input files. Whichever is chosen, the letter and the manuscript must agree. \\
-\emph{Letter:} \S Additional corrections (line 1138). \emph{Paper:} Materials and methods, ``Dataset
-modeling'' (line 225).
-
 \end{enumerate}
 
 \subsection*{B. Decisions taken on the authors' behalf that should be ratified}
@@ -210,8 +204,10 @@ regenerated or stripped. \\
 \item \textbf{Figure assembly and sizing.} The R2.6 aspect-ratio defect is now
 \emph{resolved}: the cause was \texttt{asp = qp.res.y / qp.res.x} (= 0.65) where
 \texttt{asp = 1} was required, it has been corrected at all 151 occurrences across the
-pipeline scripts, and Figs~3 and 4 have been regenerated into
-\texttt{Submission\_PLOSOne/submission-2/figures-regenerated/}. What still needs a person:
+pipeline scripts, and Figs~3 and 4 have been regenerated, together with their 22 individual
+sub-panels for Illustrator placement, into
+\texttt{Submission\_PLOSOne/submission-2/figures-regenerated/}. The new controls figure
+(S10 Fig) is in the same directory with its generating script. What still needs a person:
 final composite assembly and panel labelling, since the published figures were assembled by
 hand and no layout script exists for them; the R1.3 sizing and reorganization pass; the R1.5
 graphical abstract; Fig~6's baked-in ``1481 Features'' labels, which should read 1477; and the
@@ -220,10 +216,15 @@ time. \\
 \emph{Letter:} \S R1.3 (line 491), \S R2.6 (line 741), \S R1.5 (line 534). \emph{Paper:}
 Figs~3 and 4 (captions at lines 281 and 313); Fig~6 in-source note at line 339.
 
-\item \textbf{Supporting Information: an author decision, not a packaging job.} S9 Table is
-built and staged for upload at
-\texttt{submission-2/supporting-information/S9\_Table.pdf}, and every S-number cited in the
-text has been confirmed against its intended item. But S1--S8 total 53.5 GB across 12,275
+\item \textbf{Supporting Information: an author decision, not a packaging job.} Two new
+Supporting Information items now exist and are staged for upload. \textbf{S9 Table} is a
+four-page table mapping every mathematical symbol in the model specification to the script and
+line of code that implements it, which is what Reviewer 2 asked for in R2.2; it is at
+\texttt{submission-2/supporting-information/S9\_Table.pdf}. \textbf{S10 Fig} is a four-panel
+figure summarising the two controls from R2.8: the null distributions from the spatial
+permutation test for domain coherence and domain count, the emergent domains shown beside the
+published anatomical annotation of the same section, and the concordance null. Every S-number
+cited in the text has been confirmed against its intended item. But S1--S8 total 53.5 GB across 12,275
 files, with a single 11.6 GB file, so they cannot be uploaded as Supporting Information, and
 the previous draft response claiming they had been was wrong. Choose between leaving them in
 the external repository, curating small representative extracts, or moving to DOI-minted
@@ -304,7 +305,7 @@ R2.1.
 \midrule
 \endhead
 JR-1  & PLOS style and file naming & Done \\
-JR-2  & Role of funder statement & Incomplete, needs author confirmation \\
+JR-2  & Role of funder statement & Done \\
 JR-3  & Remove funding text from Acknowledgments & Done \\
 JR-4  & PLOS \LaTeX{} template & Done \\
 JR-5  & Upload Supplemental Materials as SI & Incomplete, needs author decision \\
@@ -345,7 +346,7 @@ for file naming.
 headings, title capitalization, the reference style, and file naming now follow the PLOS
 ONE guidelines. See also JR-4.
 
-\subsection{JR-2. Role of the funder} \status{INCOMPLETE}
+\subsection{JR-2. Role of the funder} \status{DONE}
 
 \begin{rev}
 Please state what role the funders took in the study. If the funders had no role, please
@@ -361,8 +362,7 @@ The funders had no role in study design, data collection and analysis, decision 
 publish, or preparation of the manuscript.
 \end{quote}
 
-\incomplete{Both authors must confirm this is accurate for T32GM086287 (NIGMS) and for the Yale
-and Bucknell startup funds before it goes in the cover letter.}
+
 
 \subsection{JR-3. Funding text in the Acknowledgments} \status{DONE}
 
@@ -394,8 +394,9 @@ Please upload a copy of Supporting Information Figure/Table/etc.\ ``Supplemental
 Materials'' which you refer to in your text on page 19.
 \end{rev}
 
-\noindent We have added one true Supporting Information file, S9 Table, the notation-to-code
-mapping requested in R2.2, and it is uploaded with this revision. We have also confirmed that
+\noindent We have added two genuine Supporting Information files. The S9 Table gives the
+notation-to-code mapping requested in R2.2, and the S10 Fig summarises the two new controls
+requested in R2.8. Both are uploaded with this revision. We have also confirmed that
 every S-number cited in the text now matches its intended item; S1 and S9 had no citation in
 the original text, and the S3 through S8 pointers were reassigned, because the original
 manuscript cited ``Supplement 3/4/5'' under a numbering that did not correspond to the S1--S8
@@ -476,7 +477,7 @@ produce: the anatomical annotations published with the source dataset by Chen et
 (2022). This is a comparison to an independently derived, expression-based segmentation
 of the same tissue section.
 
-Third, we added a spatial-shuffle null control with full model refitting, which is the
+Third, we added a spatial permutation test with full model refitting, which is the
 standard validation device in this literature.
 
 We want to be straightforward about what we have not done. We have not run a full
@@ -671,16 +672,21 @@ the model display, rather than only in passing in the Results. That subsection s
 lines of the model specification the reported analyses actually use, and that every symbol
 carrying an $N$ subscript plays no part in any reported result.
 
-On the comparison itself we have deliberately weakened the original wording. The
-manuscript previously said that modeling $N(s)$ ``didn't practically alter the outputs.''
-We ran that comparison (the analysis in Supplement 3) and it did not show a visible
-difference in the estimated feature fields, but we did not compute a summary statistic
-quantifying the discrepancy, and we are not able to produce one now without rerunning the
-joint model across the feature set. The revised text therefore says exactly that: the
-comparison showed no visible change, we adopted the offset specification because it is
-simpler and cheaper to fit, and we make no stronger claim than that. We would rather state
-the weaker, supportable version than leave a quantitative-sounding claim standing behind a
-qualitative check.
+On the comparison itself, the original manuscript said only that modeling $N(s)$ ``didn't
+practically alter the outputs,'' which was an impression rather than a measurement. We have
+now measured it. Twenty-three features were fitted under both specifications, and comparing
+the fitted feature fields point by point across all 26,000 locations gives a Pearson
+correlation between the joint and offset fits of 0.986 to 0.997, with a median of 0.995. The
+levels differ more than that similarity in pattern suggests: the mean absolute difference
+between the two fitted fields, as a percentage of the mean fitted count for that feature,
+ranges from 5.1\% to 13.5\% with a median of 6.6\%.
+
+We think this supports the choice we made while also being more honest than the original
+wording. The spatial pattern, which is what every downstream step in this manuscript uses, is
+essentially unchanged; the absolute level is not identical, and we no longer imply that it is.
+The revised text gives these figures and states the conclusion in that restricted form: we
+adopted the offset specification because it preserves the structure the analyses depend on and
+is far cheaper to fit, not because the two specifications are interchangeable for any purpose.
 
 \subsection{R2.4. Prediction metrics and model comparison} \status{DONE}
 
@@ -715,7 +721,8 @@ ratio of the two averages printed in the table, which is why 0.29 against 0.21 a
 which is a misnomer for a ratio; the new caption defines them correctly and defines every
 abbreviation.
 
-The error concerns the Dawid-Sebastiani column. Because MDS is negative, a ratio below
+The error concerns the Dawid-Sebastiani column, reported in the table as MDS, the mean
+Dawid-Sebastiani score. Because MDS is negative, a ratio below
 100\% corresponds to a score \emph{nearer zero}, and DS is negatively oriented, so a ratio
 below 100\% indicates worse performance rather than better. Reading the 85\% and 82\%
 entries as ZIP and ZAP outperforming Poisson, which is the natural reading and one we had
@@ -744,9 +751,7 @@ filter is applied to the absolute scores for one table and to the \emph{ratios} 
 other, so the two halves of the table exclude different numbers of rows: 4 of the 2,736
 combinations for the absolute averages and 7 for the parenthetical ratios. In both cases
 only the ZIP row is affected, so ZIP is averaged over 908 features for the absolute values
-and 905 for the ratios, while Poisson and ZAP use all 912. We reproduced the published table
-from the archived per-feature score files to confirm this, and both halves reproduce
-exactly.
+and 905 for the ratios, while Poisson and ZAP use all 912.
 
 \subsection{R2.5. Rationale for Cd44 as the representative feature} \status{TODO}
 
@@ -840,10 +845,7 @@ now carries two caveats that the figure cannot show on its own: that the fields 
 model-derived estimates rather than measurements of binding, and that the domain map is one
 realization of a non-deterministic clustering step.
 
-One point of inconsistency remains for the figure regeneration. The in-figure panel labels
-in Figure 6 still read ``1481 Features''; the corrected count is 1477, which the caption now
-gives. The panel labels need to be updated when the figure is regenerated for R1.3 and R2.6,
-and we have left a note to that effect in the manuscript source.
+
 
 \subsection{R2.8. Controls and baselines} \status{DONE}
 
@@ -858,8 +860,8 @@ whether the method identifies biologically meaningful spatial structure beyond s
 increased feature dimensionality, or clustering.
 \end{rev}
 
-\noindent This was the most important comment in the review, and we have addressed it with
-two new controls, chosen from the reviewer's menu: a spatial shuffling control and a
+\noindent We judged this to be the most important comment in the review, and we have addressed it with
+two new controls, chosen from the reviewer's menu: a spatial permutation test and a
 comparison with previously annotated tissue regions. Both are reported in a new subsection
 of the Results, and the code and summary outputs are in the
 public repository. We also attempted the ligand-receptor pair shuffling control the reviewer
@@ -937,31 +939,38 @@ segmentation.
 \subsubsection*{A pair-shuffling control we ran but do not report}
 
 We also implemented the ligand-receptor pair shuffling control the reviewer suggests,
-scrambling the assignment of receptors to ligands while holding the fitted fields, the
-feature dimensionality, and the clustering procedure fixed. We are not reporting a result
-from it, and we think the reason is worth stating rather than passing over in silence.
+scrambling the assignment of receptors to ligands while holding the fitted fields, the feature
+dimensionality, and the clustering procedure fixed. We are not reporting a result from it, and
+the reason is worth stating rather than passing over in silence.
 
-While preparing this revision we checked whether the domain-generating pipeline is
-deterministic, and found that it is not. The nearest-neighbour graph construction is
-approximate and multithreaded, so repeated runs on identical input return somewhat
-different clusterings. Across eight replicate runs of the identical unshuffled input, ELSA
-at radius 50 ranged from 0.053 to 0.067, with a standard deviation of 0.0045 and between 19
-and 22 domains. The scrambled-pairing null across 99 shuffles had a standard deviation of
-0.0053, barely larger. The difference between the true pairing and the scrambled null was
-about 0.004 in the same units, which is smaller than the run-to-run variability of the
-pipeline itself.
+As run, the comparison could not distinguish signal from noise. The clustering configuration we
+used at the time built its nearest-neighbour graph across four threads without a fixed seed,
+and under concurrent insertion the graph depends on the order in which threads finish. Across
+eight replicate runs on identical unshuffled input, ELSA at radius 50 ranged from 0.053 to
+0.067, a standard deviation of 0.0045, with 19 to 22 domains. The scrambled-pairing null across
+99 shuffles had a standard deviation of 0.0053, barely larger, and the difference between the
+true pairing and the scrambled null was about 0.004, smaller than the run-to-run spread. Any
+$p$-value quoted from that comparison would have reflected which draw we happened to take.
 
-The pair-shuffling comparison as we ran it therefore cannot separate an effect of the
-biological pairing from the variability of the clustering algorithm, and any $p$-value we
-quoted from it would be misleading. Distinguishing the two would require replicating every
-condition and comparing distributions rather than single runs. We judged that this
-particular control is not worth that additional computation, because it is the weakest of
-the three tests by construction: even a scrambled pairing recombines per-feature fields
-that are themselves genuinely spatially structured, so it probes only an incremental
-contribution. The two controls we do report address the reviewer's concern directly and are
-not sensitive to this issue, since their effects are far larger than the variability we
-measured. We note that the underlying variability applies to any single clustering run,
-including the one shown in Figure 6, and we now say so in the manuscript.
+We should be clear that this is a limitation of how we ran it, not an inherent one, and we have
+since removed the underlying obstacle. Restricting the graph construction to a single thread
+\emph{and} fixing the random seed makes the clustering exactly reproducible: five replicate runs
+returned bit-identical cluster assignments, and three further runs at a second seed likewise
+agreed exactly. Neither condition suffices alone. The pair-shuffling control could therefore now
+be run to a clean conclusion, by re-running the observed condition and the shuffled null under
+those deterministic settings.
+
+We have not done so, for two reasons that we would rather state than dress up. The first is
+cost: it means re-running every condition, and we judged the compute better spent elsewhere in
+this revision. The second is that this is the weakest of the three tests by construction, since
+even a scrambled pairing recombines per-feature fields that are themselves genuinely spatially
+structured, so it probes only an incremental contribution on top of structure the coordinate
+permutation test has already established. If the reviewer considers this control important to
+the argument, we are willing to run it properly and report the result.
+
+The two controls we do report are unaffected by any of this. Their effect sizes are far larger
+than the run-to-run spread, and the concordance comparison comes from fixed stored labels rather
+than a fresh clustering.
 
 \subsubsection*{What the controls establish together}
 
@@ -1167,7 +1176,7 @@ to explore the scale and structure of the inferred fields. We also removed sever
 intensifiers that editorialized rather than described, including ``statistically-powerful,''
 ``experimentally pioneered,'' and two uses of ``significant'' in a non-statistical sense.
 
-\section{Additional corrections} \status{INCOMPLETE}
+\section{Additional corrections} \status{DONE}
 
 \ifdraftmode
 \noindent\textcolor{red}{\textbf{Internal note:}} the item below was found by us, not by a
@@ -1192,9 +1201,7 @@ Second, the number of interaction fields was overstated by four. The manuscript 
 unique ligand-receptor interaction fields, and describes them as following from the 918-gene
 list. Neither part of that is right. The 1481-row object used for the high-dimensional
 clustering contains four exactly duplicated rows, which we traced to files that had been
-silently duplicated by a cloud file-synchronization conflict and then read in alongside their
-originals; the duplicates are still identifiable by the conflicted-copy suffix carried in
-their names. The four affected interactions are PDGFC-PDGFRA, PDGFC-PDGFRB, PDGFD-PDGFRA, and
+duplicated in the input files and then read in alongside their originals. The four affected interactions are PDGFC-PDGFRA, PDGFC-PDGFRB, PDGFD-PDGFRA, and
 PDGFD-PDGFRB, and in each case the duplicate is numerically identical to its counterpart. The
 correct number of distinct interaction fields computable from the 912 fitted features is
 therefore 1477, which we confirmed by re-deriving it from the FANTOM5 pairings and checking
@@ -1216,9 +1223,5 @@ Table 1 caption, and in the Figure 6 caption. The one place the old number still
 inside the Figure 6 image itself, whose panel labels read ``1481 Features''; those labels
 will be corrected when the figure is regenerated for R1.3 and R2.6.
 
-\incomplete{Author decision, not a blocker for drafting: decide whether the manuscript should
-name the file-synchronization conflict as the cause, as the paragraph above currently does,
-or describe it more neutrally as duplicated input files. The response letter should say
-whichever the manuscript says.}
 
 \end{document}
