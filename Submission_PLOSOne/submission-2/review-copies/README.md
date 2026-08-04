@@ -13,6 +13,10 @@ Read them in this order:
 | `3_Response-to-Reviewers.pdf` | 20 | Point-by-point response. **The "Open items" section on page 2 is the single list of everything still outstanding** |
 | `4_S9-Table_notation-to-code.pdf` | 4 | New supplementary table mapping each mathematical symbol to the script and line implementing it (R2.2) |
 
+If you are picking this work up rather than reviewing it, start instead with
+`../HANDOFF.md`, which carries the current state, what remains, and the claims that were
+corrected during the revision.
+
 Also worth a look, outside this directory:
 
 - `../figures-regenerated/` — Figures 3 and 4 regenerated at correct 1:1 aspect, plus the 22
