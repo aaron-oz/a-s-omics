@@ -163,17 +163,17 @@ our contribution precisely'' (line 415).
 to name the scope of the demonstration rather than assert general applicability. \\
 \emph{Paper:} Abstract (line 93). \emph{Letter:} \S R2.11 (line 1044).
 
-\item \textbf{Publicly disclosing that the clustering is non-deterministic}, and that the
-published Fig~6 domains are one realization. This was decided before the drafting session,
-but it is the kind of statement worth re-reading before it reaches a reviewer. \\
-\emph{Paper:} Results, ``Run-to-run variability of the clustering'' (line 379); Fig~6 caption
-closing sentence (line 344). \emph{Letter:} \S R2.8 (line 816).
-
-\item \textbf{S10 Fig was dropped.} A controls figure was considered and deliberately not
-added, because the existing control plots have no generating script and are not publication
-quality. The Controls section is self-contained numerically. Reinstate only if someone
-produces the figure. \\
-\emph{Paper:} Supporting information, LaTeX comment at line 475.
+\item \textbf{Publicly disclosing that the clustering as configured did not reproduce between
+runs}, and that the published Fig~6 domains are one realization. This was decided before the
+drafting session, but it is the kind of statement worth re-reading before it reaches a
+reviewer. Note the claim was corrected during the revision and must not drift back: the
+clustering \emph{is} exactly reproducible with a single thread and a fixed seed, five
+replicates bit-identical at ARI 1.0. Neither condition suffices alone, and the seed changes
+the answer, so it is a reportable parameter. Calling the pipeline non-deterministic was a
+falsehood about the method rather than about the configuration used. \\
+\emph{Paper:} Results, ``Reproducibility of the clustering'' (line 383); Fig~6 caption closing
+sentence (line 348). \emph{Letter:} \S R2.8. \emph{Also:}
+\texttt{code-spatial-smoothing/controls/README.md}, ``Conditions for exact reproducibility''.
 
 \item \textbf{The Fig~5 and Fig~6 layout stopgap.} Both were floating past the bibliography
 with their captions running off the page, so they were given \texttt{[p]} placement, smaller
@@ -208,7 +208,7 @@ Figs~3 and 4 (captions at lines 281 and 313); Fig~6 in-source note at line 339.
 Supporting Information items now exist and are staged for upload. \textbf{S9 Table} is a
 four-page table mapping every mathematical symbol in the model specification to the script and
 line of code that implements it, which is what Reviewer 2 asked for in R2.2; it is at
-\texttt{submission-2/supporting-information/S9\_Table.pdf}. \textbf{S10 Fig} is a four-panel
+\texttt{submission-2/supporting-information/S9\_Table.pdf}. \textbf{S10 Fig} is a five-panel
 figure summarising the two controls from R2.8: the null distributions from the spatial
 permutation test for domain coherence and domain count, the emergent domains shown beside the
 published anatomical annotation of the same section, and the concordance null. Every S-number
@@ -220,12 +220,6 @@ deposits; converting the FigShare private share links to public DOIs is worth do
 of the three. Measured inventory and the options are in
 \texttt{supporting-information/README-supporting-information.md}. \\
 \emph{Letter:} \S JR-5 (line 364). \emph{Paper:} Supporting information (line 433).
-
-\item \textbf{Repository reproducibility documentation}, the largest remaining piece and one
-the reviewer will actively check. Only the controls directory currently meets the standard;
-the main pipeline under \texttt{Supplements for Publication/code/} still needs run order,
-inputs, intermediates, figure scripts, and a session-info or lockfile capture. \\
-\emph{Letter:} \S R2.9 (line 951).
 
 \end{enumerate}
 
@@ -340,7 +334,7 @@ R2.5  & Rationale for Cd44 as representative feature & Done \\
 R2.6  & Elongated-pixel distortion in Figs 3 and 4 & Incomplete, cause fixed at source \\
 R2.7  & Clearer captions for Figs 5 and 6 & Done \\
 \textbf{R2.8} & \textbf{Controls and baselines} & \textbf{Done, two reported, one withdrawn} \\
-R2.9  & Reproducibility documentation & Incomplete \\
+R2.9  & Reproducibility documentation & Done \\
 R2.10 & Positioning vs related methods & Done \\
 R2.11 & Moderate generalizability claims & Done \\
 R2.12 & Cautious biological language & Done \\
@@ -865,7 +859,8 @@ depth highlighted, explains the entrogram scale and how to read a coherent domai
 and identifies the eight three-dimensional surfaces and the sub-region they cover. It also
 now carries two caveats that the figure cannot show on its own: that the fields are
 model-derived estimates rather than measurements of binding, and that the domain map is one
-realization of a non-deterministic clustering step.
+realization from a configuration of the clustering that did not reproduce exactly between
+runs, with a pointer to the section that gives the settings under which it does.
 
 
 
@@ -1011,7 +1006,7 @@ model that recovering the truth would demonstrate self-consistency rather than v
 The coordinate-shuffle control tests the same concern using the real data and without that
 circularity.
 
-\subsection{R2.9. Reproducibility documentation} \status{INCOMPLETE}
+\subsection{R2.9. Reproducibility documentation} \status{DONE}
 
 \begin{rev}
 Reproducibility also needs improvement. Although the repository contains a substantial
@@ -1031,10 +1026,34 @@ large derived objects that are not. Every untracked derived object is now regene
 tracked script, and the documentation names that script. Where a generating script did not
 survive, we say so explicitly rather than implying the artifact is reproducible.
 
-\incomplete{Only the new controls directory is documented to this standard so far. The main paper
-pipeline under \texttt{Supplements for Publication/code/} still needs the same treatment:
-run order, inputs, intermediates, figure scripts, and a session-info or lockfile capture.
-This is the largest remaining task after the figures, and the reviewer will check it.}
+Concretely, the main pipeline under \texttt{Supplements for Publication/code/} now carries a
+document at its root giving the eight analysis stages in execution order, and for each one
+the script that runs it, the inputs it needs and where the public ones are obtained, the
+intermediate objects it produces and consumes, and the parameters that were set. Two
+sibling documents cover the two code directories in detail: the model specification, the
+priors, the mesh construction, and the convolution operators for the modeling scripts, and
+the clustering configurations and thresholds for the analysis scripts. A separate table
+states which script generated each manuscript figure, including the two figures whose
+composite assembly was done by hand and for which no layout script exists; we say that
+plainly rather than implying those composites are scripted. Package versions are given, with
+a full \texttt{sessionInfo()} captured under \texttt{code/environment/}. The repository root
+README now points a reader to these rather than leaving them to be found.
+
+We have also documented, rather than quietly repaired, the places where the archived code
+does not run as written, and the places where a fresh run would legitimately differ from the
+archived outputs. Two defects that prevented the archived modeling scripts from running at
+all were transcription errors introduced when the code was packaged, a stale relative path
+and an undefined flag; those we did fix, and the fix is recorded in the same document so that
+it is visible and reversible.
+
+We should be clear about one limit that documentation cannot remove. The package environment
+of the original 2025 model fits was not recorded at the time, the fitted model objects were
+too large to retain, and the prediction objects carry no version metadata. The environment we
+supply is therefore a working one, verified to run the pipeline and used for the controls in
+Section R2.8, not the one that produced the archived fits. Table~1 reproduces exactly from
+the archived per-feature score files; we do not claim that a fresh refit under a different
+INLA version would reproduce it to the last digit, and we say so in the documentation rather
+than leaving a reader to discover it.
 
 \subsection{R2.10. Scientific positioning relative to existing work} \status{DONE}
 

@@ -24,9 +24,13 @@ keep the original A/B/C lettering.
 
 ## Withdrawn: Control A (L-R pairing shuffle)
 
-**The domain-generating pipeline is not deterministic, and the Control A effect is smaller
-than its run-to-run variability. Do not cite `control-A-lr-shuffle.csv` or
-`control-A-clean.csv`.**
+**As configured for these runs the domain-generating pipeline did not reproduce between
+runs, and the Control A effect is smaller than that run-to-run variability. Do not cite
+`control-A-lr-shuffle.csv` or `control-A-clean.csv`.**
+
+Note that this is a statement about the configuration used, not about the method. The
+clustering is exactly reproducible once the thread count and the random seed are both fixed;
+see "Conditions for exact reproducibility" below.
 
 `cluster_labels()` builds its nearest-neighbour graph with `hnsw_knn()`, which is an
 approximate method with randomized, order-dependent graph construction, called here with
@@ -40,9 +44,10 @@ evaluation. Measured 2026-07-27 on the identical unshuffled input:
 | reported Control A observed (single run) | 0.0572 | 20 |
 | Control A 99-shuffle null | mean 0.0657, sd 0.0053, range [0.0526, 0.0780] | 19 to 26 |
 
-Two things follow. First, seeding does not help: identical seed and identical input still
-give different answers, so the randomness is not drawn from R's RNG. The likely mechanism,
-not directly verified, is concurrent insertion during multithreaded HNSW graph construction.
+Two things follow. First, seeding alone does not help: at four threads, identical seed and
+identical input still give different answers, so the randomness is not drawn from R's RNG.
+The mechanism is concurrent insertion during multithreaded HNSW graph construction, which
+was subsequently confirmed by the single-threaded runs recorded below.
 Second, the shuffle null's spread (sd 0.0053) is barely wider than pure pipeline noise
 (sd 0.0045), and the gap between the true pairing's replicate mean (0.0619) and the null
 mean (0.0657) is about 0.004, smaller than either standard deviation. The reported observed
@@ -51,8 +56,26 @@ than a reliably measured pairing effect.
 
 This also resolves what first looked like a missing-script problem: `control-A-clean.csv`'s
 observed row (0.0496, 21 domains) differs from the plain control's (0.0572, 20 domains) not
-because it used a different mechanism set, but because of this nondeterminism. The
+because it used a different mechanism set, but because of this run-to-run variability. The
 mechanism set is identical in both, verified: 1477 pairs, no self-pairs, no duplicates.
+
+## Conditions for exact reproducibility
+
+Established after the Control A withdrawal, and reported in the manuscript's
+*Reproducibility of the clustering*. **Both** a single thread and a fixed seed are required;
+neither suffices alone.
+
+| Configuration | Result |
+|---|---|
+| 4 threads, `set.seed(42)`, 3 replicates | 19, 19, 20 domains |
+| 1 thread, unseeded, 3 replicates | 19, 22, 22 domains |
+| 1 thread, fixed seed, 5 replicates | bit-identical, adjusted Rand index exactly 1 between every pair, 21 domains in all five |
+| 1 thread, a second fixed seed, 3 replicates | identical to each other, 23 domains |
+
+The clustering is therefore deterministic once the thread count and the seed are both fixed.
+The seed does change the answer, so it is a parameter of the analysis to be reported rather
+than an incidental detail. The published Figure 6 domains come from the original
+multithreaded, unseeded configuration and are one realization.
 
 Rescuing the control would require replicating every condition and comparing distributions
 rather than single runs, roughly 120 evaluations at about 25 s each. It was judged not worth
@@ -163,12 +186,14 @@ Treat these files as a record of exploratory work, not as results.
   Its generating script did not survive the session that produced it. This is now moot,
   since the whole Control A analysis is withdrawn (see above); the file is kept only as a
   record. Note that neither Control A file is exactly reproducible even with its script,
-  because the pipeline is nondeterministic.
-- Nondeterminism affects every clustering result in this directory, not only Control A.
-  Anything that calls `cluster_labels()` or the equivalent block inside `control-B-klone.R`
-  will return a somewhat different partition on each run. For Controls B and C the effect
-  sizes are far larger than this variability, so the conclusions are unaffected, but any
-  future work here should replicate rather than rely on a single run.
+  because it was run multithreaded and unseeded.
+- Run-to-run variability affects every clustering result in this directory, not only Control
+  A, because all of them were run in that same configuration. Anything that calls
+  `cluster_labels()` or the equivalent block inside `control-B-klone.R` will return a
+  somewhat different partition on each run unless the thread count and seed are both fixed.
+  For Controls B and C the effect sizes are far larger than this variability, so the
+  conclusions are unaffected, but any future work here should either fix both or replicate
+  rather than rely on a single run.
 - The Control C figures (`control-C-sidebyside.png`, `control-C-heatmap.png`,
   `control-C-sidebyside-paperdomains.png`) and the domain-label objects
   (`observed-domain-labels.rds`, `paper-domain-labels.rds`) were produced ad hoc and have

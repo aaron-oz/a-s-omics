@@ -4,7 +4,7 @@
 
 i.d <- file.path(getwd(), "/data-inputs/mouse-embryo-raw")
 o.d <- file.path(getwd(), "/data-outputs/mouse-embryo-raw", Sys.Date())
-c.d <- file.path(getwd(), "/code-spatial-smoothing/raw-counts-for-nature-methods-submission/supp-4-lik-comparison")
+c.d <- file.path(getwd(), "Supplements for Publication/code/spatial-modeling/supp-4-lik-comparison")
 dir.create(o.d, recursive = T, showWarnings = FALSE)
 
 

@@ -7,7 +7,7 @@
 repo.fp <- "path/to/repo"
 repo.fp <- "~/Dropbox/genetics/a-s-omics/"
 setwd(repo.fp)
-source("./code-spatial-smoothing/raw-counts-for-nature-methods-submission/supp-3-raw-v-norm-joint-feat-total-model/00-load-pkg-set-io-set-params.R")
+source("./Supplements for Publication/code/spatial-modeling/supp-3-raw-v-norm-joint-feat-total-model/00-load-pkg-set-io-set-params.R")
 
 poi.mod <- TRUE
 zip.mod <- TRUE

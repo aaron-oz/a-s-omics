@@ -9,11 +9,18 @@
 ##########################################################
 repo.fp <- "path/to/repo"
 setwd(repo.fp)
-source("./code-spatial-smoothing/raw-counts-for-nature-methods-submission/supp-4-lik-comparison/01-load-pkg-set-io-set-params.R")
+source("./Supplements for Publication/code/spatial-modeling/supp-4-lik-comparison/01-load-pkg-set-io-set-params.R")
 
 poi.mod <- TRUE
 zip.mod <- TRUE
 zap.mod <- TRUE
+
+## the model-comparison block in 02-array-run-model.R needs all three fits
+if(poi.mod & zip.mod & zap.mod){
+  run.lik.comp <- TRUE
+}else{
+  run.lik.comp <- FALSE
+}
 
 
 #######################

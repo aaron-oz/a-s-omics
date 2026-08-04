@@ -1,7 +1,6 @@
 # Handoff: PLOS One revision, PONE-D-26-04349
 
-Written 2026-08-04. Deadline **2026-08-07**. Everything is committed and pushed at
-`0e602fd`; `main` and `plosone-revision` and both remotes are in sync, working tree clean.
+Written 2026-08-04, updated the same day after R2.9 was closed. Deadline **2026-08-07**.
 
 **Read this file for context, then work from
 `response-to-reviewers.tex` -> the "Open items" section on page 2.** That section is the
@@ -13,7 +12,8 @@ list cannot carry: why things are the way they are, and which of them are fragil
 ## Where the revision stands
 
 All 23 reviewer items are answered in the manuscript. **Nothing is blocked on the authors.**
-Five items carry open markers, all of them production work rather than science:
+Four items carry open markers, and **every one of them now needs a person with Illustrator or
+an author decision**. There is no remaining item that further drafting or scripting can close.
 
 | item | state | what remains |
 |---|---|---|
@@ -21,7 +21,18 @@ Five items carry open markers, all of them production work rather than science:
 | R1.3 | TODO | Figures larger and reorganised. Raredon holds the Illustrator files |
 | R1.5 | TODO | Graphical abstract. Raredon |
 | R2.6 | INCOMPLETE | Cause found and fixed at source; final composite assembly still needs a person |
-| R2.9 | INCOMPLETE | Repository documentation for the main pipeline. The reviewer will check this |
+
+R2.9 (repository reproducibility documentation) was closed on 2026-08-04. The pipeline under
+`Supplements for Publication/code/` now has a root README giving the eight stages in
+execution order with inputs, intermediates, parameters, and a figure-to-script table, plus a
+per-directory README for each of the two code directories, a captured `sessionInfo()` under
+`code/environment/`, and a repository-root README pointing at all of it. Two transcription
+defects that stopped the archived modelling scripts running at all were repaired (a stale
+`c.d` path to a directory that does not exist, and `run.lik.comp` used but never defined);
+both fixes are recorded in the code README under "Changes made on 2026-08-04" so they are
+visible and revertible. What could not be fixed is documented rather than papered over: the
+package environment of the 2025 fits was never recorded, so exact numerical reproduction of
+Table 1 from a fresh refit is not claimed.
 
 Verify with `python3 check-response-letter.py` (exits non-zero on any problem; also prints
 which items still hold markers).
@@ -59,6 +70,12 @@ Three things that will bite otherwise:
   which calls `coord_fixed()`. Discretionary, but it is the same bug.
 - **The FigShare links are private share URLs, not DOIs.** They can be revoked and would leave
   dead citations. Worth converting regardless of which SI option is chosen.
+- **The archived `convolution-data/` directory holds 1,481 files but 1,477 mechanisms.** The
+  four extras are literal Dropbox conflicted copies of the PDGFC/PDGFD pairs, dated
+  2025-05-15. Everything downstream of them, including the published Fig 6 in-image labels,
+  carries 1,481. A fresh run of the convolution stage produces 1,477 and will therefore not
+  match the archived clustering objects. This is now written up in
+  `Supplements for Publication/code/README.md`.
 
 ## Claims that were corrected during the revision, and must not drift back
 
@@ -69,7 +86,10 @@ the old version, stop.
    *and* a fixed seed (five replicate runs, bit-identical, ARI 1.0). Neither condition suffices
    alone. The seed changes the answer, so it is a reportable parameter. Earlier drafts called
    the pipeline non-deterministic, which was a falsehood about the method rather than about the
-   configuration used.
+   configuration used. This had drifted back into
+   `code-spatial-smoothing/controls/README.md` and into two places in the response letter;
+   corrected 2026-08-04. The word "nondeterministic" no longer appears in the repository, which
+   is a cheap way to check it has not returned.
 2. **Poisson wins on all four scores in Table 1, not three of four.** The MDS percentages that
    suggested otherwise were a ratio of two negative numbers. Those percentages have been removed
    from the table entirely.
