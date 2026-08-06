@@ -1,17 +1,16 @@
 # Review copies: start here
 
 Snapshot PDFs of the current revision, committed so co-authors can open them directly from
-GitHub without setting up LaTeX. The three manuscript-side copies were built 2026-07-30 from
-the sources in `../plos-port/`; the response letter was refreshed 2026-08-04 after R2.9 was
-closed. All four build with zero errors and zero undefined references.
+GitHub without setting up LaTeX. All four were rebuilt 2026-08-06, with zero errors and zero
+undefined references.
 
 Read them in this order:
 
 | File | Pages | What it is |
 |---|---|---|
-| `1_Revised-Manuscript_clean.pdf` | 28 | The revised manuscript as it would be read |
+| `1_Revised-Manuscript_clean.pdf` | 29 | The revised manuscript as it would be read |
 | `2_Revised-Manuscript_track-changes.pdf` | 30 | The same, versus the round-1 submission. Deletions struck through in red, insertions underlined in blue |
-| `3_Response-to-Reviewers.pdf` | 21 | Point-by-point response. **The "Open items" section on page 2 is the single list of everything still outstanding** |
+| `3_Response-to-Reviewers.pdf` | 22 | Point-by-point response. **The "Open items" section on page 2 is the single list of everything still outstanding** |
 | `4_S9-Table_notation-to-code.pdf` | 4 | New supplementary table mapping each mathematical symbol to the script and line implementing it (R2.2) |
 
 If you are picking this work up rather than reviewing it, start instead with

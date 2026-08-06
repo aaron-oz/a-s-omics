@@ -1136,8 +1136,26 @@ spatial omics datasets or provide additional analyses and practical guidance for
 platforms.
 \end{rev}
 
-\noindent We accept this and have moderated the claims rather than attempting to justify
-them with additional platforms.
+\noindent We accept this and have moderated the claims throughout, rather than attempting to
+justify the original ones with additional platforms.
+
+We should, however, separate two things that the original text ran together. One is whether
+the framework is in principle tied to Stereo-seq, and we do not think it is: the model needs
+only counts at known locations with a measure of local sampling effort, and the SPDE
+representation of the Gaussian process is built on a triangulated mesh rather than a lattice,
+so irregular or hexagonal observation geometries need no special handling. We have separately
+fitted fields of this kind to 10x Visium mouse brain sections, a hexagonal spot array at much
+coarser resolution, for 2,035 ligand-receptor mechanisms across two sagittal sections, with
+posterior predictive occurrence tracking observed occurrence closely across all 3,865 fits
+(correlation 0.99, median absolute difference 0.015). The other thing is whether the
+\emph{pipeline} has been shown to transfer, and it has not. That earlier work used a two-part
+semicontinuous observation model on normalized data rather than the raw-count model developed
+here, and it stopped at per-mechanism fields without going through the convolution and
+clustering stages. We have added a short passage to the Discussion making exactly this
+distinction, and stating that comprehensive evaluation across tissues and platforms remains
+future work. We would rather record the limited evidence we have with its limits attached
+than either overclaim from it or leave the reader with the impression that the method is
+inherently platform-specific.
 
 The revised manuscript states the scope of the demonstration explicitly wherever a general
 claim previously appeared: one field of view, from one section, of one embryo, on one
