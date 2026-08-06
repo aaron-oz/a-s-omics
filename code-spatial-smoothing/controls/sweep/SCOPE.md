@@ -68,6 +68,38 @@ repeating when the extra cost is two hours of unattended compute.
 Memory: the field matrix is 26,000 x 1,449 doubles, about 300 MB, and `scale()` doubles it
 transiently. Budget 1.5 GB per worker, so about 12 GB for 8. There is 41 GB free.
 
+## Validation run, and an early signal
+
+Tasks 0 (ordered) and 3 (random draw 1) were run locally end to end before the harness was
+handed over. Both code paths work, and the ordered arm reproduces the standalone timing run
+exactly (38 domains at ELSA 0.1428 for depth 10 in both), confirming the clustering is
+deterministic under a fixed seed at one thread.
+
+Measured cost of one full pass over the seven design depths: 151 s, against the 145 s
+estimated above. So R = 99 is about 4.2 h single-threaded rather than 4.0.
+
+| depth | ordered ELSA(d50) | random draw 1 |
+|---|---|---|
+| 10 | 0.1428 | 0.2597 |
+| 50 | 0.1639 | 0.1923 |
+| 150 | 0.1907 | **0.0949** |
+| 350 | 0.1672 | **0.0713** |
+| 650 | 0.1234 | **0.0761** |
+| 1000 | 0.0913 | **0.0698** |
+| 1300 | 0.0783 | **0.0713** |
+
+**This is a single random draw and must not be read as a result.** But from depth 150 upward
+that one draw is more spatially coherent than the variance-ordered selection at every depth,
+by a wide margin in the middle of the range. If that survives 99 draws it lands in the third
+branch below, the one flagged as surprising: variance ordering would be actively suboptimal
+beyond the first hundred or so features, and the shape of the published sweep curve would be
+substantially a property of the ordering rather than of depth.
+
+That would not damage the non-reducibility claim. It arguably strengthens it, since it would
+say almost any few hundred interaction fields recover the architecture and there is nothing
+special about the high-variance ones. But it would mean Fig 6's curve is telling a different
+story than the one the caption tells, so it is worth knowing before the sweep is written up.
+
 ## Two things found while scoping
 
 ### 1. There are 1,449 numerically distinct interaction fields, not 1,477
