@@ -26,3 +26,7 @@ code-spatial-smoothing/controls/sweep/m-est-min-matrix.rds
 code-spatial-smoothing/controls/sweep/validate*.log
 code-spatial-smoothing/controls/sweep/timing.log
 code-spatial-smoothing/controls/sweep/logs/
+code-spatial-smoothing/controls/sweep/gene-field-matrix.rds
+code-spatial-smoothing/controls/sweep/fantom-hierarchy.Robj
+code-spatial-smoothing/controls/sweep/ctrlA-test.log
+code-spatial-smoothing/controls/sweep/fig5.log
