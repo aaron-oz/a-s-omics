@@ -27,15 +27,11 @@ documentation we ran a further control that no reviewer requested, asking whethe
 own results reflected the quantity we intended to vary or the order in which we varied it. The
 experiment in question admits features in order of decreasing variance, which confounds how
 many features enter the analysis with which particular ones do, and the control indicates that
-the ordering accounts for most of the reported effect. This does not disturb the paper's
-central finding, that the emergent tissue domains correspond to independently annotated
-anatomy and collapse entirely under a spatial null. If anything it strengthens it, since the
-domain structure now appears recoverable from a few hundred interaction fields largely
-irrespective of which ones, and the number of domains recovered is stable. But it does mean
-that one Results subsection and one figure caption describe the experiment in terms we no
-longer believe are correct. We would rather take the additional two weeks to confirm the
-control in our original clustering implementation and rewrite that section accurately than
-submit an interpretation we have already found reason to doubt.
+the ordering accounts for most of the reported effect. One Results subsection and one figure
+caption therefore describe that experiment in terms we no longer believe are correct. We would
+rather take two further weeks to confirm the control in our original clustering implementation
+and rewrite the affected text accurately than submit an interpretation we have already found
+reason to doubt.
 
 With thanks for your consideration,
 
