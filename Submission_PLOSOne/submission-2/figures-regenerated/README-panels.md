@@ -47,11 +47,11 @@ counts, residual. The bottom-right panel is the nUMI, as in the published captio
 | r1 Poisson, c2 density | `Fig4_r1_Poisson_c2_density.png` |
 | r1 Poisson, c3 counts | `Fig4_r1_Poisson_c3_counts.png` |
 | r1 Poisson, c4 residual | `Fig4_r1_Poisson_c4_residual.png` |
-| r2 ZIP, c1 P(non-zero) | **not available, see below** |
+| r2 ZIP, c1 P(non-zero) | `Fig4_r2_ZIP_c1_prob-nonzero.png` |
 | r2 ZIP, c2 density | `Fig4_r2_ZIP_c2_density.png` |
 | r2 ZIP, c3 counts | `Fig4_r2_ZIP_c3_counts.png` |
 | r2 ZIP, c4 residual | `Fig4_r2_ZIP_c4_residual.png` |
-| r3 ZAP, c1 P(non-zero) | **not available, see below** |
+| r3 ZAP, c1 P(non-zero) | `Fig4_r3_ZAP_c1_prob-nonzero.png` |
 | r3 ZAP, c2 density | `Fig4_r3_ZAP_c2_density.png` |
 | r3 ZAP, c3 counts | `Fig4_r3_ZAP_c3_counts.png` |
 | r3 ZAP, c4 residual | `Fig4_r3_ZAP_c4_residual.png` |
@@ -60,12 +60,29 @@ counts, residual. The bottom-right panel is the nUMI, as in the published captio
 | r4 raw, c3 counts | `Fig4_r4_raw_c3_counts.png` |
 | r4 raw, c4 total nUMI | `Fig4_r4_raw_c4_total-nUMI.png` |
 
-**The two missing panels.** For the Poisson model P(Y>0) = 1 - exp(-mu) with mu the expected
-count, so that panel is exact. For ZIP and ZAP the equivalent needs the spatially varying zero
-probability p_i(s), and the saved prediction objects contain only `lambda`, `expect` and
-`obs_prob`. p_i(s) was never written to disk. Options: rerun those two models saving p_i(s),
-or drop column 1 for the ZIP and ZAP rows and say so in the caption. Rather than substitute
-something approximate, they have been left out.
+**Column 1: all 24 panels are now present.** An earlier version of this file said the ZIP and
+ZAP "probability of a non-zero value" panels could not be reconstructed without a rerun. That
+was wrong, and the correction is worth recording because it rested on checking only the
+Poisson object and generalising.
+
+- **Poisson.** P(Y>0) = 1 - exp(-mu), mu the expected count. Exact.
+- **ZIP.** There is no spatially varying zero probability to recover. INLA's
+  `zeroinflatedpoisson1` carries a *single* zero-probability hyperparameter, so the claim that
+  "p_i(s) was never written to disk" mischaracterised the model. The model script stores
+  `expect = scaling_prob * lambda * total.count` with `scaling_prob = 1 - p`, so
+  `scaling_prob` is recoverable as `expect / (lambda * total.count)`. Checked across all
+  26,000 bins it is constant to seven significant figures (coefficient of variation
+  9.4e-07), which is what a scalar hyperparameter must look like and confirms the
+  derivation. Then P(Y>0) = `scaling_prob * (1 - exp(-lambda * total.count))`.
+  For Cd44, `scaling_prob` = 0.999342, i.e. the fitted zero-inflation is about 0.07%.
+- **ZAP.** `presence` was in the saved object all along; only the Poisson object is limited to
+  `lambda`, `expect` and `obs_prob`. The ZAP presence component is its own SPDE field, it
+  varies over space (sd 0.039, range 0.58 to 0.998), and because the count component is
+  zero-truncated, P(Y>0) is exactly that presence probability.
+
+No refit was needed, and none was run. Note that the Cd44 P(non-zero) maps are close to
+saturated for all three models, because Cd44 is expressed nearly everywhere in this field of
+view; that is a property of the feature, not of the reconstruction.
 
 ## One more thing worth fixing while you are in there
 

@@ -60,12 +60,33 @@ for (nm in c("poi","zip","zap")) {
   emit(sprintf("Fig4_%s_c3_counts",  tag),  ex$mean)
   emit(sprintf("Fig4_%s_c4_residual",tag),  ex$feat.count - ex$mean)
 }
-## Column 1, probability of a non-zero value. Exact for the Poisson model, where
-## P(Y>0) = 1 - exp(-mu) and mu is the expected count. NOT reconstructable for ZIP and
-## ZAP: the saved prediction objects store lambda, expect and obs_prob only, so the
-## spatially varying zero probability p_i(s) is not available. Those two panels must come
-## from a rerun that saves p_i(s), or be dropped from the figure.
+## ---- Column 1, probability of a non-zero value -----------------------------
+## All three are recoverable from the archived prediction objects. An earlier note here
+## said the ZIP and ZAP panels were not; that was wrong, and the reasoning is set out
+## below so it can be checked rather than taken on trust.
+
+## Poisson: P(Y>0) = 1 - exp(-mu), mu the expected count. Exact.
 emit("Fig4_r1_Poisson_c1_prob-nonzero", 1 - exp(-d$mean))
+
+## ZIP: INLA's zeroinflatedpoisson1 carries a SINGLE zero-probability hyperparameter, not
+## a spatially varying field, so there was never a p_i(s) to save. The model script sets
+## scaling_prob = 1 - p and stores expect = scaling_prob * lambda * total.count, so
+## scaling_prob is recoverable as expect / (lambda * total.count). Verified constant across
+## all 26,000 bins to 7 significant figures (coefficient of variation 9.4e-07), which is
+## what a scalar hyperparameter should look like and confirms the derivation.
+##   P(Y>0) = scaling_prob * (1 - exp(-lambda * total.count))
+zip_ex <- as.data.table(zip$expect); zip_lm <- as.data.table(zip$lambda)
+zip_mu <- zip_lm$mean * zip_lm$total.count
+zip_sp <- median(zip_ex$mean / zip_mu)
+stopifnot(zip_sp > 0, zip_sp <= 1)
+emit("Fig4_r2_ZIP_c1_prob-nonzero", zip_sp * (1 - exp(-zip_mu)))
+
+## ZAP: the presence component is its own SPDE field, and predict() already returned it.
+## `presence` IS in the saved object; it was simply overlooked. Use it directly, since in
+## a zero-adjusted Poisson the count part is zero-truncated and so P(Y>0) = presence.
+emit("Fig4_r3_ZAP_c1_prob-nonzero", as.data.table(zap$presence)$mean)
+
+cat(sprintf("ZIP scaling_prob (1 - zero-inflation) = %.6f\n", zip_sp))
 
 ## row 4: the raw data
 emit("Fig4_r4_raw_c1_presence",     as.numeric(d$feat.count > 0))

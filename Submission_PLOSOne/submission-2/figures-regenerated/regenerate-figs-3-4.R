@@ -66,21 +66,45 @@ mtext(sprintf("Raw vs count-normalized topology (%s), 1:1 aspect ratio", feat),
 dev.off()
 
 ## ---------------------------------------------------------------- Figure 4
-## Likelihood comparison. Rows: Poisson, ZIP, ZAP. Columns: P(non-zero), density
-## (counts per nUMI), expected counts, residual.
+## Likelihood comparison, matching the published 4 x 4 layout.
+## Rows: Poisson, ZIP, ZAP, raw data. Columns: P(non-zero), density (counts per nUMI),
+## expected counts, residual. The bottom-right panel is the nUMI, as in the published
+## caption, since the data row has no residual.
+##
+## Column 1 is recoverable for all three models; see export-panels.R for the derivation
+## and its verification. In short: Poisson is exact from the expected count; ZIP's
+## zero-inflation is a scalar hyperparameter recoverable as expect/(lambda*total.count);
+## and ZAP's spatially varying presence field was saved all along.
+
+p_nonzero <- function(o, which) {
+  ex <- as.data.table(o$expect); lm_ <- as.data.table(o$lambda)
+  switch(which,
+    poi = 1 - exp(-ex$mean),
+    zip = { mu <- lm_$mean * lm_$total.count
+            median(ex$mean / mu) * (1 - exp(-mu)) },
+    zap = as.data.table(o$presence)$mean)
+}
+
 png(file.path(odir, "Fig4-likelihood-comparison.png"),
-    width = (nx/ny) * 6 * 4, height = 6 * 3 + 1, units = "in", res = 300)
-par(mfrow = c(3, 4), mar = c(3, 3, 4, 6), oma = c(0, 0, 3, 0))
+    width = (nx/ny) * 6 * 4, height = 6 * 4 + 1, units = "in", res = 300)
+par(mfrow = c(4, 4), mar = c(3, 3, 4, 6), oma = c(0, 0, 3, 0))
 
 for (nm in c("Poisson", "ZIP", "ZAP")) {
-  o  <- switch(nm, Poisson = poi, ZIP = zip, ZAP = zap)
-  ex <- as.data.table(o$expect); lm_ <- as.data.table(o$lambda)
-  op <- as.data.table(o$obs_prob)
-  panel(ex, op$mean,                sprintf("%s: P(observed count)", nm))
-  panel(ex, lm_$mean,               sprintf("%s: density (counts/nUMI)", nm))
-  panel(ex, ex$mean,                sprintf("%s: expected counts", nm))
+  o   <- switch(nm, Poisson = poi, ZIP = zip, ZAP = zap)
+  key <- switch(nm, Poisson = "poi", ZIP = "zip", ZAP = "zap")
+  ex  <- as.data.table(o$expect); lm_ <- as.data.table(o$lambda)
+  panel(ex, p_nonzero(o, key),       sprintf("%s: P(non-zero)", nm), zlim = c(0, 1))
+  panel(ex, lm_$mean,                sprintf("%s: density (counts/nUMI)", nm))
+  panel(ex, ex$mean,                 sprintf("%s: expected counts", nm))
   panel(ex, ex$feat.count - ex$mean, sprintf("%s: residual", nm))
 }
+
+## row 4: the raw data, for comparison against the three model rows above it
+panel(d, as.numeric(d$feat.count > 0), "Data: observed presence", zlim = c(0, 1))
+panel(d, d$feat.count / d$total.count, "Data: density (counts/nUMI)")
+panel(d, d$feat.count,                 "Data: observed counts")
+panel(d, d$total.count,                "Data: total counts (nUMI)")
+
 mtext(sprintf("Likelihood model comparison (%s), 1:1 aspect ratio", feat),
       outer = TRUE, cex = 1.6, font = 2)
 dev.off()
