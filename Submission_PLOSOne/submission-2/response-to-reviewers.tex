@@ -1108,14 +1108,23 @@ proximity-ligation ground truth. We do not claim novelty for spatially resolved
 ligand-receptor mapping in light of that work, and we have removed language that implied it.
 
 Stating our contribution precisely, and more narrowly than the original submission did: we
-contribute a generative Bayesian geostatistical treatment of spatialomics data with explicit
-uncertainty quantification propagated through to the interaction fields, an argument for
+contribute a generative Bayesian geostatistical treatment of spatialomics data that yields a
+posterior distribution rather than a point estimate for every feature field, an argument for
 modeling raw counts as absolute binding density rather than normalized expression, a
 comparison of convolution operators showing that the common minimum outperforms the product
 operator conventionally used, and the thesis that clustering the full high-dimensional
 signaling field without dimensionality reduction produces tissue domains that correspond to
 anatomy. The combination of a Gaussian process with a Bayesian count likelihood is not
 itself new, and we now say so.
+
+We have also corrected an overstatement of our own that this comparison brought into focus.
+Earlier drafts described the uncertainty as propagated through to the interaction fields. It
+is not: the convolution and every stage downstream of it operate on posterior medians, so the
+interaction fields we present are point estimates and the domain results carry no propagated
+uncertainty. The posteriors exist and the operators are ordinary functions of the two input
+fields, so this is a computation we have not performed rather than one the framework
+precludes, and the Discussion now says exactly that. We would rather state the limit than
+leave a reader to infer a capability from the presence of the posteriors.
 
 All of this now appears in a new Discussion subsection, ``Relationship to existing
 methods,'' and all five works are cited. That subsection also states plainly that we have
