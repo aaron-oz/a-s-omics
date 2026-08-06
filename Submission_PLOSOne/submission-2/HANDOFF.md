@@ -88,8 +88,10 @@ the old version, stop.
    the pipeline non-deterministic, which was a falsehood about the method rather than about the
    configuration used. This had drifted back into
    `code-spatial-smoothing/controls/README.md` and into two places in the response letter;
-   corrected 2026-08-04. The word "nondeterministic" no longer appears in the repository, which
-   is a cheap way to check it has not returned.
+   corrected 2026-08-04, in three places: the controls README, the R2.7 response, and the
+   R2.4 duplicate-count response. To check it has not returned, grep for the phrase as well as
+   the word: `grep -rn "not deterministic\|nondetermin\|non-determin" --include=*.tex
+   --include=*.md --include=*.R .` The only legitimate hits are in this file.
 2. **Poisson wins on all four scores in Table 1, not three of four.** The MDS percentages that
    suggested otherwise were a ratio of two negative numbers. Those percentages have been removed
    from the table entirely.

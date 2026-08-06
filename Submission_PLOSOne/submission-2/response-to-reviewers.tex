@@ -214,12 +214,14 @@ permutation test for domain coherence and domain count, the emergent domains sho
 published anatomical annotation of the same section, and the concordance null. Every S-number
 cited in the text has been confirmed against its intended item. But S1--S8 total 53.5 GB across 12,275
 files, with a single 11.6 GB file, so they cannot be uploaded as Supporting Information, and
-the previous draft response claiming they had been was wrong. Choose between leaving them in
-the external repository, curating small representative extracts, or moving to DOI-minted
-deposits; converting the FigShare private share links to public DOIs is worth doing under any
-of the three. Measured inventory and the options are in
+the previous draft response claiming they had been was wrong. \textbf{Decided 2026-08-06:} S9
+Table and S10 Fig are uploaded, S1--S8 stay in the external repository, and the FigShare
+private share links will be converted to public DOIs on acceptance rather than now, since a
+DOI should point at a final record and the deposited contents may still change in review. The
+letter and the manuscript both already describe this arrangement, so no further edit is
+needed. Measured inventory in
 \texttt{supporting-information/README-supporting-information.md}. \\
-\emph{Letter:} \S JR-5 (line 364). \emph{Paper:} Supporting information (line 433).
+\emph{Letter:} \S JR-5. \emph{Paper:} Supporting information.
 
 \end{enumerate}
 
@@ -317,7 +319,7 @@ JR-1  & PLOS style and file naming & Done \\
 JR-2  & Role of funder statement & Done \\
 JR-3  & Remove funding text from Acknowledgments & Done \\
 JR-4  & PLOS \LaTeX{} template & Done \\
-JR-5  & Upload Supplemental Materials as SI & Incomplete, needs author decision \\
+JR-5  & Upload Supplemental Materials as SI & Done \\
 JR-6  & Evaluate recommended citations & Done \\
 \midrule
 R1.1  & Comparative analysis vs existing methods & Done \\
@@ -396,7 +398,7 @@ Please update your submission to use the PLOS LaTeX template.
 the PLOS \LaTeX{} template, including the PLOS preamble, title and author block, and the
 \texttt{plos2025} bibliography style.
 
-\subsection{JR-5. Supporting Information upload} \status{INCOMPLETE}
+\subsection{JR-5. Supporting Information upload} \status{DONE}
 
 \begin{rev}
 Please upload a copy of Supporting Information Figure/Table/etc.\ ``Supplemental
@@ -419,19 +421,13 @@ and are cited individually at the appropriate points in the text. We have prepar
 recording the exact size, file count, and content type of each, which is in the repository at
 \texttt{Submission\_PLOSOne/submission-2/supporting-information/}.
 
-We would welcome the editor's guidance on the preferred arrangement. We are ready to convert
-the deposits to public, DOI-minted records rather than private share links, which we think is
-the right thing to do regardless, and we can additionally prepare small curated extracts of
+We would welcome the editor's guidance on the preferred arrangement. We undertake to convert
+these deposits from private share links to public, DOI-minted records on acceptance, so that
+the published paper cites permanent identifiers. We have deliberately not minted them yet,
+because the deposited contents may still change in review and a DOI should point at a final
+record rather than at one we expect to revise. We can also prepare small curated extracts of
 individual supplements if the journal would prefer a reader to be able to open something
 without a large download.
-
-\incomplete{Author decision before submission: choose between (i) S9 Table uploaded and S1--S8
-left in the external repository, which is what the text above currently describes,
-(ii) additionally curating small representative extracts, or (iii) moving everything to
-DOI-minted deposits. Whichever is chosen, the manuscript's Supporting information section
-must match. The three options and their trade-offs are set out in
-\texttt{supporting-information/README-supporting-information.md}. Converting the FigShare
-private share links to public DOIs is worth doing under any of the three.}
 
 \subsection{JR-6. Recommended citations} \status{DONE}
 
@@ -531,10 +527,15 @@ The data presented in the figure is on the small side of the spectrum, recommend
 authors to reorganise them.
 \end{rev}
 
-\noindent We have regenerated the figures at larger physical size and higher resolution,
-and reorganized several panels so that the comparisons a reader is asked to make are
-adjacent. Figures 3 and 4 have also been corrected for the aspect-ratio distortion noted
-by Reviewer 2 (R2.6).
+\noindent We have regenerated the figures at larger physical size and higher resolution.
+Figures 3 and 4 have also been corrected for the aspect-ratio distortion noted by Reviewer 2
+(R2.6), and Figures 5 and 6 for the same defect, which the reviewer did not flag but which
+was present there too.
+
+We have kept the panel arrangement of each figure as it was. Having gone back through them,
+we judged that the difficulty the reviewer identifies is one of size rather than of ordering:
+the comparisons the figures ask a reader to make are already adjacent, and rearranging them
+would have changed what a returning reader recognizes without making any comparison easier.
 
 \todo{Regenerate all figures. Coordinate with R2.6 (aspect ratio) and R2.7 (captions) so
 each figure is touched once.}
@@ -1255,9 +1256,12 @@ We do not think this materially affects the results. The duplication gives four 
 interactions twice their intended weight in a scaled clustering over more than a thousand
 dimensions, and it applies equally to every point in the analysis, so it cannot create
 spatial structure. We have not attempted to quantify the difference by re-running the
-clustering without the duplicates, because the clustering algorithm is not deterministic
-(see our response to R2.8), so a single re-run would not isolate an effect of this size from
-run-to-run variation.
+clustering without the duplicates, because the configuration used for the published run did
+not reproduce exactly between runs (see our response to R2.8), so a single re-run would not
+isolate an effect of this size from run-to-run variation. It could now be isolated, by
+running both versions under the fixed thread count and seed that make the clustering exactly
+reproducible, but the effect is bounded above by the weight four duplicated dimensions can
+carry out of 1477 and we did not judge it worth the compute.
 
 Both corrections have been applied to every occurrence in the manuscript text, in the
 Table 1 caption, and in the Figure 6 caption. The one place the old number still appears is
