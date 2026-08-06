@@ -30,6 +30,8 @@ echo "task ${SLURM_ARRAY_TASK_ID} on $(hostname) at $(date -u +%Y-%m-%dT%H:%M:%S
 apptainer exec \
   --env R_LIBS_USER="$RLIB" \
   --env ASOMICS_SWEEP_ROOT="$ASOMICS_SWEEP_ROOT" \
+  --env ASOMICS_SEURAT_OUT="${ASOMICS_SEURAT_OUT:-results-seurat}" \
+  --env ASOMICS_SEURAT_DEPTHS="${ASOMICS_SEURAT_DEPTHS:-150:350}" \
   --env OMP_NUM_THREADS=1 --env OPENBLAS_NUM_THREADS=1 --env MKL_NUM_THREADS=1 \
   "$SIF" \
   Rscript "$ASOMICS_SWEEP_ROOT/sweep-seurat.R"

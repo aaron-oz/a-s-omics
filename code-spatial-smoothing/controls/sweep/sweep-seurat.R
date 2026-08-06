@@ -26,14 +26,27 @@ local({
   if (nzchar(ul) && dir.exists(ul)) .libPaths(c(ul, .libPaths()))
 })
 
+## Seurat dispatches FindNeighbors through future, whose default 500 MiB cap on exported
+## globals is exceeded at high feature depth (873 MiB at depth 1300). Sup5 raises this to
+## 10 GB at the top of the file; Sup7 does not, and so only runs at all if Sup5 has already
+## been sourced in the same session. Set it explicitly rather than inherit it.
+options(future.globals.maxSize = 10.0 * 1e9)
+
 suppressMessages({
   library(Seurat); library(Matrix); library(elsa); library(raster)
 })
 message("ggplot2 ", packageVersion("ggplot2"), ", Seurat ", packageVersion("Seurat"))
 
 ROOT   <- Sys.getenv("ASOMICS_SWEEP_ROOT", unset = ".")
-OUTDIR <- file.path(ROOT, "results-seurat")
-DEPTHS <- c(150, 350, 1300)
+OUTDIR <- file.path(ROOT, Sys.getenv("ASOMICS_SEURAT_OUT", "results-seurat"))
+## Seurat costs 699 s at depth 150 and 1702 s at depth 350, so depth 1300 would dominate the
+## budget while testing the weakest part of the effect (p = 0.940 there against 1.000 at
+## 150-1000 in the substitute). Depths are therefore configurable, and the random arm runs at
+## 150 and 350 only; the ordered arm covers all three as a reference.
+## Accept ':' as well as ',' as the separator. SLURM's --export parses its own value on
+## commas, so passing "150,350" through it silently becomes "150" plus a stray token, and
+## the run quietly covers one depth instead of two. Use colons when submitting.
+DEPTHS <- as.numeric(strsplit(Sys.getenv("ASOMICS_SEURAT_DEPTHS", "150:350"), "[,:]")[[1]])
 N_RANDOM <- 19L
 SEED <- 42L
 dir.create(OUTDIR, showWarnings = FALSE, recursive = TRUE)
@@ -83,7 +96,9 @@ task_spec <- function(id) {
 
 run_task <- function(id) {
   s <- task_spec(id)
-  rows <- lapply(DEPTHS, function(n) {
+  out <- file.path(OUTDIR, sprintf("seurat-%s-%03d.csv", s$arm, s$draw))
+  rows <- list()
+  for (n in DEPTHS) {
     cols <- switch(s$arm,
       ordered = ORD[seq_len(n)],
       reverse = REV[seq_len(n)],
@@ -91,12 +106,12 @@ run_task <- function(id) {
     r <- evaluate(cols, s$arm, s$draw, n)
     message(sprintf("[task %3d] %-7s draw %2d depth %5d -> %2d domains, ELSA(d50) %.4f, %.0f s",
                     id, s$arm, s$draw, n, r$domains, r$elsa_d50, r$seconds))
-    r
-  })
-  res <- do.call(rbind, rows)
-  write.csv(res, file.path(OUTDIR, sprintf("seurat-%s-%03d.csv", s$arm, s$draw)),
-            row.names = FALSE)
-  invisible(res)
+    rows[[length(rows) + 1L]] <- r
+    ## Write after every depth. A Seurat evaluation at high depth can run for over an hour,
+    ## and the first version of this script lost two completed depths when the third failed.
+    write.csv(do.call(rbind, rows), out, row.names = FALSE)
+  }
+  invisible(do.call(rbind, rows))
 }
 
 sid <- Sys.getenv("SLURM_ARRAY_TASK_ID", unset = "")
