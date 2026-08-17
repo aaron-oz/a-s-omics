@@ -15,11 +15,11 @@
 #SBATCH --job-name=asomics-sweep
 #SBATCH --account=ckpt-csde          # CONFIRM with `hyakalloc`
 #SBATCH --partition=ckpt             # ckpt-all widens the node pool if ckpt is busy
-#SBATCH --array=0-101%40
+#SBATCH --array=0-101%20  # throttled: ckpt is shared
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
-#SBATCH --mem=8G
+#SBATCH --mem=6G          # measured MaxRSS 3.7G; 2x headroom
 #SBATCH --time=01:00:00              # ~2.5 min typical; buffer for a requeue after preemption
 #SBATCH --requeue
 #SBATCH --output=logs/sweep-%A_%a.out

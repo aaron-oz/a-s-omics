@@ -6,12 +6,12 @@
 #SBATCH --job-name=asomics-seurat
 #SBATCH --account=ckpt-csde
 #SBATCH --partition=ckpt
-#SBATCH --array=0-20%21
+#SBATCH --array=0-20%10   # throttled: ckpt is shared, and 10 keeps throughput fine
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=2
-#SBATCH --mem=48G
-#SBATCH --time=06:00:00
+#SBATCH --mem=8G          # measured MaxRSS 3.8G; 2x headroom
+#SBATCH --time=03:00:00   # measured 30 min at depth 350
 #SBATCH --requeue
 #SBATCH --output=logs/seurat-%A_%a.out
 #SBATCH --error=logs/seurat-%A_%a.err
