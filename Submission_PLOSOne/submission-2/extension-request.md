@@ -22,16 +22,17 @@ moderated the generalizability and biological-interpretation language throughout
 corrected several claims that proved on re-examination to be stronger than our evidence
 supported.
 
-The extension is needed because of the last of those. While preparing the reproducibility
-documentation we ran a further control that no reviewer requested, asking whether one of our
-own results reflected the quantity we intended to vary or the order in which we varied it. The
-experiment in question admits features in order of decreasing variance, which confounds how
-many features enter the analysis with which particular ones do, and the control indicates that
-the ordering accounts for most of the reported effect. One Results subsection and one figure
-caption therefore describe that experiment in terms we no longer believe are correct. We would
-rather take two further weeks to confirm the control in our original clustering implementation
-and rewrite the affected text accurately than submit an interpretation we have already found
-reason to doubt.
+The extension is needed because of the last of those. Re-deriving our results from the
+archived analysis outputs, as part of documenting the repository, turned up two statements
+that our own saved data contradict. One figure caption describes a quantity as increasing
+across an experiment in which it in fact decreases, and an accompanying claim in the Results
+identifies one condition as the best of those tested when several others score better. Both
+are our errors, both are straightforward to correct, and neither affects the controls or the
+model comparison. Separately, a control we told the reviewers could be run to a conclusion has
+now been run, and its outcome bears on how strongly one of our interpretations can be stated.
+We would rather take two further weeks to correct the affected text carefully, and to make
+sure nothing else in the manuscript rests on the same slips, than submit a revision we already
+know contains them.
 
 With thanks for your consideration,
 
