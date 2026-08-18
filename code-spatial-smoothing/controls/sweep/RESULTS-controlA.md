@@ -75,11 +75,47 @@ So the defensible statement is that this pipeline, on raw counts under the commo
 recovers tissue architecture from the gene fields and not from the pairing, and that the
 operator choice is the likely reason.
 
+## Replicated in Seurat
+
+Run 2026-08-06, klone job 38598943, 20 tasks all COMPLETED, 19 scrambles at full depth using
+the same seeds as the substitute run so the draws correspond. Zero real pairs in any null.
+
+| quantity | Seurat observed | Seurat null (19) | z | substitute z |
+|---|---|---|---|---|
+| ELSA d=50 | 0.1236 | 0.0925 ± 0.0180 | **+1.73** | −0.60 |
+| ELSA d=100 | 0.1147 | 0.0841 ± 0.0173 | +1.77 | −0.53 |
+| domains | 19 | 18.47 ± 1.02 | +0.52 | −0.03 |
+| **distinct fields** | **1449** | **1424.3 ± 6.3** | **+3.91** | **+4.30** |
+
+**The conclusion replicates: the true pairing does not produce more spatially coherent domains
+than scrambled pairings.** Neither implementation finds the effect the control was designed to
+detect. The sign of the non-significant deviation differs, which is what noise around a null
+looks like: the substitute puts the observed marginally better than the null, Seurat puts it
+marginally worse, and in Seurat 17 of 19 scrambles were more coherent than the true pairing.
+Note that the Seurat trend, if it firmed up with more scrambles, would say the true pairing is
+slightly *worse*, not better.
+
+**The redundancy result replicates cleanly**, z = +3.91 against +4.30. The true pairing yields
+1,449 distinct fields where scrambles yield about 1,424, in both implementations.
+
+These two fit together mechanistically. Scrambled pairings collapse more mechanisms onto a
+shared limiting partner, which lowers the effective dimensionality of the input, and lower
+dimensionality marginally helps cluster coherence. So the pairing does carry structure, it
+shows up as reduced redundancy, and if anything it makes the clustering slightly harder rather
+than easier.
+
+**A useful validation falls out of the observed arm.** This is a full-depth Seurat evaluation
+of the paper's exact configuration, and it gives ELSA(d50) 0.1236 with 19 domains against the
+published Sup7 full-depth values of 0.1237 and 20 domains. That agreement to four decimal
+places, from an independently written script on a different machine, is a stronger
+reproducibility check than the manuscript currently claims anywhere.
+
 ## Caveats
 
-- One clustering implementation, the RcppHNSW plus igraph substitute. It validates against
-  Control B at full depth (21 domains at 0.0694 here, published 20 at 0.075) but is not
-  Seurat. The Seurat replication of the sweep is running separately.
+- 19 scrambles in Seurat against 99 in the substitute, so the Seurat z values are less precise.
+- Control B has still only been run in the substitute, and its null cannot be re-clustered
+  without redoing roughly 800 core-hours of model refits, because the permuted fields were
+  never saved.
 - One clustering seed, deterministic given the input.
 - ELSA at d = 50 and d = 100 only.
 - The 1,477 mechanisms are clustered as 1,477 columns, including the 28 that collapse to
