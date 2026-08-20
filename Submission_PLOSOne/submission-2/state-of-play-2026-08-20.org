@@ -1,0 +1,105 @@
+#+TITLE: Where the revision stands, and the one experiment that would most change it
+#+DATE: 2026-08-20
+
+Written for the AOZ/MSBR discussion, 2026-08-20. Terms are defined at first use so this can
+be read cold.
+
+* Two measures used throughout
+
+- *Spatial coherence score* (ELSA). Lower is better: domains are cleaner and less mixed at
+  their edges. This is the paper's own internal measure.
+- *Agreement with reference anatomy* (adjusted Rand index). 0 is chance, 1 is perfect. This
+  compares our domains to the anatomical labels Chen et al. published for the same section,
+  which our pipeline never saw. This is an external measure and is the more trustworthy of
+  the two.
+
+* Not in question
+
+- The model is sound. Poisson beats the zero-inflated and zero-adjusted alternatives on all
+  four scores across 912 genes. The fitted zero-inflation for Cd44 is 0.07%, so the extra
+  machinery is measurably unnecessary at this sequencing depth.
+- The domains are real. Permuting the spot coordinates and refitting everything collapses
+  them: 20 domains become 4 to 12, coherence goes from 0.075 to 0.470, with no overlap
+  between the real value and any of 49 permutations.
+- The domains are anatomically meaningful. Agreement with the published annotation is 0.401
+  against a null in which all 499 permutations fell below 0.0011.
+- Reproducibility is now excellent, and better than the manuscript claims. With thread count
+  and seed fixed the pipeline is bit-identical across two machines and two library versions,
+  and an independently written script reproduced the published full-depth numbers to four
+  decimal places.
+
+* What we found that is uncomfortable
+
+These are four separate lines of evidence and they all point the same way.
+
+- *Scrambling which ligand goes with which receptor changes nothing.* 99 scrambled pairings,
+  with every accidental real pair repaired out, produce domains just as coherent as the true
+  pairing. 24 of the 99 did better than the real one. Replicated in a second clustering
+  implementation, where 17 of 19 scrambles did better.
+- *The combination step appears to cost us rather than help.* Shelved data from July, two
+  independent runs, clustering the ligand and receptor maps directly and skipping the
+  combination altogether:
+
+  | representation                    | agreement with anatomy | second run |
+  |-----------------------------------+------------------------+------------|
+  | no combination, L and R maps only |                  0.447 |      0.492 |
+  | product                           |                  0.438 |      0.471 |
+  | common minimum (what we use)      |                  0.379 |      0.350 |
+
+  Skipping the step wins on both measures, and the operator we chose comes last.
+- *The operator is visibly lossy.* Taking the smaller of the two maps returns the dimmer
+  partner almost everywhere: for 42.6% of mechanisms the same partner wins at more than 95%
+  of locations, and 28 mechanisms collapse to maps numerically identical to another
+  mechanism's. So many "interaction fields" are relabelled single-gene maps.
+- *We compute uncertainty and then throw it away.* The combination step uses the middle of
+  each posterior, not the spread. Already corrected in the manuscript text.
+
+* Why this matters
+
+Steps 1, 3 and 4 of the paper survive intact: model the counts, cluster the result, show the
+domains are real and anatomical. It is step 2, combining a ligand map with its receptor map,
+that is in trouble, and step 2 is what the title and framing are about.
+
+* The one experiment that would most change this
+
+There is a plausible rescue, and it is cheap. A separate analysis found that the pairing
+signal is invisible on raw counts but strong once the two partners are put on a common scale
+before combining them. Gene abundances span orders of magnitude, so "take the smaller of the
+two" is currently answering "which gene is dimmer" rather than "where are both present".
+Rescale first and it becomes a real "both must be high" test.
+
+*Proposal: one run, eight conditions.* Four representations (no combination, product,
+geometric mean, common minimum) crossed with two input treatments (as-is, rescaled), all
+clustered identically and scored on both measures.
+
+- Costs nothing to set up: no model refitting, the fitted maps already exist.
+- Rough estimate, extrapolated from measured timings rather than measured directly: about a
+  day of unattended cluster time including replicate seeds.
+- *If rescaling wins:* the paper's central step is vindicated with a specific, defensible
+  fix, and the finding is more interesting than the original claim.
+- *If it does not:* we report honestly that the combination step does not improve on the
+  ligand and receptor maps in this dataset, which is a real and useful negative result for a
+  field that assumes otherwise.
+
+Either way we learn which paper we have. Right now we do not know.
+
+* Decisions
+
+1. Do we report the pairing-scramble result? The response letter already tells the reviewers
+   this experiment could be run to a conclusion. It has been run.
+2. Do we run the eight-condition experiment before resubmitting?
+3. If the answer to 2 is no, does the paper retreat to "here is a well-controlled modelling
+   framework and here is honestly what it does and does not show"?
+
+* Smaller corrections, already identified, no decision needed
+
+- The Figure 6 caption says domains become more numerous as features are added. They fall,
+  from 33 to about 20.
+- The Results say the full feature set gave the greatest coherence. Four shallower depths
+  score better.
+- There are 1,449 numerically distinct interaction maps, not 1,477.
+- The coordinate-shuffle control used a different clustering implementation from the main
+  pipeline and the manuscript does not say so. Needs one sentence.
+- Adding many maps genuinely does help, but the published curve's shape is an artefact of
+  the order features were added. Hundreds are needed rather than tens, and the benefit
+  levels off. This replicates in both implementations.
