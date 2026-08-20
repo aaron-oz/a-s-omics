@@ -100,3 +100,43 @@ Figures 3 and 4, so this is discretionary, but it is the same defect.
 - The R1.3 pass: larger physical size and reorganisation so compared panels sit adjacent.
 - Figure 6's in-figure labels read "1481 Features"; the corrected count is 1477.
 - The R1.5 graphical abstract.
+
+
+## Figure 5 panels (`panels-fig5/`)
+
+Built by `regenerate-fig5.R` (maps), `fig5-input-panels.R` (the shared ligand and receptor
+fields), and `fig5-summary-panels.R` (the two summary plots). Assembled by
+`compose-fig-5.py`.
+
+Figure 5's aspect defect had a different cause from Figs 3 and 4. Its spatial panels come from
+ggplot in `Sup6 - ELSA Analysis.R`, which never calls `coord_fixed()`, so ggplot stretched each
+panel to whatever device was requested rather than to the true 200:130 bin geometry. Adding
+`coord_fixed(ratio = 1)` fixes it.
+
+**The published layout repeated the ligand and receptor panels in each of the three operator
+columns.** Those fields are `l.est` and `r.est` and do not depend on the convolution operator;
+all eight were verified byte-identical across the columns. They are now shown once, in a left
+gutter beside the mechanism they belong to. The width that recovers goes to the interaction
+fields, which grow from 1.02 in to 1.64 in, a 60% increase, which is the substance of R1.3 for
+this figure. Their individual colour bars were dropped as well: at gutter width a bar consumed
+about 40% of the panel while being unreadable, and these panels are contextual rather than
+quantitative reads.
+
+| panel | file |
+|---|---|
+| shared ligand field, per mechanism | `Fig5_input_{MECH}_ligand.png` |
+| shared receptor field, per mechanism | `Fig5_input_{MECH}_receptor.png` |
+| interaction field | `Fig5_{prod,gm,min}_{MECH}_interaction.png` |
+| resulting domains | `Fig5_{prod,gm,min}_domains.png` |
+| entrogram | `Fig5_{prod,gm,min}_entrogram.png` |
+| summary, ELSA vs radius | `Fig5_summary_elsa-vs-paramD.png` |
+| summary, ELSA vs cluster count | `Fig5_summary_elsa-vs-numclust.png` |
+
+MECH is one of WNT4-FZD6, RSPO1-LGR6, DHH-PTCH1, VEGFA-KDR.
+
+**Height, not width, is what binds this figure.** At full 7.5 in width the composite is taller
+than the PLOS ONE limit of 8.75 in, so `compose-fig-5.py` scales it to the box, which yields
+5.66 x 8.75 in and leaves 1.84 in of permitted width unused. This is the same constraint that
+forced the published version to `0.705\linewidth`. Twenty panels in a portrait stack do not fit
+the format, and no amount of sizing fixes that; transposing the figure so operators are rows
+and mechanisms are columns would, at the cost of changing what the caption describes.

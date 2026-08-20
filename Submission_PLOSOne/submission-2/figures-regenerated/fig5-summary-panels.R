@@ -44,7 +44,7 @@ p_d <- ggplot(td, aes(param_d, elsa, colour = assay, group = assay)) +
   labs(x = "ELSA neighbourhood radius (param_d)", y = "mean ELSA", colour = NULL) +
   scale_colour_brewer(palette = "Set2") + dark()
 ggsave(file.path(pdir, "Fig5_summary_elsa-vs-paramD.png"), p_d,
-       width = 6.5, height = 3.4, dpi = 300, bg = "black")
+       width = 6.5, height = 2.6, dpi = 300, bg = "black")
 
 p_n <- ggplot(scat, aes(num.clust, elsa)) +
   geom_point(size = 2.4, colour = "grey70") +
@@ -53,6 +53,6 @@ p_n <- ggplot(scat, aes(num.clust, elsa)) +
                   size = 2.5, colour = "grey85", max.overlaps = 20, segment.colour = "grey45") +
   ylim(0, NA) + labs(x = "number of clusters", y = "mean ELSA (d = 100)") + dark()
 ggsave(file.path(pdir, "Fig5_summary_elsa-vs-numclust.png"), p_n,
-       width = 6.5, height = 3.4, dpi = 300, bg = "black")
+       width = 6.5, height = 2.6, dpi = 300, bg = "black")
 
 cat("rebuilt both Figure 5 summary panels on a dark ground\n")
