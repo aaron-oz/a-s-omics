@@ -1,0 +1,211 @@
+#+TITLE: Deciding which representation "wins": design v3
+#+DATE: 2026-09-01
+
+Third version. v1 (2026-08-20) fixed cluster count at 20 +/- 2. v2 (2026-08-27) replaced that
+with a resolution sweep and made stability the primary criterion. Both were wrong, in ways
+worth recording because the corrections shaped this version.
+
+- *AOZ, on v1:* fixing cluster count discards the thing we most want to measure. If one
+  representation resolves 26 real subdivisions where another resolves 18, forcing both to 20
+  hides exactly that.
+- *Independent review, on v2:* the primary criterion was structurally biased toward the
+  representation under audit. Details in section 3.
+- *AOZ, on v2:* the held-out genes proposed as the adjudicating instrument are not
+  independent of the reference annotation we compare against, because that annotation was
+  built from expression data including them.
+
+* 1. The question
+
+Does combining a ligand map with its receptor map add anything over the ligand and receptor
+maps themselves? If it does, which operator, and on what input scale?
+
+Underneath that sits the harder question this design exists to answer: *how do we tell a
+representation that resolves more real biological structure from one that merely fragments
+more under a clustering algorithm?*
+
+* 2. Three design principles
+
+** Never fix the number of clusters
+
+Cluster count is not a property of a representation. It is a property of (representation,
+algorithm, resolution setting). Turn the knob and any representation yields more clusters, so
+"more clusters wins" rewards noise. But fixing the count discards a genuine advantage.
+
+The resolution is therefore *swept*, not fixed, and representations are compared as whole
+curves. Matched-count comparisons appear only as slices of those curves, never as the result.
+
+** Perturb upstream, on the shared inputs
+
+To ask whether a partition is real, we perturb the input and see whether the partition
+survives. The perturbation must not advantage one arm.
+
+v2 resampled each representation's own columns. That is biased, and in the worst direction.
+The combination arms' columns are redundant by construction: 28 mechanisms collapse to fields
+numerically identical to another mechanism's, and for 42.6% of mechanisms the minimum returns
+the same partner at more than 95% of locations, so many "interaction fields" are relabeled
+single-gene maps recurring under different names. Dropping 20% of 1,477 such columns loses
+almost nothing; dropping 20% of 912 distinct gene maps deletes genes outright. The combination
+arm would have looked more stable for a mechanical reason, and the mechanism inflating its
+score is the exact degeneracy the accumulated evidence indicts.
+
+*Fix:* one replicate is one perturbation of the *shared* 912 gene maps. Subsample 80% of
+genes, keep the mechanisms whose both partners survive, then construct every representation
+from that same perturbed input. The operators are elementwise, so this costs nothing extra.
+Every arm now loses the same biological information per replicate.
+
+** Two instruments, neither clean, and we require agreement
+
+There is no clean adjudicator available, and pretending otherwise is how this design went
+wrong twice.
+
+| instrument | what it can do | how it is compromised |
+|------------+----------------+-----------------------|
+| held-out gene support | tests whether a partition reflects structure beyond the 912 genes the pipeline used | *not independent of the reference annotation*, which was built from expression data including these genes |
+| stability under perturbation | needs no external annotation at all, so it is not capped by the reference's granularity | confounded with representation redundancy: a lower-rank column set can cluster more stably for reasons unrelated to biology |
+
+Their weaknesses are unrelated, which is the point. We believe a result when both instruments
+agree and report the disagreement when they do not. Neither is promoted to primary.
+
+* 3. What we can and cannot claim from held-out genes
+
+The pipeline uses 912 ligand and receptor genes and never touches the other ~27,600. That
+makes those genes a valid test of whether a representation captures structure beyond its own
+inputs.
+
+It does not make them independent evidence. The Chen et al. annotation comes from spatially
+constrained clustering over expression plus manual labeling against an atlas. Whether that
+used every gene or a highly variable subset is not something we have checked, but it was
+certainly not restricted to our 912, so it overlaps the held-out set heavily. Consequences:
+
+- Agreement with the reference and support from held-out genes are *correlated* evidence, not
+  two independent confirmations.
+- A subdivision supported by held-out genes but absent from the reference is a claim that our
+  method surfaces structure their pipeline did not, from data both had access to. That is a
+  methods comparison, and defensible as one. It is not independent corroboration.
+- We must not write that held-out genes provide independent validation. The project has
+  already ruled that demanding a second measurement modality was over-caveating because no
+  concordance check could satisfy it. We cannot hold that position and also claim the
+  independence it says is unavailable.
+
+What survives untouched is the *relative* comparison. All arms are built from the same 912
+genes and scored against the same yardstick, so the yardstick's relationship to the reference
+biases absolute claims, not the ranking between arms. Ranking is what this experiment is for.
+
+* 4. Measures
+
+** Held-out gene support
+
+For each clustering, count domains supported by differential expression in held-out genes
+against their sibling domains, calibrated against a spatial null. Reported as a *count of
+supported domains*, which rises when a representation resolves more real territories and does
+not rise when it fragments, because fragments fail the test.
+
+The null must preserve spatial structure while breaking its alignment with biology, or
+autocorrelation across 26,000 bins will validate almost any contiguous split. Use 99 toroidal
+shifts of the label map. (The Control A scrambles on disk are a null for *pairing*, not for
+spatial structure, so they answer a different question and are not used here.)
+
+** Stability under the shared-input perturbation
+
+Mean pairwise agreement between replicate partitions at matched resolution, plotted against
+cluster count, with replicate-based uncertainty bands. Compared as curves. No threshold-based
+"limit" is estimated, because choosing where a smooth curve "falls away" after seeing it is
+worth the whole result.
+
+** Reference agreement, contextual only
+
+Reported at matched cluster count, as three numbers because they say different things:
+
+- *Adjusted Rand index.* Chance-corrected and comparable at matched count, but penalizes
+  refinement, so it peaks near the reference's own granularity and must not be maximized.
+- *Homogeneity with completeness.* Genuine refinement has a signature: homogeneity stays high
+  while completeness falls in a structured way. Fragmentation loses homogeneity because
+  fragments straddle reference boundaries. Homogeneity alone rises trivially with count.
+- *Merged-partition agreement.* Map each domain to its majority reference label, merge, then
+  compute agreement. A representation that subdivides real regions cleanly scores high after
+  merging; one that fragments noisily does not.
+
+** Effective rank, as an artifact detector
+
+Effective rank of each representation's correlation matrix. If between-arm stability
+differences track effective rank, that is the redundancy artifact from section 2 and the
+stability result is demoted on the spot.
+
+* 5. Numbers, fixed before anything runs
+
+Pre-registration protects only to the degree these stop being adjustable. Committed:
+
+| parameter | value |
+|-----------+-------|
+| replicates per condition | 20 (contingent on the timing check in section 7; 5 if it fails, and the design is then underpowered and should be reconsidered rather than run) |
+| gene resample fraction | 80% of 912 |
+| resolution grid | 0.2, 0.4, 0.6, 0.8, 1.0, 1.3, 1.6, 2.0 |
+| between-replicate statistic | mean pairwise adjusted Rand index at matched resolution |
+| matched-count tolerance | nearest achieved count within +/- 2 |
+| "no worse" equivalence margin | 90% CI of the difference excludes a decrement greater than 0.02 |
+| minimum domain size for held-out testing | 200 bins (0.77% of 26,000) |
+| multiplicity control | Benjamini-Hochberg at 0.05 across domains within a partition |
+| spatial null | 99 toroidal shifts |
+| columns for the combination arms | distinct fields only, deduplicated within each replicate |
+
+On that last row: the published analysis clustered 1,481 columns including 28 operator
+duplicates and 4 Dropbox conflicted copies. Duplicated columns double-weight those fields,
+which is an artifact rather than a property of the operator, so the comparison uses distinct
+fields. Stated because the choice changes the stability arithmetic.
+
+The arms still carry different column counts (912 against roughly 1,449). The feature-depth
+sweep found spatial coherence saturates past a few hundred fields, and both arms are well past
+that, so count alone should not drive the difference. That is an empirical argument from our
+own data, not an assumption, and it is checkable within this experiment.
+
+* 6. Decision rule
+
+1. A representation wins when it supports more validated domains *and* remains stable to a
+   comparable or greater cluster count, with reference agreement no worse at matched count.
+2. When the two instruments disagree, we report the disagreement. We do not choose the measure
+   that gives the preferred answer.
+3. When differences fall inside replicate uncertainty, the result is "no difference detected",
+   and we commit now to reporting that.
+4. *The most likely outcome is a partial order*, with different arms leading on different
+   measures at different granularities. Said in advance because it means the experiment may
+   not return a single winner, and that has to be acceptable before we start.
+
+* 7. Staging and cost
+
+*Stage 1, four conditions*, covering the two questions that matter:
+- no combination, ligand and receptor maps alone
+- common minimum on raw input          <- what the paper currently does
+- common minimum on rescaled input     <- the proposed fix
+- product on raw input                 <- what most other methods use
+
+Stage 2 extends to the remaining operators only if Stage 1 warrants it.
+
+*Two checks first, both cheap, both blocking:*
+
+1. *Seurat determinism.* Same input, same seed, twice. Until we know how much the clustering
+   varies with input held fixed, replicate spread conflates representation instability with
+   clustering noise, and the stability instrument means nothing.
+2. *Neighbor-graph reuse timing.* Graph construction depends only on the feature matrix, not
+   the resolution, so sweeping resolutions on a built graph may be nearly free. If it is, the
+   same budget buys 20 replicates rather than 5, which is the difference between a design that
+   can support its own decision rule and one that cannot. Verify on one run before relying on
+   it.
+
+*Cost*, estimated from measured per-evaluation times of 640 s at depth 150 and 1,700 s at
+depth 350, not measured end to end: roughly 210 core-hours for Stage 1 if graph reuse holds.
+On `ckpt` at 20 concurrent that is on the order of half a day, mostly unattended.
+
+* 8. How this still might produce a confidently wrong answer
+
+- *Stability still favors redundancy.* The upstream perturbation removes the bias in how we
+  perturb, but the common minimum's column set remains intrinsically lower-rank whatever we
+  do. The effective-rank diagnostic is the guard, not a fix. If stability and effective rank
+  move together, we do not get to claim a stability win.
+- *Held-out validation inherits the reference's blind spots*, since the reference saw those
+  genes. A subdivision invisible to both may still be real.
+- *Rescaling changes two things at once*, the input scale and thereby which partner the
+  minimum returns. That is the intended mechanism, so a positive result needs the mechanism
+  checked, not just the score.
+- *"More validated domains" measures how many divisions are real, not how meaningful they
+  are.* A representation could resolve fewer but more important territories and lose. We have
+  no way to operationalize that, so it stands as a limitation rather than something handled.
