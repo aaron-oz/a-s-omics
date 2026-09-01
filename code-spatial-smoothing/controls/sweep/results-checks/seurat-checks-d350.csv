@@ -1,0 +1,2 @@
+"depth","scale_s","graph_s","clust_s","ari_same_graph","ari_graph_rebuilt","n_clusters_res1","sweep_naive_s","sweep_reuse_s","speedup"
+350,4.7,1535.2,6.8,1,1,21,12049.5,1557.9,7.73

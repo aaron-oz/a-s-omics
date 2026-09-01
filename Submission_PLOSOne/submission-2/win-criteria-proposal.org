@@ -137,9 +137,9 @@ Pre-registration protects only to the degree these stop being adjustable. Commit
 
 | parameter | value |
 |-----------+-------|
-| replicates per condition | 20 (contingent on the timing check in section 7; 5 if it fails, and the design is then underpowered and should be reconsidered rather than run) |
+| replicates per condition | 20 (the timing check passed, see section 7) |
 | gene resample fraction | 80% of 912 |
-| resolution grid | 0.2, 0.4, 0.6, 0.8, 1.0, 1.3, 1.6, 2.0 |
+| resolution grid | 0.2, 0.4, 0.6, 0.8, 1.0, 1.3, 1.6, 2.0, 2.5, 3.0 (extended after calibration, see section 7) |
 | between-replicate statistic | mean pairwise adjusted Rand index at matched resolution |
 | matched-count tolerance | nearest achieved count within +/- 2 |
 | "no worse" equivalence margin | 90% CI of the difference excludes a decrement greater than 0.02 |
@@ -180,20 +180,44 @@ own data, not an assumption, and it is checkable within this experiment.
 
 Stage 2 extends to the remaining operators only if Stage 1 warrants it.
 
-*Two checks first, both cheap, both blocking:*
+*Both blocking checks have now been run* (klone job 39422583, one task, depth 350, 53 min,
+MaxRSS 3.4 GB against 8 GB requested). Results:
 
-1. *Seurat determinism.* Same input, same seed, twice. Until we know how much the clustering
-   varies with input held fixed, replicate spread conflates representation instability with
-   clustering noise, and the stability instrument means nothing.
-2. *Neighbor-graph reuse timing.* Graph construction depends only on the feature matrix, not
-   the resolution, so sweeping resolutions on a built graph may be nearly free. If it is, the
-   same budget buys 20 replicates rather than 5, which is the difference between a design that
-   can support its own decision rule and one that cannot. Verify on one run before relying on
-   it.
+*1. Determinism: passes, and more cleanly than expected.* Two clusterings on one graph agree
+at adjusted Rand index exactly 1.000000, and so do two clusterings whose graphs were built
+separately from identical input with the same seed. So Seurat's approximate neighbour backend
+is exactly reproducible here, graph construction included. Consequences: single runs are
+interpretable, and replicate spread in the experiment reflects the input perturbation alone
+rather than a mixture of that and clustering noise. The stability instrument is clean on this
+axis.
 
-*Cost*, estimated from measured per-evaluation times of 640 s at depth 150 and 1,700 s at
-depth 350, not measured end to end: roughly 210 core-hours for Stage 1 if graph reuse holds.
-On `ckpt` at 20 concurrent that is on the order of half a day, mostly unattended.
+*2. Graph reuse: 7.7x.* Graph construction takes 1,535 s at depth 350; clustering on the built
+graph takes 6.8 s per resolution. So the eight-resolution grid costs 1,558 s reusing the graph
+against 12,050 s rebuilding it each time. Graph construction is about 90% of a single
+evaluation, so the sweep is nearly free once the graph exists.
+
+*A calibration correction to section 5.* The measured grid gives 8, 12, 14, 17, 21, 26, 29 and
+36 clusters at resolutions 0.2 through 2.0. Section 5 specified a grid intended to span
+roughly 8 to 60, and it reaches only 36. Since the point is to probe past the reference
+annotation's granularity, where only held-out genes can adjudicate, the grid is extended with
+2.5 and 3.0. Changing this now is legitimate: the only quantity observed so far is cluster
+count, which is design calibration, not an outcome. Changing it after seeing any outcome would
+not be, and this note exists so that distinction stays on the record.
+
+*Cost, now measured rather than extrapolated at the sweep level.* One replicate of one
+condition is one graph build plus the resolution grid. Graph cost scales with feature count;
+extrapolating the measured 640 s at 150 features and 1,535 s at 350 gives roughly 2.1 h at the
+full ~1,449, and that part remains an extrapolation. Stage 1 is then 4 conditions x 20
+replicates x ~2.1 h, about 170 core-hours. On `ckpt` at 20 concurrent that is on the order of
+half a day, mostly unattended, and it buys 20 replicates at the budget that previously bought
+5.
+
+*One determinism question the check did not answer.* Both graph builds ran on the same compute
+node. Array tasks land on different nodes, and a different CPU or BLAS path could in principle
+break reproducibility across them. Mitigation, and it is nearly free: include one duplicated
+condition in the array, identical input and seed submitted as two separate tasks. If they land
+on different nodes and still agree, cross-node determinism is confirmed inside the experiment
+itself rather than assumed.
 
 * 8. How this still might produce a confidently wrong answer
 
