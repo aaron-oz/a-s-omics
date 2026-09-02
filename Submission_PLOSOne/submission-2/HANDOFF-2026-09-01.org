@@ -138,12 +138,45 @@ split adds a parameter without improving out-of-sample prediction; a real split 
 That removes the sibling definition, the spatial null, the alpha, the multiplicity
 correction and the minimum domain size all at once.
 
-*That measure is being calibrated right now* by `code-spatial-smoothing/controls/sweep/cv-fit-measure.R`,
+*That measure has now been calibrated and it passes.* Script:
+`code-spatial-smoothing/controls/sweep/cv-fit-measure.R`,
 which runs label surgery on the published 20-domain partition: arbitrary splits of the
 purest domains (score should not rise), splits of the least pure domains along the reference
 annotation's own boundary (should rise), merges (should fall), boundary jitter (should
-fall). *If it fails those, it must not go into v4.* Check `cv-fit-calibration.csv` and
-`cv-fit.log` in that directory.
+fall). Results, baseline deviance explained 0.17459:
+
+| arbitrary splits of the purest domains    | -0.00039, -0.00023, -0.00024 |
+| informative splits along reference bounds | -0.00006, +0.00042, +0.00194 |
+| merges of adjacent domains                | -0.00014, -0.00036, -0.00337 |
+| boundary jitter at 10% and 25%            | -0.00113, -0.00333           |
+
+Merges and jitter behave correctly and jitter is monotone in severity. Informative splits
+exceed arbitrary ones in all three pairs with no overlap.
+
+*The noise question is settled and it required care.* The absolute score varies by sd 0.00035
+across fold assignments, which is larger than most of the calibration deltas and initially
+looked disqualifying. But the calibration compares each surgery to the baseline on the SAME
+folds, so fold noise largely cancels in the paired difference. Measuring the paired delta
+across 8 fold assignments (`noise-floor-paired.R`):
+
+- arbitrary split, purity 1.00:   mean -0.00042, sd 0.00010
+- informative split, purity 0.42: mean -0.00010, sd 0.00005
+- separation 0.00032, which is 3.8 pooled standard deviations
+
+That used the *weakest* of the three informative splits, the one that did not rise in the
+single-fold calibration, and it still separates cleanly. So the measure discriminates a real
+subdivision from an arbitrary one at roughly 4 sd, provided comparisons are paired on common
+folds. Always score partitions on shared folds and compare deltas; never compare absolute
+scores across fold assignments.
+
+Note that both of those splits lower the score in absolute terms. Splitting along a reference
+boundary is not guaranteed to improve out-of-sample prediction; it just hurts less than an
+arbitrary cut. Only the strongest informative split (domain 2, purity 0.67) improved it
+outright, at +0.00194. Read the measure comparatively, not as an absolute goodness score.
+
+A methodological trap for whoever extends this: a first noise estimate returned exactly zero
+variance across six fold seeds, because sourcing the core script re-ran its own `set.seed(1)`
+and overrode the loop seed. Source once, then redraw folds in place.
 
 v4 has not been written. It should incorporate the v3 review's seven items plus whatever the
 calibration shows.
