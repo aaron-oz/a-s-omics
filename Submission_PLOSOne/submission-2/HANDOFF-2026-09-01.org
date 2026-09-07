@@ -1,6 +1,14 @@
 #+TITLE: Handoff: PLOS One revision, PONE-D-26-04349
 #+DATE: 2026-09-01
 
+
+#+BEGIN_QUOTE
+*SUPERSEDED 2026-09-07 by HANDOFF-2026-09-07.org.* Read that file instead; it is
+self-contained. This one is kept for provenance. Its biggest error: it files the
+matched-dominance and Control A results as converging nulls on the ligand-receptor
+pairing. That framing was wrong and is corrected in the newer handoff.
+#+END_QUOTE
+
 Supersedes HANDOFF.md (2026-08-04), which is still accurate on build mechanics and the
 corrected-claims list but out of date on everything else. Read that file's "Build" and
 "Claims that were corrected" sections; ignore its task list.

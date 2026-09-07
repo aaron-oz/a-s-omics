@@ -1,0 +1,403 @@
+#+TITLE: Handoff: PLOS One revision, PONE-D-26-04349
+#+DATE: 2026-09-07
+
+Supersedes HANDOFF-2026-09-01.org, which supersedes HANDOFF.md (2026-08-04). This file is
+self-contained: you do not need to read the older two except for build mechanics, which
+live in HANDOFF.md's "Build" section and have not changed.
+
+All work is committed and pushed. =main= and =plosone-revision= are both at =ac49f16=.
+
+* THE HEADLINE CHANGE THIS SESSION
+
+The evidence was previously filed as "five or six converging nulls: the ligand-receptor
+pairing does not matter." *That filing was wrong.* Reorganized, it splits into two
+questions with opposite answers:
+
+*Does the pairing carry spatial information? Yes, three independent lines.*
+- True pairings yield 1,449 numerically distinct interaction fields against a null of about
+  1,424 (z = +4.30 substitute, +3.91 Seurat); not one of 99 scrambles reached the observed.
+- Effective rank on standardized fields separates true from scrambled at z = +9.69.
+- *New 2026-09-07:* true partners are more spatially correlated than dominance-matched
+  random partners. Pearson 0.1110 against 0.0675, paired difference +0.0435, p = 4.0e-21,
+  true higher in 60.8% of mechanisms. Spearman 0.3646 against 0.3250, p = 3.8e-15.
+
+*Does that information survive the raw-count common minimum into the clustering? No, three
+independent lines.*
+- Control A coherence, substitute: z = -0.60, and 24 of 99 scrambles beat the true pairing.
+- Control A coherence, Seurat: z = +1.73, and 17 of 19 scrambles beat it. Sign flips
+  between implementations, which is what noise around a null looks like.
+- Effective rank on raw counts: z = -0.51 for the minimum, -1.49 for the product.
+
+*Why this matters.* "Six nulls" is a discouraging paper. "The pairing carries real spatial
+signal, and here is the specific mechanism by which the pipeline's operator destroys it"
+is a good one. Do not revert to the old framing.
+
+* Decisions taken this session
+
+1. *Current paper = the honest minimum plus one uncertainty result* (options 2 and 3 in the
+   2026-09-07 discussion). AOZ said "inclined to take your option 2&3 together"; treat as
+   agreed in principle, not yet a green light to start writing.
+2. *The framing is inverted from what was first proposed.* After a literature check, the
+   deconfounded depth sweep is a *correction*, not a contribution, and must be written that
+   way. The contribution is the probabilistic machinery. See "Novelty" below.
+3. *Scope statement agreed.* The fields estimate signaling *potential* under the standard
+   co-expression assumption, not measured signaling activity. This is a sixth manuscript
+   correction, in the Discussion and probably one hedge in the Abstract. AOZ's framing, and
+   it is better than the earlier over-cautious version: we do not need to prove signaling
+   occurs, we need to say we are proposing a proxy for it.
+4. *The representation ladder must NOT go in the current paper.* Firm. Its own reproduction
+   of the published configuration gives 23 domains and ARI 0.431 against our published
+   labels, so it did not reproduce the pipeline it claims to compare against. Not quotable
+   until re-run.
+5. *The win-criteria thread is re-scoped.* The six-arm representation experiment and the
+   calibrated CV predictive fit measure now belong to Paper 2, not to this revision. v4 of
+   the design was never written and no longer blocks the resubmission.
+
+* Novelty, checked against the literature 2026-09-07
+
+Four web searches, not a systematic review. Sam will know this field better.
+
+- *Clustering on ligand-receptor scores to find spatial niches is crowded prior art*:
+  SpaNiche, Renoir, LARIS, Niche-DE, COMMOT, MISTy, Squidpy, Giotto, SpaTalk, plus a 2026
+  benchmark of niche identification by domain segmentation.
+- *Most directly, NICHES (Raredon et al., Bioinformatics 2023) is prior art from this lab.*
+  It embeds ligand-receptor signal proxies to find signaling niches in spatial data, using
+  the product operator. It must be cited and distinguished, on the spatial model and the
+  uncertainty, not on the niche-finding idea. A reviewer who knows the field will make that
+  comparison whether or not we do.
+- *Randomized feature-subset ablation is standard practice* in the spatial transcriptomics
+  clustering literature, and feature-count saturation curves already exist (one Genome
+  Biology evaluation reports saturation near 700 reference spatially variable genes).
+- *INLA-SPDE has no found precedent in ligand-receptor or cell-cell communication.* It is
+  mature in geostatistics (soil carbon, species distribution, benthic ecology, data
+  fusion). Absence across four queries is weak evidence, but it is the novelty axis.
+
+* New results this session, all committed
+
+Scripts and outputs are in =code-spatial-smoothing/controls/sweep/=. All are local, all run
+in under a minute, all validated.
+
+** magnitude-check.R: dominance does not imply duplication
+
+Validated first: the stored interaction fields equal =pmin(L,R)= to 5.3e-15, so the gene
+mapping is right.
+
+- Median dominance (fraction of bins where the same partner supplies the minimum) 0.927.
+  Above 0.95 for 629 of 1477 (42.6%), reproducing the previously known figure exactly.
+- *93 fields have dominance exactly 1.00*, meaning they are numerically identical to a gene
+  field already in the 912-gene input. 156 are at r > 0.99, 268 at r > 0.95.
+- *But median correlation with the dominant parent is only 0.713*, so the dominant parent
+  accounts for about half the variance, not nearly all of it. The hypothesis that the
+  minimum is mostly a re-scaled copy of one parent is *refuted*. Even at 96% dominance the
+  4% of bins where the other partner wins are spatially clustered, so the min field is the
+  dominant parent with regions carved out of it.
+
+*Consequence:* the claim in NEXT-PAPER-DIRECTIONS.md section 2 that "the operator largely
+discards one of the two fields" is an overstatement and should be softened. Discarding the
+non-limiting partner at each bin is true by construction; "largely one field" is not.
+
+** linear-recoverability.R: the minimum is not linearly recoverable from its parents
+
+This is the measurement that makes the paper's method defensible.
+
+- Median R^2 of =lm(min ~ L + R)= is *0.555*.
+- *81.2% of mechanisms* leave more than 10% of variance unexplained by any linear function
+  of both parents. Only 9.4% are essentially linear (R^2 > 0.99).
+- Adding the second parent linearly gains a median of only *0.016* over the dominant parent
+  alone, so essentially all the extra content is nonlinear.
+- Split by dominance: median linear R^2 is 0.842 above dominance 0.95 and 0.438 below.
+
+*Why it matters.* Verified in the Fig 6 experiment script: the published clustering path is
+=ScaleData= then =FindNeighbors(dims = NULL, features = foi)=, with the comment "in full
+feature space, again without any PCA". So the metric is Euclidean on z-scored features and
+*linear in its inputs*. It cannot construct the gate itself. AOZ's generalization is
+stronger and should be the paper's framing: PCA is near-universal in this literature and no
+linear projection can produce a minimum, so the argument does not depend on our pipeline
+lacking PCA.
+
+** matched-dominance-scramble.R, then cor-true-vs-matched.R
+
+Nonlinear content is driven mainly by dominance, so the fair null holds dominance constant
+and swaps in a random receptor excluded from all 2,954 directed FANTOM5 pairs. Matching was
+good: median dominance gap 0.0029, medians 0.9270 against 0.9269.
+
+| statistic                | true   | matched scramble | paired median diff |
+| linear R^2 of min ~ L+R  | 0.5552 | 0.5022           | +0.0174            |
+| switch coherence         | 0.9574 | 0.9642           | -0.0005            |
+
+Switch coherence is the fraction of adjacent bin pairs with the same limiting partner.
+Both arms sit near 0.96 against *0.8123* for a spatially random mask of the same dominance,
+so the operator's partner-switching follows smooth spatial domains rather than flickering
+bin to bin. *That closes the high-frequency artifact worry*, with the caveat that the input
+fields are SPDE-smoothed so some of the coherence is imposed by the fitting.
+
+Both differences run *opposite* to the hypothesis and are tiny; the minute Wilcoxon
+p-values reflect n = 1477 paired, not effect size. This was initially filed as a sixth null.
+
+*AOZ identified the mechanism and it was then confirmed.* For jointly normal (L,R), writing
+U = (L+R)/2 and V = (L-R)/2, min = U - |V|; U and V are independent and |V| is uncorrelated
+with every linear function of (L,R), so the best linear predictor of the minimum is exactly
+U and
+
+: R^2(rho) = (1 + rho) / [ (1 + rho) + (1 - rho)(1 - 2/pi) ]
+
+which is *monotone increasing* in rho: 0.733 at rho = 0, 0.892 at 0.5, 0.961 at 0.8. Higher
+partner correlation therefore means less nonlinear content, and because the structured parts
+cancel in the difference, noisier switching. Both observed effects follow if true partners
+are more correlated.
+
+*The mediation test settles it.* Regressing linear R^2 on arm, partner correlation and
+dominance across all 2,954 observations:
+
+| arm coefficient, unadjusted                          | +0.0408 (p = 6.2e-05) |
+| arm coefficient, adjusted for correlation + dominance| +0.0047 (p = 0.50)    |
+
+*88.4% of the arm effect is accounted for, and what remains is indistinguishable from
+zero.* Nothing about being a true pairing predicts the minimum's nonlinearity once
+correlation is controlled. Empirically cor(rho, linear R^2) = +0.516, positive as the
+theory requires. The bivariate-normal model predicts a gap of +0.0157 against the observed
++0.0408: right sign and mechanism, magnitude underestimated about 2.6x, as expected from
+non-normal fields.
+
+*Two honest caveats for any writeup.* The correlation effect is modest (median paired
+difference 0.0224 Pearson); the significance comes from n = 1477. And there is a large
+shared baseline: even random pairs sit at Spearman 0.325, so all these gene fields share a
+dominant common spatial mode, most likely "is there tissue here". The pairing effect rides
+on top of that and must not be quoted as if 0.365 were pairing-specific. The Pearson to
+Spearman gap (0.11 against 0.36) also says these relationships are strongly monotone but
+non-linear on the raw scale, which argues for a rank-based operator.
+
+** RESULTS.md flagged stale
+
+=code-spatial-smoothing/controls/sweep/RESULTS.md= now carries a banner. Its numbers and
+provenance stand (substitute backend, job 38193317) but four interpretations are withdrawn:
+that variance ranking is actively harmful; that the lowest-variance fields are most useful;
+that ordering accounts for most of the depth effect; and that coherence saturates near 350
+fields then degrades. Read =RESULTS-seurat.md= instead.
+
+* Questions answered this session, so they are not re-asked
+
+- *"n draws" in the Seurat depth table* is the number of independent random feature subsets
+  of that size that were clustered. 18 rather than 19 at depth 50 because one array task
+  died on a transient lmod module-cache race, which is missing-at-random and harmless.
+- *Max depth.* Full depth is 1,449. The Seurat random arm was capped at *1,000* (depth 1300
+  blew the =future.globals.maxSize= cap and was cut); the substitute random arm reached
+  1,300. Neither ran a random subset at full depth, which is definitionally impossible since
+  at 1,449 there is only one subset. *Consequence:* the random curve and the paper's
+  full-depth number are never directly comparable, so do not write "a random 1,000 beats all
+  1,449" (0.1199 against 0.1237 is about 1.3 standard errors, across different setups).
+- *Is the sd in that table reducible by more draws? No.* It is the genuine between-subset
+  spread, a property of the data. More draws shrink the standard error of the mean
+  (sd/sqrt(n); 19 to 99 buys a factor of 2.3), not the sd. Crucially, the "is the ordering
+  special" question compares one fixed value against the null *spread*, so the denominator
+  is the sd and more draws cannot resolve it; they would only sharpen the percentile from
+  1/19 to 1/99. Evidence that the spread is mostly real rather than annoy approximation
+  noise: it falls 3.6-fold from depth 10 to 1,000, whereas approximation noise would be
+  roughly flat. *Recommendation: do not spend compute topping up the draws.*
+
+* Repository discoveries that change the plan
+
+** The posterior standard deviations were saved all along
+
+Every per-gene =bru_prediction= object (for example
+=data-outputs/mouse-embryo-raw/2024-12-18/pred-pois-pois-Itgb1.rds=) carries =mean=, =sd=,
+=q0.025=, =q0.5=, =q0.975= for all 26,000 bins, on three scales (=total=,
+=feat.density.per.count=, =feat=). *Uncertainty propagation needs no refits.*
+
+** The mass-action operator is already implemented AND already run
+
+=calc.conv()= in =code-spatial-smoothing/raw-counts/03-array-post-process.R= supports
+="min"=, ="prod"=, ="geom.mean"= and ="kinetic"=. The kinetic branch solves the correct
+receptor-ligand equilibrium (verified algebraically: r_e = E +/- sqrt(E^2 + r*k.d) with
+E = (r - l - k.d)/2, returning bound concentration r - r_e).
+
+Affinities k.d = 0.01, 0.5 and 1 were computed on both observed counts (=m.data.*=) and
+modeled estimates (=m.est.*=), each with and without ligand diffusion (=m.est.d.*=). With
+min, product and geometric mean that is roughly *24 representations*, and Seurat assays for
+many sit in =sam_sandbox/HD Embeddings/*assay.2025-07-25.Robj=. *None was ever reported.*
+
+*Why this is structurally important.* As k.d approaches 0 the kinetic operator converges to
+the common minimum; as it grows large it converges to the product over k.d. So the minimum
+and the product are the two limits of one physically motivated family indexed by binding
+affinity, not three competing arbitrary choices. The operator comparison the project has
+been agonizing over is largely computed already; what is missing is clustering and scoring
+each representation under a defensible criterion.
+
+** Four embryonic timepoints exist
+
+=data-inputs/mouse-embryo/= holds =pre-fit-obj-1= through =-4= with a mesh for each, 3.7 GB.
+*Nobody has confirmed these four are the same modality, comparable in depth, and processed
+identically.* Check that before planning anything around them.
+
+** Also confirmed
+
+- Product and geometric mean are *linear on the log scale*, so they carry zero nonlinear
+  content relative to (log L, log R). The minimum is nonlinear on every monotone scale.
+  So the minimum is the operator with the strongest claim to the "adds a basis a linear
+  step cannot build" argument, and the product has essentially none.
+- The mouse brain data and code are held (=data-inputs/mouse-brain/=, 796 MB).
+
+* Manuscript corrections still needed (six, none written in yet)
+
+All verified against the project's own archived outputs.
+
+1. *Fig 6 caption is backwards.* It says domains "become more numerous" as features are
+   added. From the saved metadata of the run that produced Fig 6, domain count *falls*,
+   33 at depth 10 down to a plateau near 19-20.
+2. *The Results overstate full depth.* They say the full feature space "gave the greatest
+   spatial complexity and coherence of the depths we swept". Depths 1250, 1350, 1400 and
+   1450 all score better on that run's own saved ELSA.
+3. *Field count.* 1,449 numerically distinct interaction fields, not 1,477. Twenty groups of
+   identical rows, 32 redundant: 4 are Dropbox conflicted copies, the other 28 are the
+   common minimum collapsing mechanisms that share a globally limiting partner. Seven GDF9
+   mechanisms are one field.
+4. *Control B's clustering backend is undisclosed.* The paper's headline control ran on the
+   RcppHNSW/igraph substitute, not Seurat. Line 365 says the refit fields went "through the
+   identical convolution, clustering, and scoring pipeline", which a reader will take to
+   mean identical to Fig 6's. It was identical between the observed and permuted arms,
+   which is what makes the control valid, but not identical to the main pipeline. Needs one
+   sentence. The null cannot be cheaply re-clustered: the permuted fields were never saved,
+   so redoing it means about 800 core-hours of refits.
+5. *NEW: the scope statement.* The interaction fields estimate signaling *potential* under
+   the standard co-expression assumption; we do not observe signaling activity, and the
+   steps from transcript to protein and from co-presence in a 50-unit bin to co-presence at
+   a cell surface are assumptions inherited from the cell-cell communication literature.
+   Discussion, plus probably one hedge in the Abstract.
+6. *Uncertainty is computed then discarded.* Already corrected in the text (commit
+   5c9e810). Listed so it is not "re-fixed".
+
+* Reviewer items: all substantively done
+
+- *R2.6* (elongated pixels, Figs 3 and 4). Fixed at source: =asp = qp.res.y/qp.res.x= =
+  0.65 should have been =asp = 1=, corrected at all 151 occurrences. Figs 3, 4, 5
+  regenerated. Fig 5 had the same defect from a different cause, ggplot panels never calling
+  =coord_fixed()=.
+- *R1.3* (figures too small). Scripted composites exist, sized to the PLOS maximum. Authors
+  decided reorganizing is not needed; that claim was removed from the letter.
+- *R1.5* (graphical abstract). Draft at =figures-regenerated/graphical-abstract.png=.
+  *Never reviewed by the authors.*
+- *R2.9* (reproducibility) and *JR-5* (supporting information) closed 2026-08-04 and -08-06.
+
+=python3 check-response-letter.py= exits 0. Markers remain on R1.3, R1.5, R2.6 pending
+author sign-off.
+
+* Decisions still waiting on the authors
+
+1. *Green light to start writing* the Options 2 + 3 revision. AOZ is "inclined" but has not
+   said go.
+2. *Does Control A go into the paper?* The letter's R2.8 already says the experiment "could
+   now be run to a conclusion... we have not done so". It has been run. Reporting it is not
+   optional. What is open is how prominently, and it must carry the operator caveat or the
+   null reads far broader than it is.
+3. *Figure 5 layout: portrait or transposed?* Both built.
+   =Fig5-composite-portrait.png= is 5.66 x 8.75 in with 1.64 in interaction panels;
+   =Fig5-composite-transposed.png= is 6.69 x 8.75 in with 1.50 in panels but 18% more page
+   area and better operator comparison. Height, not width, is binding.
+4. *Graphical abstract*, never reviewed. Two known issues: the depth-strip maps come from
+   the published variance-ordered sweep while the curve beneath them is the deconfounded
+   random-subset one, so they are different experiments; and the anatomy panel's null is a
+   near-invisible spike because all 499 permutations fell below 0.0011, honest but empty.
+
+* The one piece of new work Option 3 needs
+
+*The Jensen result. Identified, computable, not yet run.* The pipeline computes
+=min(E[L], E[R])=. The right quantity is =E[min(L,R)]=. The minimum is concave, so by
+Jensen's inequality the published interaction fields are *biased upward, and biased most
+where the posterior is widest*, which is exactly where a conservative answer is wanted.
+Posterior standard deviations are saved (see above), so no refits are needed, and for
+approximately Gaussian independent marginals there is a closed form. One computation, one
+figure (bias magnitude in space, and bias against posterior sd), one paragraph.
+
+* Where the win-criteria thread stands, now re-scoped
+
+The cross-validated predictive fit measure is *built and calibrated* and belongs to Paper 2.
+
+=cv-fit-measure.R= scores a partition by how well it predicts held-out gene expression in
+spatial blocks it was not fitted on: 16,530 genes never used to build the fields, 70
+contiguous blocks of 20x20 bins across 10 folds (blocks because the fitted correlation
+length is about 10 bins), per-domain mean profiles with shrinkage, Poisson deviance,
+reported as deviance explained against a global-mean null. Baseline on the published
+20-domain partition is 0.17459.
+
+Calibration by label surgery: arbitrary splits of pure domains -0.00039/-0.00023/-0.00024;
+informative splits along reference boundaries -0.00006/+0.00042/+0.00194; merges
+-0.00014/-0.00036/-0.00337; boundary jitter at 10% and 25% -0.00113/-0.00333. Merges and
+jitter behave and jitter is monotone; informative splits exceed arbitrary ones in all three
+pairs with no overlap.
+
+*The operating rule, which took care to establish.* The absolute score varies by sd 0.00035
+across fold assignments, larger than most calibration deltas. But comparisons are paired on
+the same folds, so fold noise cancels. Paired across 8 fold assignments: arbitrary split
+mean -0.00042 sd 0.00010; informative split mean -0.00010 sd 0.00005; separation 0.00032,
+or 3.8 pooled sd, using the *weakest* informative split. *Always score partitions on shared
+folds and compare deltas; never compare absolute scores across fold assignments.*
+
+Read comparatively, not as an absolute goodness score: two of three informative splits still
+lower the score, they just cost about a quarter of what an arbitrary split costs.
+
+*Not established:* that it separates the six experimental arms. It was calibrated on one
+partition with single-domain edits. Paper 2 should pre-register a check: run two arms first,
+confirm separation exceeds the noise floor, then commit.
+
+*Trap:* a first noise estimate returned exactly zero variance across six fold seeds because
+sourcing the core script re-ran its own =set.seed(1)=. Source once, then redraw folds in
+place.
+
+* Future work
+
+Two documents written this session:
+
+- =NEXT-PAPER-DIRECTIONS.md= section 6, "Scale, calibration, and the operator family": what
+  already exists in the repo and was never analyzed; why transcript counts cannot be
+  converted to molar abundance from this dataset; the ladder of better options (posterior
+  co-presence, rank/copula minimum, the kinetic sweep, asymmetric ligand diffusion, the
+  honest split); and the validation the program is missing.
+- =RESEARCH-ARC.org= at the repo root: six papers with target claim, data requirements and
+  experiments for each, plus the novelty assessment. *Only direct signaling validation
+  needs data we do not hold.*
+
+*The single most important unrun experiment*, per both documents: downstream target-gene
+validation. Every outcome measure in use reports correspondence with tissue architecture,
+none with signaling, which makes every signaling claim currently unfalsifiable with our
+data. Roughly 27,590 genes were never used to build the fields, and curated target sets
+exist for well-characterized pathways (canonical Wnt: Axin2, Lef1, Nkd1, Notum, Sp5; Shh:
+Gli1, Ptch1, Hhip; Notch: Hes and Hey; BMP: Id1-3; FGF: Spry, Dusp6). Needs no new data.
+
+*Ligand diffusion* was examined and deliberately excluded from the current paper. The
+authors remain interested; the diffused variants already exist.
+
+* Practical notes
+
+- *Seurat only.* Standing decision 2026-08-20. Do not use the RcppHNSW/igraph substitute for
+  anything reported; the two give non-comparable numbers (ELSA 0.0761 against 0.1237 at
+  full depth).
+- *klone access.* Duo-only, so a bare =ssh= fails. =~/.ssh/config= sets =ControlPersist 4h=
+  on host =hyak=, so once AOZ runs =ssh hyak= the socket lets Claude rsync and submit for
+  four hours. It expires silently; test with =ssh -o BatchMode=yes hyak echo ok=.
+- *klone has no R module.* Use =module load apptainer/1.1.5= then
+  =apptainer exec --env R_LIBS_USER=$HOME/Rlib-ctrlB $HOME/containers/geospatial.sif Rscript ...=,
+  and prepend the user library inside the script or the image's ggplot2 3.5.1 shadows the
+  4.0.3 that Seurat 5.5.1 needs.
+- *Resource frugality is a hard requirement.* Measured baselines: Seurat clustering 3.8 GB
+  and about 30 min at depth 350; the substitute 2.8-3.7 GB and 1-4 min. Size to measured
+  MaxRSS x 2. An earlier over-request in this project reserved roughly 5 TB for a real need
+  under 500 GB.
+- *Local R runs* go through =distrobox enter emacs-r -- Rscript ...= with
+  =OMP_NUM_THREADS=4= and friends set, so the workstation stays usable.
+- *=Sup7 - Clustering vs Features.R= cannot run standalone.* It needs
+  =options(future.globals.maxSize)= raised, set only in Sup5, so Sup7 works only if Sup5 was
+  sourced first in the same session. Belongs in the R2.9 documentation; still not added.
+- *SLURM =--export= splits its value on commas*, so a comma-separated list silently
+  truncates. Use colons.
+- *Figures are scripted now*: =compose-figs-3-4.R=, =compose-fig-5.py=,
+  =compose-fig-5-transposed.py=, =graphical-abstract.R=, =regenerate-fig5.R=,
+  =fig5-input-panels.R=, =fig5-summary-panels.R=, all in =figures-regenerated/=. The
+  manuscript previously had to admit no layout script existed; R2.9 could now say otherwise.
+- *Logs are gitignored* in the sweep directory. Regenerate by re-running the scripts, which
+  all take under a minute.
+
+* Token discipline
+
+Do not re-read rendered figures to check cosmetics; an earlier session spent five rounds on
+one colour bar label with a full-resolution re-read each time. Batch fixes. Keep status
+short. Read =RESULTS-seurat.md= and this file rather than crawling the whole sweep directory.
