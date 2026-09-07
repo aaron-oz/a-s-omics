@@ -118,9 +118,15 @@ So the minimum and the product are the two limits of one curve.
    tissue sits on the product-to-minimum continuum.
 4. A rank or copula minimum as a scale-free arm, invariant to any monotone per-gene
    transform, which dissolves the raw-versus-standardized argument rather than settling it.
-5. The one-line check of cor(L,R) for true pairs against dominance-matched random pairs.
-   If true partners are more spatially correlated, that explains both "wrong direction"
-   results in the matched-dominance scramble and converts a null into a positive finding.
+5. *DONE 2026-09-07, and it confirmed the hypothesis.* True partners are more spatially
+   correlated than dominance-matched random ones: Pearson 0.1110 against 0.0675 (paired
+   difference +0.0435, p = 4e-21, true higher in 60.8% of mechanisms), Spearman 0.3646
+   against 0.3250 (p = 4e-15). A mediation regression shows *88.4% of the linear-R^2
+   difference between the arms is accounted for by partner correlation and dominance*;
+   the arm coefficient falls from +0.0408 (p = 6.2e-05) to +0.0047 (p = 0.50) once both
+   are adjusted for. So the matched-dominance scramble was never a null: it was pairing
+   signal read through an inverting lens. Effect sizes are modest and the significance
+   comes from n = 1477 paired mechanisms. See =cor-true-vs-matched.R=.
 
 *Why this goes first.* The assets exist, and experiment 2 is the only one in the program
 whose outcome is about signaling rather than architecture. Without it every signaling claim
