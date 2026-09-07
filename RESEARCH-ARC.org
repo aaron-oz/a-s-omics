@@ -1,0 +1,228 @@
+#+TITLE: Research arc: spatial modeling of signaling fields
+#+DATE: 2026-09-07
+#+AUTHOR: Drafted by Claude for AOZ and MSBR
+
+Companion to [[file:NEXT-PAPER-DIRECTIONS.md][NEXT-PAPER-DIRECTIONS.md]], which holds the technical detail. This file holds
+the arc: what each paper would claim, whether it needs data we do not have, and what
+would have to be run.
+
+Terms used throughout, defined once here:
+- *interaction field*: a per-mechanism spatial map formed by combining a ligand's and a
+  receptor's modeled expression surfaces with a convolution operator.
+- *convolution operator*: the function combining the two surfaces. The published pipeline
+  uses the elementwise minimum; product, geometric mean and a kinetic (mass-action)
+  operator are also implemented.
+- *ELSA*: entropy-based local indicator of spatial association. Negatively oriented, so
+  lower means more spatially coherent domains.
+- *ARI*: adjusted Rand index, agreement between two partitions. 0 is chance, 1 identical.
+- *CV predictive fit*: the calibrated measure built 2026-09-01. Scores a partition by how
+  well it predicts held-out gene expression in spatial blocks it was not fitted on.
+- *dominance*: fraction of locations at which the same partner supplies the minimum.
+
+* The program in one sentence
+
+Inferring spatial cell-cell signaling from transcriptomics involves a chain of modeling
+choices (likelihood, input scale, convolution operator, spatial support, and uncertainty)
+that are usually made silently and that materially change the answer. We make each one
+explicit, probabilistic, and testable against an outcome that is about signaling rather
+than about tissue architecture.
+
+* Where the novelty is, and is not
+
+Checked against the literature on 2026-09-07 (four web searches, not a systematic review).
+
+*Not novel.* Clustering on ligand-receptor interaction scores to recover spatial niches is
+a crowded field: SpaNiche, Renoir, LARIS, Niche-DE, COMMOT, MISTy, Squidpy, Giotto,
+SpaTalk, and a 2026 benchmark of niche identification by domain segmentation. Most
+directly, NICHES (Raredon et al., Bioinformatics 2023) already embeds ligand-receptor
+signal proxies to find signaling niches in spatial data, using the product operator. That
+is prior art from this lab and must be cited and distinguished explicitly.
+
+*Also not novel.* Randomized feature-subset ablation is standard practice in the spatial
+transcriptomics clustering literature, and feature-count saturation curves already exist;
+one Genome Biology evaluation reports saturation near 700 reference spatially variable
+genes. Our deconfounded depth sweep is a *correction* to our own published experiment, not
+a new method, and should be written that way.
+
+*Where the novelty actually is.* INLA-SPDE is mature in geostatistics (soil carbon,
+species distribution, benthic ecology, spatio-temporal data fusion) and the searches
+returned no application to ligand-receptor or cell-cell communication. Absence across four
+queries is weak evidence, but it identifies the axis: a Bayesian geostatistical treatment,
+with a real likelihood comparison and full posteriors, in a field that runs on point
+estimates and imputation.
+
+* Current paper (PONE-D-26-04349): what to do now
+
+** Recommended: the honest minimum plus one uncertainty result
+
+*Claim.* A probabilistic spatial framework for ligand-receptor interaction fields, in
+which the uncertainty is propagated rather than discarded, and in which tissue
+architecture is recoverable from the ensemble of fields.
+
+*Novel data.* None. Everything is computed or an afternoon away.
+
+*Work, in execution order.*
+1. The five manuscript corrections (Fig 6 caption direction, the full-depth coherence
+   overstatement, 1,449 rather than 1,477 distinct fields, Control B's clustering backend,
+   and the already-fixed uncertainty sentence).
+2. The scope statement: the fields estimate signaling *potential* under the standard
+   co-expression assumption, not measured signaling activity.
+3. Report Control A. The response letter already commits us to it.
+4. Promote the deconfounded depth sweep, written as a correction to the published sweep.
+5. Add the Jensen result: the pipeline computes min(E[L], E[R]) where the right quantity
+   is E[min(L,R)]. The minimum is concave, so the published fields are biased upward, and
+   most so where the posterior is widest. Posterior standard deviations were saved for
+   every gene at every bin, so no refits are needed and there is a closed form for
+   approximately Gaussian independent marginals.
+
+*Firm exclusion.* The representation ladder must not go in. Its own reproduction of the
+published configuration gives 23 domains and ARI 0.431 against our published labels, so it
+did not reproduce the pipeline it claims to compare against.
+
+** Considered and deferred: the full uncertainty reframe
+
+Clustering over posterior draws to produce a distribution over partitions and a per-bin
+assignment entropy map, plus credible intervals on domain count and ELSA, plus operator
+sensitivity across the kinetic family. This is the better paper and the assignment entropy
+map would be its best figure, but it changes the thesis mid-revision and the extension has
+a deadline. It becomes Paper 3.
+
+* Paper 2: what the convolution operator does, and whether it predicts signaling
+
+*Target claim.* Ligand-receptor convolution operators are one physically motivated family
+indexed by binding affinity rather than three arbitrary choices; operator and input scale
+jointly determine whether pairing information survives; and the operator that best predicts
+downstream pathway activity is not the one currently in use.
+
+*Novel data.* None.
+
+*What already exists.* =calc.conv()= implements min, product, geometric mean and a kinetic
+operator solving the receptor-ligand equilibrium. Affinities k.d = 0.01, 0.5 and 1 were
+computed on both observed counts and modeled estimates, each with and without ligand
+diffusion: roughly 24 representations, none of them reported. As k.d approaches 0 the
+kinetic operator converges to the minimum; as it grows large it converges to the product.
+So the minimum and the product are the two limits of one curve.
+
+*Experiments.*
+1. Cluster and score every existing representation under CV predictive fit. This is the
+   fair version of the representation ladder.
+2. *Downstream target-gene validation, the backbone.* If a pathway is active somewhere its
+   canonical targets should be elevated there. Roughly 27,590 genes were never used to
+   build the fields. For well-characterized pathways (canonical Wnt: Axin2, Lef1, Nkd1,
+   Notum, Sp5; Shh: Gli1, Ptch1, Hhip; Notch: Hes and Hey families; BMP: Id1-3; FGF: Spry,
+   Dusp6), ask whether the interaction field predicts its own targets better than the
+   ligand alone, the receptor alone, a linear combination of both, or a scrambled pairing.
+   Control for the fact that targets also track tissue identity: compare against non-target
+   gene sets matched on expression level and spatial coherence, and condition on domain.
+3. A denser affinity sweep, with literature Kd values where they exist, asking where real
+   tissue sits on the product-to-minimum continuum.
+4. A rank or copula minimum as a scale-free arm, invariant to any monotone per-gene
+   transform, which dissolves the raw-versus-standardized argument rather than settling it.
+5. The one-line check of cor(L,R) for true pairs against dominance-matched random pairs.
+   If true partners are more spatially correlated, that explains both "wrong direction"
+   results in the matched-dominance scramble and converts a null into a positive finding.
+
+*Why this goes first.* The assets exist, and experiment 2 is the only one in the program
+whose outcome is about signaling rather than architecture. Without it every signaling claim
+we make is unfalsifiable with the data at hand. A negative result is publishable and the
+field should know it.
+
+* Paper 3: uncertainty propagation through the pipeline
+
+*Target claim.* Propagating posterior uncertainty changes the inferred architecture and its
+confidence. Point-estimate pipelines are both biased (by Jensen's inequality) and
+overconfident, and the bias is largest exactly where the data are thinnest.
+
+*Novel data.* None. Standard deviations and 2.5/50/97.5 quantiles are saved for every gene
+at every bin in the per-gene bru_prediction objects.
+
+*Experiments.* Quantify the Jensen bias in magnitude and spatial pattern. Draw from the
+posteriors, cluster each draw, and produce a distribution over partitions with a per-bin
+assignment entropy map. Put credible intervals on domain count and on ELSA. Introduce
+P(L > tau_L and R > tau_R | data) as a posterior co-presence operator: bounded in [0,1],
+comparable across mechanisms by construction, and a statistical object rather than an
+arithmetic one.
+
+*Venue.* A statistics or statistical-methods journal rather than a biology one.
+
+* Paper 4: a jointly specified multivariate field model
+
+*Target claim.* Fitting 912 independent SPDE models discards the cross-gene spatial
+correlation structure and gives the wrong joint uncertainty for any convolution of two
+fields. A jointly specified multivariate model borrows strength and produces the correct
+joint posterior.
+
+*Novel data.* None.
+
+*Experiments.* Implement a reduced-rank multivariate SPDE or coregionalization model.
+Compare held-out predictive fit against the independent fits, especially at low sequencing
+depth where borrowing strength should matter most. Show that the joint posterior changes
+the convolution's uncertainty relative to the independence assumption Paper 3 relies on.
+
+The most statistically ambitious of the set and the most work. Detail in section 1 of
+NEXT-PAPER-DIRECTIONS.md.
+
+* Paper 5: ligand diffusion and spatial asymmetry
+
+*Target claim.* Paracrine signaling requires asymmetric spatial treatment, ligands acting
+where they diffuse to and receptors where their cells are. Diffused ligand fields predict
+downstream targets better, and fitted diffusion lengths recover published morphogen ranges.
+
+*Novel data.* Not required. The diffused variants (m.est.d.*) already exist and the
+diffusion code is in the repository. This was examined and deliberately excluded from the
+current paper; the authors remain interested.
+
+*Experiments.* Compare diffused against undiffused variants under the target-gene criterion
+from Paper 2. Fit a diffusion length per ligand or per ligand class. Validate against
+published gradient ranges for known morphogens (Shh, Wnt, Bmp, Fgf families).
+
+*Where wet lab would help.* Immunostaining for ligand protein against its own mRNA on
+adjacent sections would turn the fitted diffusion lengths from plausible to demonstrated.
+Not required for a first version.
+
+* Paper 6: developmental dynamics across stages
+
+*Target claim.* Signaling field architecture reorganizes across embryonic stages in a
+characterizable way, and the mechanisms whose fields change most identify the developmental
+transitions.
+
+*Novel data.* Probably none, but this needs checking before planning. Four timepoints sit
+in =data-inputs/mouse-embryo/= (pre-fit-obj-1 through -4, with a mesh for each, 3.7 GB
+total). *Nobody has confirmed that these four are the same modality, comparable in
+sequencing depth, and processed identically.* Do that first.
+
+*Experiments.* Fit the framework at each stage. Establish domain correspondence across
+stages. Rank mechanisms by how much their fields change.
+
+This is the biology paper rather than a methods paper, and it needs the methods settled
+first, which is why it sits last.
+
+* Also available, not costed here
+
+Cross-platform generalization. We hold the mouse brain data and code. Worth doing only once
+there is a specific claim to test on a second platform. See section 4 of
+NEXT-PAPER-DIRECTIONS.md for the conditions to settle first.
+
+* What would genuinely require new data
+
+Only direct signaling validation: phospho-staining for pathway activation, reporter lines,
+or spatial proteomics (CODEX, imaging mass cytometry, MIBI) on adjacent sections. That is
+the capstone of the program and a separate grant. Paper 2's target-gene experiment is the
+computational stand-in and is good enough to make the program falsifiable meanwhile.
+
+Absolute cross-gene molar calibration would also require external data: molar spike-ins,
+smFISH on a gene subset, or matched proteomics. See section 6.1 of
+NEXT-PAPER-DIRECTIONS.md for why transcript counts cannot be converted to molar abundance
+from this dataset alone, and why that asymmetry is the rigorous argument for per-gene
+standardization.
+
+* Summary table
+
+| paper                                  | novel data | wet lab that would strengthen it        |
+|----------------------------------------+------------+-----------------------------------------|
+| Current revision, options 2 and 3       | none       | none                                    |
+| P2 operator family, target validation   | none       | none                                    |
+| P3 uncertainty propagation              | none       | none                                    |
+| P4 joint multivariate model             | none       | none                                    |
+| P5 diffusion and spatial asymmetry      | none       | ligand protein immunostaining           |
+| P6 developmental dynamics               | none, pending a comparability check | none           |
