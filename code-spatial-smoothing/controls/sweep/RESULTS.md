@@ -1,3 +1,39 @@
+> # STALE: DO NOT CITE THE INTERPRETATION IN THIS FILE
+>
+> **Flagged 2026-09-07.** The *numbers* below are correct: they are the substitute
+> (RcppHNSW + igraph) clustering run, job 38193317, and the CSVs are intact. The
+> *interpretation* in the sections "What it says" and "Consequences for the manuscript"
+> did not survive replication in Seurat and is withdrawn.
+>
+> Three claims in this file are **dead and must not reach the manuscript**:
+>
+> 1. "Variance ranking ... is actively harmful past [depth 10]."
+> 2. "The lowest-variance fields are the most useful" / standardized variance is
+>    "anti-correlated with usefulness."
+> 3. That the ordering accounts for most of the reported depth effect.
+> 4. "Coherence saturates near 350 fields and then degrades slightly." The Seurat random
+>    arm does not degrade: 0.1682 (150), 0.1341 (350), 0.1348 (650), 0.1199 (1000). It is
+>    flat from 350 to 650 and improves again to 1,000.
+>
+> In Seurat the variance-ordered arm sits about **1 sd** above the random spread at mid
+> depths (one-sided p roughly 0.15 to 0.20, 19 draws), not the ~11 sd this file's
+> implementation produced. The reverse-ordered arm is dramatically best here and only
+> sometimes better in Seurat.
+>
+> **What does replicate**, and is safe to use: (a) the depth effect itself, coherence
+> improving about 3.1x from 10 fields to 1,000 in Seurat; (b) the hump in the published
+> variance-ordered curve being an artifact of the ordering, absent under random selection.
+>
+> Two further cautions. This file is the **substitute clustering backend**, superseded by
+> the standing 2026-08-20 decision to use Seurat only for anything reported; its absolute
+> ELSA is on a different scale from Seurat's (0.0761 vs 0.1237 at full depth) and the two
+> must never be mixed. And the "Whether the ordering effect replicates under Seurat is
+> **untested**" paragraph near the end is itself out of date: it has since been tested,
+> and it did not replicate.
+>
+> **Read `RESULTS-seurat.md` instead.** Keep this file for the substitute numbers and the
+> run provenance only.
+
 # Random-order feature-depth sweep: results
 
 Run 2026-08-06 on klone `ckpt`, job 38193317, 102 array tasks, 306 job steps all COMPLETED,
