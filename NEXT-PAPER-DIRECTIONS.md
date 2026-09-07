@@ -155,3 +155,126 @@ set of features varies along that line **with uncertainty**; select a box or cir
 distribution of feature values within it. S8 is already 1,481 standalone interactive HTML
 files, so much of the per-mechanism rendering exists; what is missing is the cross-feature and
 transect views.
+
+---
+
+## 6. Scale, calibration, and the operator family
+
+Added 2026-09-07 from the discussion of what "raw versus normalized" is really asking.
+Section 2 established the trade-off empirically. This section is about what to do instead.
+
+### 6.0 What already exists in this repository, and was never analyzed
+
+**The mass-action operator is already implemented and already run.** `calc.conv()` in
+`code-spatial-smoothing/raw-counts/03-array-post-process.R` (and its copy under
+`Supplements for Publication/code/spatial-modeling/supp-4-lik-comparison/`) supports
+`"min"`, `"prod"`, `"geom.mean"` and `"kinetic"`, the last taking a dissociation constant
+`k.d`. The kinetic branch solves the equilibrium quadratic for free receptor,
+`r_e = E ± sqrt(E^2 + r*k.d)` with `E = (r - l - k.d)/2`, and returns the bound
+concentration `r - r_e`. That is the correct receptor-ligand equilibrium.
+
+Three affinities were computed, `k.d` = 0.01, 0.5 and 1, on both the observed counts
+(`m.data.*`) and the modeled estimates (`m.est.*`), each with and without ligand
+diffusion (`m.est.d.*`). With min, product and geometric mean that is a grid of roughly
+24 representations, and Seurat assays for many of them sit in
+`sam_sandbox/HD Embeddings/*assay.2025-07-25.Robj`.
+
+**None of this was reported.** The published figure compares product, geometric mean and
+common minimum only. So the operator comparison the project has been agonizing over is
+largely computed already; what is missing is clustering and scoring each representation
+under a defensible criterion.
+
+**Why this matters more than "one more operator".** As `k.d -> 0` the kinetic operator
+converges to the common minimum. As `k.d -> infinity` it converges to the product divided
+by `k.d`. So the minimum and the product are not competing arbitrary choices: they are the
+two limits of a single physically motivated one-parameter family indexed by binding
+affinity. Reframing the operator question that way converts "which of three arbitrary
+functions" into "what binding regime does this tissue sit in", which is a real question
+with a real answer, and it makes the existing comparison two points on a curve rather than
+a beauty contest.
+
+### 6.1 Can transcript counts be related to molar abundance across genes?
+
+Not from this dataset. Four gene-specific multiplicative factors sit between a UMI count
+and a molar protein concentration, and none is identifiable from the counts alone:
+capture efficiency on the DNB array (poly-A tail length, secondary structure, transcript
+length, GC); reverse transcription and library bias; translation rate, which spans about
+two orders of magnitude across genes; and protein half-life, which spans minutes to days.
+
+The last two dominate, and they produce the standard result that mRNA predicts protein
+**poorly across genes and well within a gene across conditions**. (Recalled from the
+literature, not verified here: Schwanhausser et al. 2011 put mRNA at roughly 40% of
+across-gene protein variance in mouse fibroblasts, with later re-analyses revising upward
+toward 0.6-0.8 once measurement error is handled.)
+
+**That asymmetry is the rigorous justification for per-gene standardization, and it is a
+much better argument than the one the project has been making.** The common minimum on
+raw counts requires an across-gene abundance comparison, which is exactly the regime where
+mRNA is least informative about protein. Per-gene standardization moves the comparison
+into the within-gene across-space regime, which is exactly where it works.
+
+What calibration would actually require, in increasing cost: published per-gene
+protein-per-mRNA ratios imported as fixed multipliers (cheapest, partial coverage,
+cell-type specific, but principled and citable); molar spike-ins, which are not standard
+in Stereo-seq and mean a new experiment; smFISH on a handful of genes in adjacent sections
+for absolute molecule counts, with the remainder modeled from covariates; matched spatial
+proteomics (CODEX, imaging mass cytometry, MIBI) on adjacent sections, which is the real
+answer and a separate grant.
+
+### 6.2 Better options, roughly in increasing ambition
+
+**A. Use the posterior, not the posterior mean.** The pipeline computes
+`min(E[L], E[R])`. The quantity wanted is `E[min(L, R)]`. The minimum is concave, so by
+Jensen's inequality `E[min] <= min(E)`: **the published interaction fields are biased
+upward, and biased most where uncertainty is highest**, which is precisely where a
+conservative answer is wanted. The posterior standard deviations were saved for every gene
+and every bin (`sd` and the 2.5/50/97.5 quantiles in each per-gene `bru_prediction`
+object), so this is computable with no refits, and for approximately Gaussian independent
+marginals there is a closed form. The natural extension is to report
+`P(L > tau_L and R > tau_R | data)` from the joint posterior: a probability of co-presence,
+bounded in [0,1], comparable across mechanisms by construction, and a genuinely statistical
+object rather than an arithmetic one.
+
+**B. Rank or copula minimum.** Convert each gene's field to its own spatial quantile, then
+take the minimum. Invariant to any monotone per-gene transform, so the raw-versus-
+standardized argument disappears rather than being adjudicated. Implements "both partners
+are high relative to their own distribution here", which is the co-presence semantics
+actually wanted. Cheap, and worth running as one more arm.
+
+**C. Sweep the kinetic family properly.** See 6.0. Three affinities are already computed;
+a denser sweep plus per-pair literature `Kd` values where they exist would let us ask where
+real tissue sits on the product-to-minimum continuum, and whether an affinity estimated
+from spatial predictive fit agrees with the biochemistry.
+
+**D. Asymmetric spatial treatment of ligand and receptor.** A secreted ligand acts where it
+diffuses to; a membrane receptor acts where its cell is. `min(L(s), R(s))` at a single
+point is the wrong spatial semantics for paracrine signaling. The diffused variants
+(`m.est.d.*`) already exist. **This was examined and deliberately excluded from the current
+paper; the authors remain interested and it belongs in a follow-up.** A good validation
+that needs no new data: fit a diffusion length per ligand and check whether known
+morphogens (Shh, Wnt, Bmp, Fgf families) recover published gradient ranges.
+
+**E. The honest split, if the comparisons keep going the way they have.** Use the gene
+fields for clustering, where they demonstrably hold more information, and the interaction
+fields for interpretation and display, where a map labeled "WNT4-FZD6 signaling potential"
+is a meaningful biological object regardless of whether it improves a partition.
+
+### 6.3 The validation this program is missing
+
+Every outcome measure in use (ELSA, ARI against MOSTA, cross-validated fit on held-out
+genes) reports correspondence with **tissue architecture**. None reports correspondence
+with **signaling**. That makes every signaling claim in the program currently unfalsifiable
+with the data at hand.
+
+**There is a cheap fix that needs no new data.** If a pathway is active at a location, its
+canonical downstream targets should be elevated there. We hold roughly 27,590 genes that
+were never used to build the fields. Curated target sets exist for the well-characterized
+pathways (canonical Wnt: Axin2, Lef1, Nkd1, Notum, Sp5; Shh: Gli1, Ptch1, Hhip; Notch:
+Hes/Hey; BMP: Id1-3; FGF: Spry, Dusp6). So: does the interaction field for a pathway
+predict its own target-gene expression better than the ligand field alone, the receptor
+field alone, or a scrambled pairing?
+
+Controls are essential, because target genes also track tissue identity: compare against
+non-target genes matched on expression level and spatial coherence, and condition on domain.
+But this is the only experiment on the list whose outcome is about signaling rather than
+architecture, and it is the one that would make the program's central claim falsifiable.
