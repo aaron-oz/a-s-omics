@@ -7,6 +7,96 @@ live in HANDOFF.md's "Build" section and have not changed.
 
 All work is committed and pushed. =main= and =plosone-revision= are both at =ac49f16=.
 
+* ORIENTATION: read this first if you are new to the project
+
+** Where everything is
+
+Repo root =/var/home/aoz/Dropbox/genetics/a-s-omics=, a git repo. Branches =main= and
+=plosone-revision= are kept identical; push to both.
+
+All revision files live in =Submission_PLOSOne/submission-2/=:
+
+| =plos-port/paper-plos.tex=       | *the manuscript*. This is what the corrections below edit. |
+| =plos-port/definitions.tex=      | macros                                                     |
+| =plos-port/S9-notation-to-code.tex= | the S9 supporting table                                 |
+| =response-to-reviewers.tex=      | the response letter                                        |
+| =README-build.md=                | build commands, accurate and re-verified                   |
+| =check-response-letter.py=       | gate on unresolved letter markers; must exit 0             |
+| =review-copies/=                 | ghostscript-downsampled PDFs so co-authors can read from GitHub. NOT submission copies, and they drift if sources change without refreshing |
+| =figures-regenerated/=           | all figure scripts and outputs                             |
+
+Build outputs under =plos-port/= are gitignored.
+
+** Build, in execution order
+
+Everything builds inside the =bittensor-ubuntu= distrobox, which has TeX Live and
+=latexdiff=. Full detail in =README-build.md=; the essentials:
+
+#+BEGIN_SRC bash
+# clean manuscript, from plos-port/
+distrobox enter bittensor-ubuntu -- bash -c "cd '$PWD' && \
+  pdflatex -interaction=nonstopmode paper-plos.tex && bibtex paper-plos && \
+  pdflatex -interaction=nonstopmode paper-plos.tex && \
+  pdflatex -interaction=nonstopmode paper-plos.tex"
+#+END_SRC
+
+Four artifacts: manuscript, track-changes, S9 Table, letter. All were at 0 errors and 0
+undefined references as of 2026-08-04.
+
+*Three things that bite:*
+- *=latexdiff --math-markup=off= is required.* The documented =--math-markup=whole= produces
+  165 errors, because the model equation was rewritten for R2.1. latexdiff still exits 0, so
+  the failure is silent.
+- *Do not count letter markers with =grep=.* The obvious regex silently matches nothing (the
+  leading backslash-a is consumed as an escape), so a broken gate looks like a passing one.
+  Use =check-response-letter.py=.
+- *=bibtex= reports one harmless "Repeated entry"* for a duplicated =Granados2024= key in
+  =references-msbr.bib=. It skips the second copy. Not a problem.
+
+*Track changes are generated mechanically by latexdiff.* Edit =paper-plos.tex= as ordinary
+LaTeX; do not hand-author markup. (Standing preference; a custom =oztrackchanges= package was
+deleted and must not be reintroduced.)
+
+** Line targets for the six corrections in section "Manuscript corrections still needed"
+
+All in =plos-port/paper-plos.tex=, verified 2026-09-10. Line numbers drift once you start
+editing, so grep the quoted phrase rather than trusting the number.
+
+| # | target | where |
+|---|--------|-------|
+| 1 | "Domains become more numerous and more spatially organized as features are added" | line 348, Fig 6 caption |
+| 2 | "gave the greatest spatial complexity and coherence of the depths we swept" | line 354 |
+| 2b | same sentence also claims clustering "without any principal-component analysis (PCA) gave the greatest spatial complexity and coherence". Separate claim, check it too | line 354 |
+| 3 | field count, see the trap below | lines 233, 348, 375, and the in-figure labels |
+| 4 | Control B backend, "identical convolution, clustering, and scoring pipeline" | line 365 region |
+| 5 | scope statement, signaling potential not measured activity | new text, Discussion + one Abstract hedge |
+| 6 | already done, commit 5c9e810, do not re-fix | n/a |
+
+*** TRAP on correction 3: do NOT do a blanket find-and-replace of 1477
+
+Three different numbers are all correct in different places:
+- *1,477* is the correct count of *FANTOM5 pairs with both partners among the 912 fitted
+  features*. Line 233 uses it correctly. Leave those alone.
+- *1,449* is the count of *numerically distinct interaction fields*, which is what to use
+  wherever the text or a caption implies that many distinct fields entered the analysis.
+- *1,481* appears in the *in-figure panel labels* of Fig 6 and is simply wrong (it includes
+  the four Dropbox conflicted-copy duplicates). There is already a =% NOTE (revision)= at
+  lines 343-344 flagging this. The labels are baked into the image and need the figure
+  regenerating, not a text edit.
+
+** One scoping correction to something said earlier in the 2026-09-07 session
+
+It was stated that "the published clustering path has no PCA". *That is true of the Fig 6
+depth-sweep path only*, which the code confirms (=FindNeighbors(dims = NULL, features =
+foi)=, with the source comment "in full feature space, again without any PCA"). The operator
+comparison in Fig 5 *does* use PCA: its caption says it "first reduces to 100 principal
+components and recovers 29 domains from the same common-minimum fields". The two figures'
+domain counts are therefore not comparable, which the caption already says.
+
+This does not weaken the linear-recoverability argument: PCA is also a linear projection, so
+neither path can construct a minimum from its parents either way. But do not write "the
+pipeline uses no PCA" without qualifying which figure.
+
 * THE HEADLINE CHANGE THIS SESSION
 
 The evidence was previously filed as "five or six converging nulls: the ligand-receptor
