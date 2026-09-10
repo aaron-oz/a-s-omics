@@ -356,7 +356,9 @@ Two documents written this session:
   experiments for each, plus the novelty assessment. *Only direct signaling validation
   needs data we do not hold.*
 
-*The single most important unrun experiment*, per both documents: downstream target-gene
+*The most important unrun experiment for the research program* (a judgment, not a
+measurement, and note it is NOT the priority for this revision: that is the Jensen
+computation above, which is the only new work Option 3 needs): downstream target-gene
 validation. Every outcome measure in use reports correspondence with tissue architecture,
 none with signaling, which makes every signaling claim currently unfalsifiable with our
 data. Roughly 27,590 genes were never used to build the fields, and curated target sets
