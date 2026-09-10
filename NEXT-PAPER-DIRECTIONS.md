@@ -93,11 +93,35 @@ standardised/minimum is remarkably tight, which is itself why z is so large.
 **Why standardising matters, mechanistically.** On raw counts the common minimum is a gating
 operator that returns the limiting partner, and gene magnitudes span orders of magnitude
 (Cd44 mean 12.9, Tnfrsf19 mean 0.17). For **42.6%** of mechanisms the minimum comes from the
-same partner at more than 95% of locations (56.8% at more than 90%), and the convolved field
-correlates with the dimmer partner's own field at median 0.76. So on raw counts the operator
-largely discards one of the two fields, and the pairing information with it. Put both fields
-on a common scale and the minimum becomes a genuine "both must be high" gate, at which point
-the identity of the partner matters.
+same partner at more than 95% of locations (56.8% at more than 90%).
+
+*Corrected 2026-09-07.* This passage previously read "the operator largely discards one of
+the two fields, and the pairing information with it." **That was an overstatement**, and the
+direct measurement (`code-spatial-smoothing/controls/sweep/magnitude-check.R`, validated
+against `pmin(L,R)` to 5.3e-15) does not support it. What is supported:
+
+- The operator discards the **non-limiting partner's value at every bin**. True by
+  construction, and it is a genuine loss of information.
+- But which partner is limiting **switches across space** for most mechanisms, so the
+  surviving field is generally neither parent. Median correlation of the interaction field
+  with its dominant parent is **0.713**, about half the variance, not nearly all of it.
+  (An earlier note in this file quoted 0.76 against the dimmer partner; 0.713 is the
+  verified figure, computed against whichever partner supplies the minimum more often.)
+- Only **93 of 1,477** interaction fields are numerically identical to a gene field already
+  in the 912-gene input, those being the cases with dominance exactly 1.00. A further 63
+  reach r > 0.99.
+- Relatedly, the minimum is **not** linearly recoverable from its parents:
+  `linear-recoverability.R` finds a median R^2 of 0.555 for `lm(min ~ L + R)`, with 81.2% of
+  mechanisms leaving more than 10% of variance unexplained by any linear use of both. So the
+  operator is adding a nonlinear basis, not merely relabelling one parent.
+
+**The defensible mechanism is narrower than wholesale discarding.** Taking the minimum on
+raw counts decides *which partner is limiting* by comparing transcript counts across two
+different genes, and transcript count is not a valid proxy for molar abundance across genes
+(see section 6.1). So the comparison is driven by gene-specific expression scale and capture
+efficiency rather than by which protein is actually limiting. Put both fields on a common
+scale and the minimum becomes a genuine "both must be high" gate, at which point the
+identity of the partner matters.
 
 **The trade-off this exposes, which the current paper does not acknowledge.** The paper argues
 for raw counts because they carry absolute binding density, and selects common minimum because
