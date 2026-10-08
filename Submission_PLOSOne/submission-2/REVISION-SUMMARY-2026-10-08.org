@@ -1,0 +1,191 @@
+#+TITLE: PLOS One revision: what we have done, and where we have landed
+#+DATE: 2026-10-08
+#+AUTHOR: prepared for Aaron Osgood-Zimmerman and Sam Raredon
+
+Paper: "Spatial Modeling of Tissues for Morphogenic Field Analysis", PLOS One manuscript
+PONE-D-26-04349. Round 1 decision: major revision. Files: =Submission_PLOSOne/submission-2/=.
+
+* Summary
+
+All 23 journal and reviewer requests have a written response, and the manuscript edits for
+them were made in July and August 2026. While doing that work we re-derived the paper's
+results from the archived outputs and ran the controls Reviewer 2 asked for. The controls
+support the paper's main claims: the domains are not produced by the smoothing, and they
+agree with the published anatomy. The re-derivation also turned up errors in our own
+manuscript, some small and some not, plus one result that changes how the paper should
+describe what it shows. That result is that the domains do not depend on which ligand is
+paired with which receptor.
+
+Where we have landed: resubmit the paper with the errors corrected, that result reported
+honestly, and one new analysis that uses the paper's distinctive feature (the uncertainty
+estimates). Larger questions the work raised go to a second paper.
+
+* Terms used below
+
+- *Field*: a smooth map, fitted by our statistical model, of how much one gene is expressed
+  across the tissue section. We fitted 912 of them.
+- *Interaction field*: a map for one ligand-receptor pair, made by combining the ligand's
+  field with the receptor's. The paper combines them with the *common minimum*: at each
+  location, take the smaller of the two values.
+- *Domains*: the regions found by clustering all the interaction fields together.
+- *ELSA* (entropy-based local indicator of spatial association): our measure of how clean
+  the domains are. Lower is cleaner.
+- *ARI* (adjusted Rand index): agreement between two ways of dividing up the tissue. 0 is
+  chance, 1 is identical.
+
+* What the journal and reviewers asked, and what we did
+
+| Item  | What was asked                                    | What we did                                                                                                     | Status                   |
+|-------+---------------------------------------------------+-----------------------------------------------------------------------------------------------------------------+--------------------------|
+| JR-1  | PLOS style and file naming                        | Reformatted throughout                                                                                          | Done                     |
+| JR-2  | Funder role statement                             | Confirmed by both authors, in cover letter                                                                      | Done                     |
+| JR-3  | Funding text out of Acknowledgments               | Removed; checked whole manuscript                                                                               | Done                     |
+| JR-4  | Use the PLOS LaTeX template                       | Ported from the Elsevier class                                                                                  | Done                     |
+| JR-5  | Upload supplements as Supporting Information      | Two new SI items (S9 Table, S10 Fig). The original S1-S8 are 53.5 GB of data and go to a repository instead      | Done                     |
+| JR-6  | Consider suggested citations                      | All four cited and discussed, plus CytoSignal (2026, same dataset)                                              | Done                     |
+| R1.1  | Compare with existing methods                     | Operator comparison, anatomy comparison, permutation control                                                    | Done                     |
+| R1.2  | More detail on sample and methods                 | Expanded; clarified it is a public mouse embryo atlas, not our own tissue                                       | Done                     |
+| R1.3  | Figures too small                                 | Figures rebuilt by script at the PLOS maximum size; kept the panel arrangement                                  | Figures built, not yet placed |
+| R1.4  | Add a small disease example                       | Declined; removed the disease framing that invited it                                                           | Done                     |
+| R1.5  | Better graphical abstract                         | New one drafted 2026-08-18 and revised 2026-10-08                                                               | Needs Sam's review       |
+| R2.1  | Define model and priors precisely                 | Model section rewritten, every symbol defined, priors stated                                                    | Done                     |
+| R2.2  | Table from notation to code                       | S9 Table: every symbol to its script and line                                                                   | Done                     |
+| R2.3  | How total counts were treated                     | Stated: observed counts used as a fixed offset in every reported result                                         | Done                     |
+| R2.4  | Define the prediction metrics                     | Defined; Table 1 caption rewritten. Found that Poisson wins on all four scores, not three                      | Done                     |
+| R2.5  | Why Cd44 as the example gene                      | Chosen for clarity against a clear landmark (the spine), and we say so                                          | Done                     |
+| R2.6  | Stretched pixels in Figs 3 and 4                  | A real plotting bug, fixed at source in 151 places; Figs 3, 4, 5 regenerated                                    | Fixed; Fig 6 still has it |
+| R2.7  | Clearer captions, Figs 5 and 6                    | Rewritten to be self-contained                                                                                  | Done; Fig 6 caption has an error, below |
+| R2.8  | Controls and baselines                            | Coordinate-shuffle control and anatomy comparison added; pair shuffle run, see below                            | Text needs updating      |
+| R2.9  | Reproducibility documentation                     | Main pipeline documented script by script                                                                       | Done                     |
+| R2.10 | Position against related methods                  | New subsection on related methods                                                                               | Done                     |
+| R2.11 | Moderate claims of generality                     | Moderated throughout                                                                                            | Done                     |
+| R2.12 | Careful biological language                       | "Inferred" and "potential" interaction throughout                                                               | Done                     |
+
+* New analyses, and what they found
+
+** The controls Reviewer 2 asked for
+
+- *Coordinate shuffle.* Scramble which location each measurement came from, refit every
+  model, cluster again. The real data give 20 domains with ELSA 0.075; 49 shuffled
+  versions give 4 to 12 domains with ELSA 0.412 to 0.583. The domains are not something the
+  smoothing creates on its own.
+- *Agreement with the published anatomy.* Our domains against the anatomical labels Chen et
+  al. published for the same section: ARI 0.401, where all 499 random relabelings scored
+  0.001 or less. Our domains also split some organs into several regions.
+
+** The clustering was not reproducible, and now is
+
+Running the published clustering twice on identical input gave different answers (19 to 22
+domains). The cause was multithreading without a fixed random seed. With one thread and a
+fixed seed, repeated runs are identical. An independently written script then reproduced
+the published full-set result (ELSA 0.1236 against the published 0.1237).
+
+** Errors we found in our own manuscript
+
+Some are already corrected in the text; the rest are listed under "What is left".
+
+1. We said 918 genes were modeled. It was 912 (three excluded beforehand, three did not fit).
+2. We said 1,481 interaction fields. There are 1,477 ligand-receptor pairs; the extra four
+   were duplicate copies of input files. Further, the common minimum makes 28 pairs
+   numerically identical to another pair's map (for example, seven GDF9 pairs give the
+   same map), so there are 1,449 distinct maps.
+3. Table 1 was misread: Poisson wins on all four scores.
+4. The stretched-pixel plotting bug (R2.6).
+5. The Fig 6 caption says domains become more numerous as more fields are added. They
+   become fewer: 33 with 10 fields, settling near 20.
+6. The text says using all fields gave the cleanest domains. Four smaller sets scored better
+   in the same run.
+7. We said uncertainty is carried through the pipeline. It is computed, then only the
+   best estimate is used. Corrected in the text.
+8. The coordinate-shuffle control was clustered with a faster stand-in for the main
+   clustering software. Fine for the control (both arms used it) but not disclosed.
+
+** How many fields are needed
+
+The published experiment added fields in order of variance, so "more fields" was mixed up
+with "which fields". Rerunning with random sets of fields shows that a few hundred are
+needed and the benefit then levels off. The bump in the published curve came from the
+ordering, not from the number of fields.
+
+** Does the ligand-receptor pairing matter? Two answers
+
+- *For the domains, no.* Randomly re-pairing receptors with ligands (99 times, with no real
+  pair left in) gives domains just as clean as the true pairing: 24 of 99 were cleaner.
+  Repeated with the main clustering software, 17 of 19 were cleaner. The domains come from
+  the collection of gene maps, not from the pairing.
+- *As information, yes.* True pairs give more distinct maps than random ones (1,449 against
+  about 1,424; no random set reached 1,449), and true partners are more alike in where they
+  are expressed than random partners (correlation 0.111 against 0.068).
+- *Our working explanation, not yet tested directly:* on raw counts one partner is usually
+  the smaller one almost everywhere (for 42.6% of pairs, at over 95% of locations), so the
+  minimum mostly returns that partner's map and the pairing information does not reach the
+  clustering.
+
+This matters for how the paper is written. It still shows that the method recovers real,
+anatomical structure. It cannot claim that the specific ligand-receptor pairings drive it.
+
+** Explored and set aside
+
+- *Comparing ways of combining or not combining the maps* (the "representation ladder").
+  Its clustering did not reproduce the published one (ARI 0.431 against our own published
+  labels), so its results cannot be quoted. Not in this paper.
+- *A cross-validated score for comparing ways of dividing up the tissue.* Built and
+  calibrated; belongs to the second paper.
+
+* Where we have landed, and why
+
+*This resubmission:* the paper as revised, plus four things.
+
+1. The eight errors above corrected.
+2. The pair-shuffle result reported in the letter, in the Controls section, and briefly in
+   the Discussion, as a limitation of the common minimum on raw counts. Draft text:
+   =pair-shuffle-reporting-plan.org=.
+3. A scope statement: the maps estimate the *potential* for signaling, assuming
+   co-expression; they do not measure signaling.
+4. One new result on uncertainty. The pipeline takes the minimum of the two best-estimate
+   maps. The minimum of two uncertain quantities is, on average, lower than the minimum of
+   their best estimates, so the published maps are biased upward, most where the model is
+   least certain. The uncertainty estimates are already saved, so this needs no refitting:
+   one computation, one figure, one paragraph.
+
+*Why here and not further.* Every reviewer request is met, and the paper's core claims (a
+sound model, real domains, agreement with anatomy) hold up under the controls. The questions
+the work raised (whether a different combining rule carries the pairing through, whether
+rescaling the maps first helps, a head-to-head with CytoSignal, testing against known
+downstream target genes) are a different and larger paper, likely months of work (our rough estimate, not
+planned in detail), and
+some of them may not come out in our favor. Folding them in would delay the resubmission
+further and risk a paper whose conclusions are still moving. The uncertainty result is the
+exception because it is cheap and it rests on what is distinctive in our approach: in a
+brief literature search (four queries, not a systematic review) we found no other
+ligand-receptor method that models these maps with uncertainty.
+
+* What is left before resubmission
+
+In order.
+
+1. *Confirm the current deadline.* An extension to 2026-08-21 was requested and granted; the
+   repository does not record a later date.
+2. *Green light to edit the manuscript.* Not yet given.
+3. Write in errors 2, 5, 6 and 8 above, the scope statement, and the pair-shuffle text.
+4. Run the uncertainty computation and write it up.
+5. Figures: place the rebuilt Figs 3-5 (Fig 5 in the transposed layout); fix Fig 6's
+   stretched pixels; remove a temporary shrink applied to Figs 5 and 6; convert all to TIFF.
+   Checked 2026-10-08 against PLOS's figure page: maximum 7.5 x 8.75 in, TIFF or EPS only,
+   300-600 dpi, at most 10 MB, text 8-12 pt. Fig 5 fits (6.0 MB). Fig 6 needs saving at
+   400 dpi to get under 10 MB (7.6 MB). The panel text in Figs 5 and 6 is probably below
+   8 pt at print size (not measured for Fig 5).
+6. Sam to review the graphical abstract.
+7. Update the letter to match all of the above; clear its three remaining markers; switch
+   off its internal draft notes; rebuild the manuscript, track-changes version and letter.
+
+* Not in this resubmission
+
+| What                                         | Why not now                                                    |
+|----------------------------------------------+----------------------------------------------------------------|
+| Comparing combining rules, or rescaling first | Second paper; results unknown and may change the framing       |
+| Head-to-head with CytoSignal                  | No reviewer asked; our comparison pipeline did not reproduce   |
+| A disease dataset (R1.4)                      | Removed the framing that promised it instead                   |
+| Ligand diffusion                              | Excluded deliberately; variants exist for later                |
+| Checking against downstream target genes      | The only real test of signaling; a paper of its own            |
+| Rerunning the coordinate-shuffle control with the main clustering software | About 800 core-hours of refitting; disclosed instead |

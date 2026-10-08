@@ -198,7 +198,7 @@ sub-panels for Illustrator placement, into
 (S10 Fig) is in the same directory with its generating script. What still needs a person:
 final composite assembly and panel labelling, since the published figures were assembled by
 hand and no layout script exists for them; the R1.3 sizing and reorganization pass; the R1.5
-graphical abstract; Fig~6's baked-in ``1481 Features'' labels, which should read 1477; and the
+graphical abstract; and the
 two Fig~4 layout differences noted in \S R2.6. Undo the Fig~5/6 scaling stopgap at the same
 time. \\
 \emph{Letter:} \S R1.3 (line 491), \S R2.6 (line 741), \S R1.5 (line 534). \emph{Paper:}
@@ -827,8 +827,9 @@ caption. (ii) Figs 5 and 6 have a separate, unflagged version of the same defect
 spatial panels come from ggplot in \texttt{Sup6 - ELSA Analysis.R} and
 \texttt{Sup7 - Clustering vs Features.R}, neither of which uses \texttt{coord\_fixed()}, so
 those maps are also not at 1:1. Still needed from a person: final composite assembly and
-labelling, the R1.3 sizing pass, Fig 6's ``1481 Features'' labels, and the R1.5 graphical
-abstract.}
+labelling, the R1.3 sizing pass, and the R1.5 graphical
+abstract. (Fig 6's baked-in ``1481 Features'' labels were corrected to 1477 on 2026-10-08 by
+\texttt{figures-regenerated/relabel-fig6.py}.)}
 
 \subsection{R2.7. Captions for Figures 5 and 6} \status{DONE}
 
@@ -1272,9 +1273,17 @@ list. Neither part of that is right. The 1481-row object used for the high-dimen
 clustering contains four exactly duplicated rows, which we traced to files that had been
 duplicated in the input files and then read in alongside their originals. The four affected interactions are PDGFC-PDGFRA, PDGFC-PDGFRB, PDGFD-PDGFRA, and
 PDGFD-PDGFRB, and in each case the duplicate is numerically identical to its counterpart. The
-correct number of distinct interaction fields computable from the 912 fitted features is
+correct number of ligand-receptor interactions computable from the 912 fitted features is
 therefore 1477, which we confirmed by re-deriving it from the FANTOM5 pairings and checking
-it against the 1481 rows of the clustered object. Separately, 1481 was never the right figure
+it against the 1481 rows of the clustered object.
+
+These 1477 interactions are not 1477 numerically distinct fields. Because each field is the
+pointwise minimum of its ligand and receptor fields, interactions that share a partner which is
+the smaller of the two at every location all reduce to that partner's field. For example,
+seven interactions of the ligand GDF9 with different receptors yield one and the same field.
+Counting this way, the 1477 interactions give 1449 numerically distinct fields. This is a
+property of the minimum operator rather than an error, and we now state it in the manuscript
+alongside the count of interactions. Separately, 1481 was never the right figure
 for the 918-gene list either: 1493 FANTOM5 pairs have both partners among the 918 curated
 genes. We have corrected the count wherever it appears, including the upper limit of the
 feature-depth sweep in Figure 6.
@@ -1291,9 +1300,8 @@ reproducible, but the effect is bounded above by the weight four duplicated dime
 carry out of 1477 and we did not judge it worth the compute.
 
 Both corrections have been applied to every occurrence in the manuscript text, in the
-Table 1 caption, and in the Figure 6 caption. The one place the old number still appears is
-inside the Figure 6 image itself, whose panel labels read ``1481 Features''; those labels
-will be corrected when the figure is regenerated for R1.3 and R2.6.
+Table 1 caption, and in the Figure 6 caption, and to the panel labels inside the Figure 6
+image, which previously read ``1481 Features''.
 
 
 \end{document}

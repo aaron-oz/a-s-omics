@@ -1,0 +1,134 @@
+#+TITLE: Plan: reporting the ligand-receptor pair-shuffle control
+#+DATE: 2026-10-08
+
+AOZ chose, 2026-10-08: report the pair-shuffle result in the response letter, and add a short
+Discussion note that frames it as a limitation of the common-minimum operator on raw counts,
+not as evidence that ligand-receptor pairing carries no spatial information.
+
+Nothing below has been applied yet. The draft text is here for AOZ and MSBR to edit before it
+goes into the letter and manuscript.
+
+* What the pair-shuffle control is
+
+Reviewer 2 (item R2.8) asked for controls including "ligand-receptor pair shuffling". The
+control reassigns receptors to ligands at random, repairs any reassigned pair that is a real
+FANTOM5 pairing or pairs a gene with itself (so none of the 99 shuffled sets keeps a real
+pair), and runs each shuffled set through the same convolution, clustering and scoring as the
+true pairing. The receptor list is unchanged, so each shuffled set uses exactly the same
+per-gene fitted fields as the true pairing.
+
+* Why something must change, not just could
+
+Two places currently say this control has not been run to a conclusion. Both became untrue
+when it was rerun under the deterministic clustering settings (2026-08-06, two clustering
+implementations; results in =code-spatial-smoothing/controls/sweep/RESULTS-controlA.md=):
+
+1. Response letter, subsection "A pair-shuffling control we ran but do not report"
+   (=response-to-reviewers.tex=, around line 957): "We have not done so, for two reasons...".
+2. Manuscript, last paragraph of the Controls section (=paper-plos.tex=, around line 393):
+   "this control could now be run to a conclusion ... we have not done so because it
+   requires re-running every condition."
+
+So the plan has three edits, not two: the letter, the manuscript's Controls paragraph, and
+the Discussion.
+
+* The numbers the text rests on (all verified from the result files)
+
+| quantity                         | true pairing | shuffled pairings                 | implementation      |
+|----------------------------------+--------------+-----------------------------------+---------------------|
+| mean ELSA, radius 50 bins        |       0.0694 | 0.0724, sd 0.0049, 99 shuffles     | substitute (RcppHNSW) |
+| shuffles more coherent than true |              | 24 of 99                          | substitute          |
+| mean ELSA, radius 50 bins        |       0.1236 | 0.0925, sd 0.0180, 19 shuffles     | Seurat              |
+| shuffles more coherent than true |              | 17 of 19                          | Seurat              |
+| domains                          |   21 / 19    | 21.05 / 18.47 (mean)              | substitute / Seurat |
+| numerically distinct fields      |         1449 | 1424.05, sd 5.80; max 1436         | substitute          |
+
+ELSA (entropy-based local indicator of spatial association) is the paper's coherence score;
+lower means cleaner domains. Partner correlation (=cor-true-vs-matched.R=): mean Pearson
+correlation between the two partners' fields is 0.1110 for true pairs against 0.0675 for
+random partners matched on how often each partner is the smaller of the two; paired
+difference +0.0435 over 1,477 interactions, Wilcoxon p = 4.0e-21. Caveat for any use of it:
+even random pairs correlate (Spearman 0.325), so the effect rides on a large shared baseline.
+
+* Draft 1: letter, replaces the subsection "A pair-shuffling control we ran but do not report"
+
+#+BEGIN_SRC latex
+\subsubsection*{A pair-shuffling control}
+
+We also ran the ligand-receptor pair-shuffling control the reviewer suggests. Receptors were
+reassigned to ligands at random, and any reassigned pair that coincided with a real FANTOM5
+pairing, or paired a gene with itself, was then repaired by targeted swaps, so that none of
+the 99 shuffled sets retained a real pair. The set of receptors is unchanged, so every
+shuffled set is built from exactly the same fitted fields as the true pairing. Each shuffled
+set then passed through the same convolution, clustering and scoring as the true pairing.
+
+Our first attempt at this control could not separate signal from noise, because the clustering
+configuration then in use did not reproduce exactly between runs. We have since rerun it under
+the fixed thread count and random seed that make the clustering exactly reproducible, in two
+independent implementations of the clustering.
+
+The true pairing did not produce more spatially coherent domains than shuffled pairings. In
+the first implementation, ELSA at radius 50 was 0.0694 for the true pairing against a
+shuffled mean of 0.0724 (standard deviation 0.0049), and 24 of 99 shuffles were more
+coherent than the true pairing. In the second (Seurat), the values were 0.1236 against
+0.0925 (standard deviation 0.0180), and 17 of 19 shuffles were more coherent. The direction
+of the small difference is not consistent between implementations, and we read the result as
+no detectable effect of the pairing on domain coherence in this configuration.
+
+That is not the same as the pairing carrying no information. True pairings produced 1449
+numerically distinct interaction fields where shuffled pairings produced 1424 on average, and
+none of 99 shuffles reached 1449. True partners are also more spatially correlated with each
+other than random partners matched for how often each is the smaller of the two (mean
+Pearson correlation 0.111 against 0.068 across 1477 interactions). Our working interpretation,
+which we have not tested directly, is that the common-minimum operator on raw counts passes
+little of this information on to the clustering: for 42.6\% of interactions the same partner
+is the smaller one at more than 95\% of locations, so the interaction field is largely that
+partner's field. We have replaced the corresponding paragraph of the Controls section with
+this result and added this interpretation, as a limitation, to the Discussion.
+#+END_SRC
+
+* Draft 2: manuscript, replaces the last paragraph of the Controls section
+
+Current paragraph starts "That resolution limit is why we do not report a third control."
+
+#+BEGIN_SRC latex
+Under the deterministic configuration we also ran a third control, in which receptors are
+reassigned to ligands at random while the fitted fields, the feature dimensionality and the
+clustering procedure are held fixed, with every reassigned pair that coincided with a real
+FANTOM5 pairing repaired so that no real pair remained. The true pairing did not produce more
+spatially coherent domains than the 99 shuffled pairings (ELSA at radius 50 of 0.0694
+against a shuffled mean of 0.0724, standard deviation 0.0049; 24 of 99 shuffles more
+coherent), and a replication in a second clustering implementation with 19 shuffles put the
+true pairing slightly on the other side of the null, so we read this as no detectable
+effect. The pairing is not without consequence: true pairings yield 1,449 numerically
+distinct fields against a shuffled mean of 1,424, and no shuffle reached 1,449. We return to
+what this implies in the \nameref{sec:discussion}.
+#+END_SRC
+
+* Draft 3: Discussion, new short paragraph (placement: in the limitations material)
+
+#+BEGIN_SRC latex
+The pair-shuffling control limits what the domains can be said to show. Shuffling which
+receptor is paired with which ligand did not make the domains less coherent, even though true
+partners are measurably more spatially correlated with each other than random partners are.
+The domains reported here are therefore best read as a property of the collection of fitted
+ligand and receptor fields as combined by the common minimum on raw counts, and not as
+evidence that the specific ligand-receptor pairings shape them. We suspect the operator is
+responsible: on raw counts the minimum often returns one partner's field almost unchanged, so
+little of what distinguishes a true partner reaches the clustering. Whether a different
+operator, or the same operator on rescaled fields, would carry the pairing through is a
+question for future work.
+#+END_SRC
+
+* Things to decide while editing
+
+- Draft 2 and Draft 3 are manuscript edits, so they wait on the green light to start editing
+  the manuscript (still not given as of 2026-10-08). Draft 1 can go in at the same time, so
+  the letter never describes manuscript text that does not exist.
+- The letter's status table row for R2.8 reads "Done, two reported, one withdrawn". It
+  becomes "Done, three reported".
+- The letter's summary paragraph near the top ("a third control that we ran and chose not to
+  present, together with our reasons") needs the same update.
+- Draft 1 mentions the substitute implementation by name only as "the first implementation";
+  correction 4 (disclosing that the coordinate-shuffle control also ran on the substitute
+  backend) should use the same wording, so the two read consistently.
