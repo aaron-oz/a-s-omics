@@ -152,23 +152,32 @@ The `\todo` and `\incomplete` macros are defined `\long` so a marker may span pa
 
 ## Figures
 
-Figures are currently embedded in `paper-plos.tex` for a reviewable PDF. For the PLOS
-upload they must be submitted as separate files and stripped from the `.tex`. They also
-need regenerating for R2.6 (aspect-ratio distortion in Figures 3 and 4) and R1.3 (size and
-organization), so do the stripping after that work, not before.
+Updated 2026-10-08. One source, two builds, switched by `\embedfigstrue` / `\embedfigsfalse`
+near the top of `paper-plos.tex`:
 
-**Figures 5 and 6 are deliberately scaled down in the embedded PDF, and this is temporary.**
-Both source images are tall portraits (5100 x 6600), and the R2.7 rewrite made both captions
-much longer. Together they exceeded `\textheight`, so LaTeX floated them past the
-bibliography to pages 26-27, ten pages after their citations, with the caption text running
-off the bottom of the page. The fix applied is `[p]` placement, `\captionsetup{font=small}`
-on those two captions, and `width=0.705`/`0.745\linewidth`; they now sit on pages 16 and 17,
-immediately after the text that cites them, with complete captions.
+- **Review build (default, `\embedfigstrue`).** Figures are embedded so co-authors can read a
+  single PDF. Figs 5 and 6 are scaled to share a page with their long captions; this affects
+  the review PDF only.
+- **Upload build (`\embedfigsfalse`).** Only the captions remain in the text, as PLOS requires,
+  and the figures are uploaded separately as TIFFs.
 
-The scaling works against R1.3, which asks for *larger* figures, so do not treat it as the
-answer to that comment. It is a stopgap for the reviewable PDF only. Two things dissolve it:
-the figures are being regenerated and reorganized for R1.3 (a less tall aspect ratio would
-remove the constraint entirely), and in the actual PLOS submission the figures are uploaded
-as separate full-resolution files with captions set in the text, so the float-fitting problem
-does not arise. When you strip the figures for upload, drop the `[p]`, the `\captionsetup`,
-and the width scaling along with them.
+Make the upload TIFFs, from `Submission_PLOSOne/submission-2/`:
+
+```bash
+bash export-submission-figures.sh      # writes submission-figures/Fig1.tif ... Fig6.tif
+```
+
+It fits each figure inside the PLOS limits (7.5 x 8.75 in, 300-600 dpi, 10 MB, checked against
+journals.plos.org/plosone/s/figures on 2026-10-08) without upscaling. Figure sources:
+
+| Fig | source | made by |
+|-----|--------|---------|
+| 1, 2 | `plos-port/img/` | original images, hand made |
+| 3, 4 | `figures-regenerated/Fig3-composite.png`, `Fig4-composite.png` | `compose-figs-3-4.R` |
+| 5 | `figures-regenerated/Fig5-composite-transposed.png` | `regenerate-fig5.R`, `fig5-input-panels.R`, `fig5-summary-panels.R`, then `compose-fig-5-transposed.py` |
+| 6 | `figures-regenerated/Fig6-composite.png` | `regenerate-fig6.R` (reuses the 3D surfaces from `Fig6-relabeled.png`) |
+| S10 | `figures-regenerated/S10_Fig_controls.png` | `make-controls-figure.R` |
+| S11 | `figures-regenerated/S11_Fig_plugin-bias.png` | `code-spatial-smoothing/uncertainty/jensen-bias-figure.R` |
+
+Figs 3 to 6 and S11 render text at 8 pt or larger at printed size, in Liberation Sans (metrically
+identical to Arial). Figs 1 and 2 have not been checked for this.

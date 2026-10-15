@@ -15,23 +15,20 @@ Usage: python3 compose-fig-5-transposed.py [width_in] [dpi]
 import sys
 from PIL import Image, ImageDraw, ImageFont
 
-W_IN = float(sys.argv[1]) if len(sys.argv) > 1 else 7.5
-DPI  = int(sys.argv[2]) if len(sys.argv) > 2 else 400
+W_IN = float(sys.argv[1]) if len(sys.argv) > 1 else 6.69
+DPI  = int(sys.argv[2]) if len(sys.argv) > 2 else 600
 MAX_H_IN = 8.75
 W = int(W_IN * DPI)
 
 P     = "panels-fig5"
-OPS   = [("prod", "Product"), ("gm", "Geometric mean"), ("min", "Common minimum")]
+OPS   = [("prod", "Product"), ("gm", "Geometric\nmean"), ("min", "Common\nminimum")]
 MECHS = ["WNT4-FZD6", "RSPO1-LGR6", "DHH-PTCH1", "VEGFA-KDR"]
 
 def font(px, bold=False):
-    for path in ("/usr/share/fonts/dejavu-sans-fonts/DejaVuSans%s.ttf",
-                 "/usr/share/fonts/truetype/dejavu/DejaVuSans%s.ttf"):
-        try:
-            return ImageFont.truetype(path % ("-Bold" if bold else ""), px)
-        except OSError:
-            continue
-    return ImageFont.load_default()
+    # Liberation Sans is metrically identical to Arial, one of the PLOS figure fonts.
+    # Fail loudly rather than fall back to PIL's tiny bitmap font.
+    path = "/usr/share/fonts/liberation-sans-fonts/LiberationSans-%s.ttf" % ("Bold" if bold else "Regular")
+    return ImageFont.truetype(path, px)
 
 def load(n): return Image.open(f"{P}/{n}.png").convert("RGB")
 def fit(im, w): return im.resize((w, round(im.height * w / im.width)), Image.LANCZOS)
@@ -42,8 +39,9 @@ LEFT = I(0.62)                                     # operator row labels
 COLW = (W - 2 * PAD - LEFT - 3 * GUT) // 4         # four mechanism columns
 MAPW = (W - 2 * PAD - LEFT - 2 * GUT) // 3         # three operator columns for the map rows
 
-F_TITLE, F_HEAD = font(I(0.130), True), font(I(0.082), True)
-F_ROW, F_SMALL  = font(I(0.072), True), font(I(0.060))
+PT8 = I(8 / 72)                                    # PLOS: text 8-12 pt in print
+F_TITLE, F_HEAD = font(PT8, True), font(PT8, True)
+F_ROW, F_SMALL  = font(PT8, True), font(PT8)
 
 in_w   = (COLW - I(0.02)) // 2
 in_h   = fit(load(f"Fig5_input_{MECHS[0]}_ligand"), in_w).height
@@ -52,7 +50,7 @@ map_h  = fit(load("Fig5_min_domains"), MAPW).height
 sw     = (W - 2 * PAD - GUT) // 2
 summ_h = fit(load("Fig5_summary_elsa-vs-paramD"), sw).height
 
-TITLE_H, HEAD_H = I(0.28), I(0.17)
+TITLE_H, HEAD_H = 0, I(0.17)
 H = (PAD + TITLE_H + HEAD_H + in_h + I(0.10) + 3 * (int_h + I(0.045)) + I(0.12)
      + 2 * (map_h + I(0.12)) + I(0.04) + summ_h + PAD)
 
@@ -62,13 +60,15 @@ dr = ImageDraw.Draw(canvas)
 def ctext(x, y, s, f, fill="black"):
     b = dr.textbbox((0, 0), s, font=f); dr.text((x - (b[2] - b[0]) / 2, y), s, font=f, fill=fill)
 def rtext(x, y, s, f, fill="black"):
-    b = dr.textbbox((0, 0), s, font=f); dr.text((x - (b[2] - b[0]), y), s, font=f, fill=fill)
+    lines = s.split("\n"); lh = I(0.125)
+    y0 = y - (len(lines) - 1) * lh / 2
+    for k, ln in enumerate(lines):
+        b = dr.textbbox((0, 0), ln, font=f); dr.text((x - (b[2] - b[0]), y0 + k * lh), ln, font=f, fill=fill)
 
 colx  = lambda i: PAD + LEFT + i * (COLW + GUT)
 mapx  = lambda i: PAD + LEFT + i * (MAPW + GUT)
 
 y = PAD
-ctext(W / 2, y, "Comparison of ligand-receptor convolution operators", F_TITLE)
 y += TITLE_H
 for i, m in enumerate(MECHS):
     ctext(colx(i) + COLW / 2, y, m, F_HEAD)
@@ -95,7 +95,7 @@ y += I(0.12) - I(0.045)
 dom_y = y
 for i, (op, label) in enumerate(OPS):
     canvas.paste(fit(load(f"Fig5_{op}_domains"), MAPW), (mapx(i), y))
-    ctext(mapx(i) + MAPW / 2, y - I(0.10), label, F_SMALL, fill=(80, 80, 80))
+    ctext(mapx(i) + MAPW / 2, y - I(0.13), label.replace("\n", " "), F_SMALL, fill=(80, 80, 80))
 rtext(PAD + LEFT - I(0.05), y + map_h / 2 - I(0.04), "Domains", F_ROW)
 y += map_h + I(0.12)
 ent_y = y
@@ -108,8 +108,9 @@ canvas.paste(fit(load("Fig5_summary_elsa-vs-paramD"), sw), (PAD, y))
 canvas.paste(fit(load("Fig5_summary_elsa-vs-numclust"), sw), (PAD + sw + GUT, y))
 
 for s, lx, ly in [("A", PAD, in_y), ("B", PAD, op_y), ("C", PAD, dom_y),
-                  ("D", PAD, ent_y), ("E", PAD, y), ("F", PAD + sw + GUT - I(0.10), y)]:
-    dr.text((lx, ly), s, font=F_HEAD, fill="black")
+                  ("D", PAD, ent_y), ("E", PAD + I(0.04), y + I(0.03)), ("F", PAD + sw + GUT + I(0.04), y + I(0.03))]:
+    # E and F sit on the dark summary panels, so they are drawn in white
+    dr.text((lx, ly), s, font=F_HEAD, fill="white" if s in "EF" else "black")
 
 h_in = H / DPI
 if h_in > MAX_H_IN:

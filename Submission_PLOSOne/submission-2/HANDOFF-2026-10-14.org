@@ -1,0 +1,137 @@
+#+TITLE: Handoff: PLOS One revision, pivot to uncertainty-aware comparisons
+#+DATE: 2026-10-14
+
+Supersedes =HANDOFF-2026-09-07.org=. Read this file, then =PIVOT-PLAN-2026-10-14.org= (the
+plan, in execution order). =REVISION-SUMMARY-2026-10-08.org= is the plain-language account of
+the revision as it stood before the pivot; read it for background only.
+
+* Orientation
+
+Paper: "Spatial Modeling of Tissues for Morphogenic Field Analysis", PLOS One PONE-D-26-04349,
+Aaron Osgood-Zimmerman (AOZ, the user, a research statistician) and Micha Sam Brickman
+Raredon (MSBR, "Sam"). Round 1: major revision. Deadline: December 2026 (second extension;
+exact date not recorded).
+
+Repo: =/var/home/aoz/Dropbox/genetics/a-s-omics=, a git repo inside Dropbox. Past sessions
+committed on =main= here and kept =plosone-revision= identical (fast-forward). There is no
+=~/code= clone of this repo.
+
+| Path (under =Submission_PLOSOne/submission-2/=) | What it is |
+|---------------------------------------------------+------------|
+| =plos-port/paper-plos.tex= | the manuscript |
+| =response-to-reviewers.tex= | response letter; =python3 check-response-letter.py= must pass |
+| =figures-regenerated/= | every figure script and output |
+| =README-build.md= | build commands (accurate as of 2026-10-08) |
+| =export-submission-figures.sh= | writes PLOS-compliant TIFFs to =submission-figures/= |
+| =cover-letter-draft.org= | draft cover letter |
+| =review-copies/= | downsampled PDFs for co-authors on GitHub |
+
+Analysis code for this work: =code-spatial-smoothing/uncertainty/= (the plug-in vs posterior
+analysis of 2026-10-08 already lives there).
+
+* State at handoff
+
+- The revision as of 2026-10-08 is complete and builds clean: manuscript 32 pages, track
+  changes 34, letter 21, all 0 errors. Every reviewer item is answered; only the graphical
+  abstract (R1.5) is open, waiting on Sam.
+- *That work is NOT committed.* The last commit is =1c3a9ae= (2026-10-08 morning). Everything
+  after it is in the working tree; AOZ has not yet said yes to the commit. Do not start new
+  work on top of an uncommitted tree: ask first (the question is restated under "Open
+  questions" below).
+- Two untracked files are AOZ's, not ours: =REVISION-SUMMARY-2026-10-08.tex= and =.pdf=
+  (an editor export). Leave them out of commits.
+- =submission-figures/= (28 MB of TIFFs) is regenerable by script; it should be gitignored
+  rather than committed.
+
+* The pivot, and the decisions already taken
+
+AOZ and Sam decided on 2026-10-14 to make uncertainty the centre of the paper: Sam's view is
+that the uncertainty is what is new against the state of the art. The aim is to show places
+where signaling fields (and gene fields) look different but are not credibly different given
+the uncertainty, and places where they look alike but are, using areal averages, 1D slices,
+and whole fields. Signaling fields (common-minimum convolutions) are the primary target; one
+gene-field example as well.
+
+AOZ's rulings, 2026-10-14 (do not re-ask):
+
+1. Full pivot; domains and pairing material shrink to a shorter section plus SI.
+2. Regions: a few fixed boxes plus a few published anatomical regions (MOSTA annotation,
+   =code-spatial-smoothing/controls/e16-fov-annotation.csv=). Never our own domains.
+3. Compare on the rate scale (=lambda=, expected count per UMI), not expected counts.
+4. Both same-field and cross-field comparisons. Cross-field comparisons are made on shape:
+   rate first, then each field divided by its own spatial average within each posterior draw
+   (explained in the plan).
+5. Joint inference primary, via excursion sets (R package =excursions=); pointwise secondary.
+   Installing =excursions= into the =emacs-r= container's user R library is fine.
+6. "Looks alike but differs" is always reported with the size of the difference.
+7. The systematic run goes on klone.
+8. Signaling fields primary, one gene-field example.
+
+* Facts the new work depends on (verified 2026-10-08 unless stated)
+
+- *Model.* =code-spatial-smoothing/raw-counts/02-array-run-model.R=: inlabru, Poisson
+  likelihood, =E = total.count= offset, an intercept plus a Matern SPDE field on (x, y);
+  priors at lines 63-67, verified 2026-07-27 (=prior.range = c(500, 0.95)=, =prior.sigma = c(0.1, 0.05)=, inside the
+  Poisson branch; the file-level default at line 32 is overridden). Predictions use
+  =predict(..., n.samples = 1000)= for =lambda= (rate), =expect= (= lambda x total.count),
+  and =obs_prob=.
+- *Fitted models were never saved* (line 733 is commented out). Only per-bin summaries were
+  saved: =data-outputs/mouse-embryo-raw/2025-04-10/prediction-objects/<Gene>-pred-poi.rds=,
+  each with =lambda=, =expect=, =obs_prob= tables (mean, sd, q0.025, q0.5, q0.975, median, by
+  bin). So joint draws require refitting.
+- *Refit cost:* about 140 s per gene single-threaded (=controls/README.md=). 790 genes are
+  needed to cover the 1,477 ligand-receptor pairs.
+- *Klone refit harness to adapt:* =controls/control-B-klone.R=, =control-B-ckpt.sbatch=,
+  =control-B-README.md= (refit every gene on the cluster for the coordinate-shuffle control).
+  Input extracted by =control-B-extract-input.R= to =controls/bin50-subregion-raw.rds=.
+- *Published signaling fields* = =min(median_L, median_R)= of =expect=, verified to 5e-15.
+  Rate-scale equivalent: divide by total count (shared by both partners).
+- *Pairs:* =code-spatial-smoothing/controls/sweep/fantom-hierarchy.Robj= (object =output=).
+  TRAP: =NICHES::ncomms8866_mouse= is a different table that gives different counts; do not
+  use it.
+- *Grid:* 200 x 130 bins = 26,000, x 15000-25000, y 11500-18000 in chip coordinates, bin size
+  50 units. Do not convert to microns (spot pitch is ambiguous).
+- *Lognormal marginals* fit the saved summaries well for most bins (log-scale intervals
+  symmetric: median upper/lower ratio 0.995). Median log-scale posterior sd is about 1.03, so
+  the posteriors are wide.
+
+* Pitfalls
+
+- *Test the method, not a cheaper cousin.* Write the fidelity table (Phase 3 of the plan)
+  before refitting, and check each refit reproduces the saved medians before using its draws.
+- *Regions frozen before results* (Phase 2). Do not choose examples after seeing which are
+  dramatic.
+- *Average of a minimum is not the minimum of averages*: regional signaling summaries need
+  bin-level draws of both partners.
+- *Clustering software:* reported clustering uses Seurat only; the RcppHNSW substitute gives
+  non-comparable numbers. (Not central to the pivot, but the domain section still uses it.)
+- *Klone frugality is a hard rule*: measure one task, size to MaxRSS x 2, prefer =ckpt= with
+  =--requeue=, throttle arrays, one CPU per single-threaded task. klone needs AOZ to run
+  =ssh hyak= (Duo); =ControlPersist 4h= then lets you submit; test with
+  =ssh -o BatchMode=yes hyak echo ok=. No R module on klone: =module load apptainer/1.1.5=,
+  then =apptainer exec --env R_LIBS_USER=$HOME/Rlib-ctrlB $HOME/containers/geospatial.sif Rscript ...=.
+- *Local R:* =OMP_NUM_THREADS=1 distrobox enter emacs-r -- Rscript ...=; never more than half
+  the 16 cores.
+- *LaTeX:* builds in the =bittensor-ubuntu= distrobox; track changes need
+  =latexdiff --math-markup=off= against tag =rev1-baseline=.
+- *Writing rules:* no em-dashes; American spelling; every number verified or labeled a guess;
+  understate. Reviewer quotes in the letter are verbatim and must not be edited (a
+  British-spelling sweep on 2026-10-08 nearly changed one).
+
+* Open questions for AOZ (restated in full)
+
+1. *Commit the 2026-10-08 work?* Proposed: commit all of it to =main= with a message along
+   the lines of "Revision edits: corrections, three controls, plug-in vs posterior result,
+   figures rebuilt at 8 pt", push, and fast-forward =plosone-revision=; gitignore
+   =submission-figures/=; exclude AOZ's =REVISION-SUMMARY-2026-10-08.tex/.pdf=. This blocks
+   Phase 0 of the plan. Recommendation: yes, before any pivot work, so the pre-pivot revision
+   is recoverable as one commit.
+2. *The threshold for "looks different"* is to be set in Phase 2 from concrete examples
+   shown to AOZ, not asked in the abstract.
+
+* First steps for the next agent
+
+1. Ask open question 1 if it is still unanswered; commit if yes.
+2. Branch =uncertainty-pivot= from =main=.
+3. Phase 1 of =PIVOT-PLAN-2026-10-14.org= (novelty check), then Phase 2 (freeze the design),
+   then Phase 3 (local pilot). Bring the pilot figures to AOZ before Phase 4.

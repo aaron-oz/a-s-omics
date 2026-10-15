@@ -95,8 +95,9 @@ controls (Section R2.8): a coordinate shuffle with full model refitting, and a c
 test against the independent anatomical annotations published with the source dataset. The
 coordinate-shuffle control is the more informative of the two, and it is unambiguous:
 refitting the identical pipeline on spatially permuted data collapses the emergent domains
-entirely. We also report, in the same section, a third control that we ran and chose not to
-present, together with our reasons.
+entirely. We also ran the ligand-receptor pair-shuffling control the reviewer suggested. It
+found no effect of the pairing on the coherence of the domains, and we report it in full,
+together with the limit it places on our conclusions.
 
 We have also moderated the generalizability and biological-interpretation language
 throughout, clarified the statistical model and its implementation, and added a
@@ -119,187 +120,43 @@ Aaron Osgood-Zimmerman and Micha Sam Brickman Raredon
 \ifdraftmode
 \section{Open items: everything still outstanding}
 
-\noindent\textcolor{red}{\textbf{Internal only, delete this section before submission.}}
+\noindent\textcolor{red}{\textbf{Internal only. This section disappears with \texttt{\textbackslash draftmodefalse}.}}
+Rewritten 2026-10-08; the July list it replaces is in git history. The plain-language account of
+the whole revision is \texttt{REVISION-SUMMARY-2026-10-08.org}.
 
-\medskip
+\subsection*{A. Needs Sam}
 
-\noindent This is the single consolidated list, and it is the authoritative one. Every
-outstanding task is here, including several that carry no inline marker of their own.
-An item's \status{INCOMPLETE} or \status{TODO} label describes that reviewer item as a
-whole; the red inline markers name one specific task within it and carry the same word. Items
-flagged below as needing the authors are the ones no amount of further drafting will close. ``Paper'' references are to
-\texttt{plos-port/paper-plos.tex}; the line numbers were current on 2026-07-27 and will drift
-as the file is edited, so treat the section names as the reliable anchor and the numbers as a
-hint. Items are ordered by consequence, not by reviewer number.
-
-\subsection*{A. Blocked on the authors}
-
-\noindent \emph{Nothing remains in this group.} The three items that were here are now
-settled: the funder statement is confirmed accurate by both authors (JR-2), the duplicated
-columns are described neutrally as duplicated input files rather than naming their cause, and
-the Cd44 rationale is written (R2.5: chosen for clarity against the spine as an unambiguous
-landmark, one clean example among many, with pointers to S2 and S3 File so a reader can check
-how general the pattern is).
-
-\subsection*{B. Decisions taken on the authors' behalf that should be ratified}
-
-\noindent These are all defensible and all currently written into the manuscript, but each is
-a substantive judgement rather than a mechanical edit.
-
-\begin{enumerate}[leftmargin=*, resume]
-
-\item \textbf{The CytoSignal novelty concession.} The Discussion now states plainly that we do
-not claim novelty for spatially resolved ligand-receptor mapping. This is a real concession
-and it has never been explicitly signed off. \\
-\emph{Letter:} \S R2.10 (line 976), \S JR-6 (line 400). \emph{Paper:} Discussion,
-``Relationship to existing methods'', CytoSignal paragraph (line 413).
-
-\item \textbf{The narrowed contribution statement}, which is now the paper's formal novelty
-claim. \\
-\emph{Paper:} Discussion, ``Relationship to existing methods'', paragraph beginning ``Stating
-our contribution precisely'' (line 415).
-
-\item \textbf{The Abstract was rewritten wholesale}, to state what was done and on what, and
-to name the scope of the demonstration rather than assert general applicability. \\
-\emph{Paper:} Abstract (line 93). \emph{Letter:} \S R2.11 (line 1044).
-
-\item \textbf{Publicly disclosing that the clustering as configured did not reproduce between
-runs}, and that the published Fig~6 domains are one realization. This was decided before the
-drafting session, but it is the kind of statement worth re-reading before it reaches a
-reviewer. Note the claim was corrected during the revision and must not drift back: the
-clustering \emph{is} exactly reproducible with a single thread and a fixed seed, five
-replicates bit-identical at ARI 1.0. Neither condition suffices alone, and the seed changes
-the answer, so it is a reportable parameter. Calling the pipeline non-deterministic was a
-falsehood about the method rather than about the configuration used. \\
-\emph{Paper:} Results, ``Reproducibility of the clustering'' (line 383); Fig~6 caption closing
-sentence (line 348). \emph{Letter:} \S R2.8. \emph{Also:}
-\texttt{code-spatial-smoothing/controls/README.md}, ``Conditions for exact reproducibility''.
-
-\item \textbf{The Fig~5 and Fig~6 layout stopgap.} Both were floating past the bibliography
-with their captions running off the page, so they were given \texttt{[p]} placement, smaller
-caption type, and width scaling to about 0.72\,\texttt{\textbackslash linewidth}. This makes
-them \emph{smaller}, which works against R1.3, and must be undone when the figures are
-regenerated or stripped. \\
-\emph{Paper:} figure environments at lines 319 and 335. \emph{Also:}
-\texttt{README-build.md}, ``Figures'' section.
-
+\begin{enumerate}[leftmargin=*]
+\item \textbf{Graphical abstract (R1.5).} Draft at \texttt{figures-regenerated/graphical-abstract.png}.
+\item \textbf{Figs 1 and 2} are still the original hand-made images. Check that their text is at
+least 8 pt when printed 7.5 in wide (PLOS requires 8 to 12 pt, Arial, Times or Symbol).
+\item \textbf{Fig 6, bottom two rows}: the eight 3D surfaces are reused from the original figure,
+and their color-bar tick labels are illegibly small. Re-render from \texttt{Sup8} if wanted.
 \end{enumerate}
 
-\subsection*{C. Work outstanding that no one has started}
+\subsection*{B. Author sign-off on substantive text}
 
 \begin{enumerate}[leftmargin=*, resume]
-
-\item \textbf{Figure assembly and sizing.} The R2.6 aspect-ratio defect is now
-\emph{resolved}: the cause was \texttt{asp = qp.res.y / qp.res.x} (= 0.65) where
-\texttt{asp = 1} was required, it has been corrected at all 151 occurrences across the
-pipeline scripts, and Figs~3 and 4 have been regenerated, together with their 22 individual
-sub-panels for Illustrator placement, into
-\texttt{Submission\_PLOSOne/submission-2/figures-regenerated/}. The new controls figure
-(S10 Fig) is in the same directory with its generating script. What still needs a person:
-final composite assembly and panel labelling, since the published figures were assembled by
-hand and no layout script exists for them; the R1.3 sizing and reorganization pass; the R1.5
-graphical abstract; and the
-two Fig~4 layout differences noted in \S R2.6. Undo the Fig~5/6 scaling stopgap at the same
-time. \\
-\emph{Letter:} \S R1.3 (line 491), \S R2.6 (line 741), \S R1.5 (line 534). \emph{Paper:}
-Figs~3 and 4 (captions at lines 281 and 313); Fig~6 in-source note at line 339.
-
-\item \textbf{Supporting Information: an author decision, not a packaging job.} Two new
-Supporting Information items now exist and are staged for upload. \textbf{S9 Table} is a
-four-page table mapping every mathematical symbol in the model specification to the script and
-line of code that implements it, which is what Reviewer 2 asked for in R2.2; it is at
-\texttt{submission-2/supporting-information/S9\_Table.pdf}. \textbf{S10 Fig} is a five-panel
-figure summarising the two controls from R2.8: the null distributions from the spatial
-permutation test for domain coherence and domain count, the emergent domains shown beside the
-published anatomical annotation of the same section, and the concordance null. Every S-number
-cited in the text has been confirmed against its intended item. But S1--S8 total 53.5 GB across 12,275
-files, with a single 11.6 GB file, so they cannot be uploaded as Supporting Information, and
-the previous draft response claiming they had been was wrong. \textbf{Decided 2026-08-06:} S9
-Table and S10 Fig are uploaded, S1--S8 stay in the external repository, and the FigShare
-private share links will be converted to public DOIs on acceptance rather than now, since a
-DOI should point at a final record and the deposited contents may still change in review. The
-letter and the manuscript both already describe this arrangement, so no further edit is
-needed. Measured inventory in
-\texttt{supporting-information/README-supporting-information.md}. \\
-\emph{Letter:} \S JR-5. \emph{Paper:} Supporting information.
-
+\item The narrowed contribution statement and the CytoSignal concession (Discussion,
+``Relationship to existing methods'').
+\item The scope statement (Abstract; Discussion, ``All models are wrong'' paragraph).
+\item Control C reported in full, with its Discussion paragraph framing it as a limitation.
+\item The plug-in versus posterior result (new Results subsection, S11 Fig, Abstract sentence).
+\item Figs 5 and 6 reorganized (R1.3 response now says so).
 \end{enumerate}
 
-\subsection*{D. Claims deliberately weakened for lack of evidence, which the authors may be able to restore}
+\subsection*{C. Mechanics, immediately before upload}
 
 \begin{enumerate}[leftmargin=*, resume]
-
-\item \textbf{Physical size of the field of view.} Chen et al.\ give the nanoball spot pitch
-as ``500 or 715 nm'' and never say which chip carried the embryo sections, so the manuscript
-states the field of view in spot units rather than millimetres. The raw data header names the
-chip as \texttt{SS200000108BR\_A3A4}; if that chip's pitch can be established, a physical size
-can be stated. \\
-\emph{Paper:} Materials and methods, ``Dataset selection'' (line 212).
-
-\item \textbf{The latent-$N(s)$ comparison.} The original text said modeling $N(s)$ ``didn't
-practically alter the outputs.'' This has been weakened to ``no visible change, not
-quantified,'' because S3 File appears to contain joint-model outputs rather than a
-joint-versus-offset comparison. If that comparison exists elsewhere, the claim can be
-restored and strengthened. \\
-\emph{Letter:} \S R2.3 (line 623). \emph{Paper:} ``The status of the latent total-count
-model'' (line 190); Results (line 276).
-
-\item \textbf{Supplement cross-reference mapping.} The original text cited ``Supplement
-3/4/5'' under a numbering that did not match the S1--S8 list, so the pointers were reassigned
-by inspecting each directory's contents: 32 assays $\rightarrow$ S5 File, ELSA results
-$\rightarrow$ S6 File, feature-depth sweep $\rightarrow$ S7 File. Worth confirming each lands
-where intended. \\
-\emph{Paper:} lines 329, 348, and the Supporting information list (line 433).
-
-\end{enumerate}
-
-\subsection*{E. Roadmap beyond this revision, deliberately not started}
-
-\noindent Neither of these is needed to answer a reviewer. Both are recorded so they are not
-lost, and both are explicitly sequenced after the current submission.
-
-\begin{enumerate}[leftmargin=*, resume]
-
-\item \textbf{An online visualiser, to replace bulk downloads.} To be built \emph{last}, once
-we have finalised everything we want it to show. The case is strong: S8 is already 1,481
-standalone interactive HTML files, and S2, S4, S7 and S8 together are about 11.6 GB across
-roughly 8,400 files that are all ``browse one thing at a time'' material. S1 and S5, roughly
-42 GB of matrices and R objects, are archival data and would stay a repository deposit.
-Two interactions are wanted specifically: click two points to draw a transect and show how a
-selected set of features varies along that line, with uncertainty, so a reader can see what
-these fields actually are; and select a box or circle and show the distribution of feature
-values within it. This would also answer R2.9 more convincingly than a README.
-
-\item \textbf{Apply the method to other spatialomics platforms.} The generalisability comment
-(R2.11) is currently answered by narrowing the claim. Demonstrating it directly would be
-better. We already hold much of the data and code for the mouse brain dataset. Two things need
-settling first: which platforms to include, chosen to span genuinely different collection
-geometries (different grid dimensions, gridded versus ungridded), and precisely what each
-additional dataset is meant to demonstrate, since a second dataset that shows the same thing
-again adds little. Scope this before running anything.
-
-\end{enumerate}
-
-\subsection*{F. Mechanics, immediately before upload}
-
-\begin{enumerate}[leftmargin=*, resume]
-
-\item Set \texttt{\textbackslash draftmodefalse} in this file, which removes the banner, the
-status summary, and this section. Then confirm no markers remain:
-\texttt{grep -c '\textbackslash\textbackslash todo\{' response-to-reviewers.tex} must
-return 0.
-
-\item Strip the embedded figures from \texttt{paper-plos.tex} and submit them as separate
-files, removing the \texttt{[p]} placement, the \texttt{\textbackslash captionsetup}, and the
-width scaling along with them.
-
-\item Build all three uploads, following \texttt{README-build.md}. Note that the
-track-changes build requires \texttt{latexdiff --math-markup=off}; the previously documented
-\texttt{--math-markup=whole} no longer compiles, because the model equation was rewritten for
-R2.1.
-
-\item Write the cover letter, incorporating the funding statement from item 2.
-
+\item Set \texttt{\textbackslash draftmodefalse} here and confirm
+\texttt{python3 check-response-letter.py} reports no markers.
+\item In \texttt{paper-plos.tex} set \texttt{\textbackslash embedfigsfalse}, so only captions
+remain, and upload \texttt{submission-figures/Fig1.tif} to \texttt{Fig6.tif}
+(\texttt{bash export-submission-figures.sh}).
+\item Upload S9 Table, S10 Fig and S11 Fig.
+\item Build the manuscript, the track-changes version (\texttt{latexdiff --math-markup=off}
+against tag \texttt{rev1-baseline}) and this letter, following \texttt{README-build.md}.
+\item Finalize the cover letter: draft at \texttt{cover-letter-draft.org}, which includes the funding statement confirmed under JR-2.
 \end{enumerate}
 
 \fi
@@ -324,18 +181,18 @@ JR-6  & Evaluate recommended citations & Done \\
 \midrule
 R1.1  & Comparative analysis vs existing methods & Done \\
 R1.2  & Tissue sample and methods detail & Done \\
-R1.3  & Figures too small, reorganize & To do \\
+R1.3  & Figures too small, reorganize & Done \\
 R1.4  & Small-scale disease proof of concept & Done \\
-R1.5  & Better graphical abstract & To do \\
+R1.5  & Better graphical abstract & Incomplete, draft awaits Raredon \\
 \midrule
 R2.1  & Define model parameters and priors at first use & Done \\
 R2.2  & Notation-to-code supplementary table & Done \\
 R2.3  & Clarify that final analyses used observed nUMI & Done \\
 R2.4  & Define metrics; Table 1 abbreviations and percentages & Done \\
 R2.5  & Rationale for Cd44 as representative feature & Done \\
-R2.6  & Elongated-pixel distortion in Figs 3 and 4 & Incomplete, cause fixed at source \\
+R2.6  & Elongated-pixel distortion in Figs 3 and 4 & Done \\
 R2.7  & Clearer captions for Figs 5 and 6 & Done \\
-\textbf{R2.8} & \textbf{Controls and baselines} & \textbf{Done, two reported, one withdrawn} \\
+\textbf{R2.8} & \textbf{Controls and baselines} & \textbf{Done, three reported} \\
 R2.9  & Reproducibility documentation & Done \\
 R2.10 & Positioning vs related methods & Done \\
 R2.11 & Moderate generalizability claims & Done \\
@@ -406,7 +263,7 @@ Materials'' which you refer to in your text on page 19.
 \end{rev}
 
 \noindent We have added two genuine Supporting Information files. The S9 Table gives the
-notation-to-code mapping requested in R2.2, and the S10 Fig summarises the two new controls
+notation-to-code mapping requested in R2.2, and the S10 Fig summarizes the two new controls
 requested in R2.8. Both are uploaded with this revision. We have also confirmed that
 every S-number cited in the text now matches its intended item; S1 and S9 had no citation in
 the original text, and the S3 through S8 pointers were reassigned, because the original
@@ -474,8 +331,8 @@ our response to Reviewer 2's comment R2.8.
 
 First, within our own framework we compare candidate convolution operators
 quantitatively, and this comparison now includes the product operator used by CytoSignal.
-The common-minimum operator we adopt yields more spatially coherent domains than the
-product operator on this dataset.
+On this dataset, and in a single clustering run, the common-minimum operator we adopt gave
+more clusters and more spatially coherent domains than the product operator.
 
 Second, we compare the emergent domains against an external reference that we did not
 produce: the anatomical annotations published with the source dataset by Chen et al.
@@ -520,25 +377,27 @@ converged fits and the 1477 ligand-receptor pairs computable from them. We have 
 removed the sentence describing the dataset as ``beautiful,'' which was not a reason for
 selecting it, and replaced it with our actual reasons.
 
-\subsection{R1.3. Figure size and organization} \status{TODO}
+\subsection{R1.3. Figure size and organization} \status{DONE}
 
 \begin{rev}
 The data presented in the figure is on the small side of the spectrum, recommend the
 authors to reorganise them.
 \end{rev}
 
-\noindent We have regenerated the figures at larger physical size and higher resolution.
-Figures 3 and 4 have also been corrected for the aspect-ratio distortion noted by Reviewer 2
-(R2.6), and Figures 5 and 6 for the same defect, which the reviewer did not flag but which
-was present there too.
+\noindent We have rebuilt Figures 3 to 6 from scripts at the full PLOS page width, with all
+text set at 8 point or larger at printed size; in the original submission some labels were
+drawn large and then reduced, so that they printed at about 3 to 4 point. Figures 3 and 4 have
+also been corrected for the aspect-ratio distortion noted by Reviewer 2 (R2.6), and Figures 5
+and 6 for the same defect, which the reviewer did not flag but which was present there too.
 
-We have kept the panel arrangement of each figure as it was. Having gone back through them,
-we judged that the difficulty the reviewer identifies is one of size rather than of ordering:
-the comparisons the figures ask a reader to make are already adjacent, and rearranging them
-would have changed what a returning reader recognizes without making any comparison easier.
-
-\todo{Regenerate all figures. Coordinate with R2.6 (aspect ratio) and R2.7 (captions) so
-each figure is touched once.}
+For Figures 3 and 4 we kept the panel arrangement; their difficulty was size rather than
+ordering. Figures 5 and 6 we have reorganized, because at the page-height limit their original
+arrangement could not be made legible. Figure 5 now shows each pair's ligand and receptor
+fields once, in a row of their own, followed by one row per convolution operator, so the
+operators can be compared by reading down a column. Figure 6 now places the five feature depths
+in columns rather than rows, and replaces the five repeated summary panels with a single row of
+summary curves that marks the five depths shown; that row also carries the new random-subset
+control described in our response to R2.8 and under ``Additional corrections''.
 
 \subsection{R1.4. Small-scale disease proof of concept} \status{DONE}
 
@@ -568,17 +427,22 @@ opposite of what this manuscript argues for. We have noted the application to di
 tissue as clearly future work in the Discussion, alongside the lung-tissue direction
 already mentioned there.
 
-\subsection{R1.5. Graphical abstract} \status{TODO}
+\subsection{R1.5. Graphical abstract} \status{INCOMPLETE}
 
 \begin{rev}
 Minor comment: The graphical abstract submitted did not do the work justice, consider a
 better images rather than copy-pasting from the data section.
 \end{rev}
 
-\noindent We agree, and we have replaced the graphical abstract with a purpose-designed
-schematic rather than panels reused from the figures.
+\noindent We agree, and we have replaced the graphical abstract with one designed for the
+purpose rather than copied from the figures. It is drawn directly from the data and shows, in
+one panel each, the tissue domains, the two controls that bear on whether they are real
+(the coordinate shuffle and the agreement with published anatomy), and the domains at four
+feature depths.
 
-\todo{Design and produce the new graphical abstract. Raredon.}
+\incomplete{Draft at \texttt{figures-regenerated/graphical-abstract.png}, made by
+\texttt{graphical-abstract.R}; revised 2026-10-08 (pair-shuffle panel dropped, counts given
+as pairs, bottom row from one experiment). Raredon to review before submission.}
 
 \section{Reviewer 2}
 
@@ -774,9 +638,9 @@ explained.
 answer is that Cd44 was chosen for clarity of illustration rather than for any property that
 makes it special.
 
-The point Fig 3 makes is that count-normalisation can change spatial topology. Many features
+The point Fig 3 makes is that count-normalization can change spatial topology. Many features
 show that effect. Cd44 shows it against an unambiguous anatomical landmark, the developing
-spine, which makes the raw and normalised panels easy to compare side by side in adjacent
+spine, which makes the raw and normalized panels easy to compare side by side in adjacent
 plots. That is why it was picked. We now say so, rather than leaving a reader to infer that
 Cd44 was somehow representative in a statistical sense.
 
@@ -786,7 +650,7 @@ further 23 selected features, and S2 File gives per-feature outputs for the whol
 A reader who suspects we cherry-picked can therefore verify how general the pattern is, which
 we think is a better answer than asserting that we did not.
 
-\subsection{R2.6. Elongated-pixel distortion in Figures 3 and 4} \status{INCOMPLETE}
+\subsection{R2.6. Elongated-pixel distortion in Figures 3 and 4} \status{DONE}
 
 \begin{rev}
 Figures 3 and 4 appear visually distorted due to elongated rectangular pixels, which
@@ -811,25 +675,12 @@ required.
 
 We have corrected this at source rather than only in the affected figures: all 151 occurrences
 across the pipeline scripts now use \texttt{asp = 1}, so any figure regenerated from this
-point is correct. Figures 3 and 4 have been regenerated, and the corrected panel grids are in
-the repository at \texttt{Submission\_PLOSOne/submission-2/figures-regenerated/}, together
-with the script that produces them.
-
-\incomplete{For Raredon, who holds the Illustrator files. The 22 individual sub-panels for Figs 3
-and 4 are exported at 1:1 as separate files in
-\texttt{submission-2/figures-regenerated/panels/}, colour bars included, no baked-in titles,
-8x5in at 300 dpi, so they drop into the existing layouts. Placement table in
-\texttt{README-panels.md}. Two caveats: (i) the ZIP and ZAP ``probability of a non-zero
-value'' panels are NOT included, because the saved prediction objects store only lambda,
-expect and obs\_prob, so the spatially varying zero probability was never written to disk;
-either rerun those two models saving it, or drop that column for those rows and say so in the
-caption. (ii) Figs 5 and 6 have a separate, unflagged version of the same defect: their
-spatial panels come from ggplot in \texttt{Sup6 - ELSA Analysis.R} and
-\texttt{Sup7 - Clustering vs Features.R}, neither of which uses \texttt{coord\_fixed()}, so
-those maps are also not at 1:1. Still needed from a person: final composite assembly and
-labelling, the R1.3 sizing pass, and the R1.5 graphical
-abstract. (Fig 6's baked-in ``1481 Features'' labels were corrected to 1477 on 2026-10-08 by
-\texttt{figures-regenerated/relabel-fig6.py}.)}
+point is correct. Figures 3 and 4 have been regenerated from a script at the correct aspect
+ratio. Figures 5 and 6 had a separate, unflagged version of the same defect: their spatial
+panels were drawn by a plotting routine that stretches each panel to fill the space given to
+it. We have corrected those as well, fixing the aspect ratio to the true 200 by 130 bin
+geometry, and rebuilt both figures from scripts. All four scripts are in the repository at
+\texttt{Submission\_PLOSOne/submission-2/figures-regenerated/}.
 
 \subsection{R2.7. Captions for Figures 5 and 6} \status{DONE}
 
@@ -844,27 +695,23 @@ abbreviation used in the panel, states what the rows and columns represent, and 
 explicitly what the reader should take from the figure and how it supports the claim made
 in the text.
 
-Concretely, the Figure 5 caption now identifies what each column is (the three convolution
-operators, with the code labels \texttt{m.est.prod}, \texttt{m.est.gm} and
-\texttt{m.est.min} that appear in the panel titles), what the four blocks in the top section
-are (four example ligand-receptor mechanisms, each showing the separately estimated ligand
-and receptor fields alongside the interaction field the operator produces from them), what
-the middle and lower rows show (the resulting tissue domains and the corresponding
-entrogram), and what the two bottom panels plot. It also states that cluster colors are
-arbitrary labels, so that the comparable quantities across columns are the number of
-domains and their spatial organization, and it says which direction of the bottom-right
-panel is favorable.
+Concretely, the Figure 5 caption now identifies the three convolution operators (with the
+code labels \texttt{m.est.prod}, \texttt{m.est.gm} and \texttt{m.est.min} used in the code),
+the four example ligand-receptor pairs and their input fields, the interaction field each
+operator produces, the resulting tissue domains and the corresponding entrogram, and what the
+two summary panels plot. It states that cluster colors are arbitrary labels, so that the
+comparable quantities across columns are the number of domains and their spatial
+organization, and it says which direction of the summary scatter is favorable.
 
-The Figure 6 caption now states the five feature depths row by row, identifies each of the
-four columns, explains that the column-4 curves summarize the whole sweep with the current
-depth highlighted, explains the entrogram scale and how to read a coherent domain from it,
-and identifies the eight three-dimensional surfaces and the sub-region they cover. It also
-now carries two caveats that the figure cannot show on its own: that the fields are
-model-derived estimates rather than measurements of binding, and that the domain map is one
-realization from a configuration of the clustering that did not reproduce exactly between
-runs, with a pointer to the section that gives the settings under which it does.
+The Figure 6 caption now states the five feature depths, identifies each row, explains the
+entrogram scale and how to read a coherent domain from it, explains the summary curves
+(including the random-subset control), and identifies the eight three-dimensional surfaces
+and the sub-region they cover. It also carries caveats that the figure cannot show on its
+own: that the fields are model-derived estimates rather than measurements of binding, and
+that each domain map is a single run of a clustering step whose exact reproducibility we
+have not established.
 
-
+Both figures were also reorganized for legibility; see our response to R1.3.
 
 \subsection{R2.8. Controls and baselines} \status{DONE}
 
@@ -883,12 +730,12 @@ increased feature dimensionality, or clustering.
 two new controls, chosen from the reviewer's menu: a spatial permutation test and a
 comparison with previously annotated tissue regions. Both are reported in a new subsection
 of the Results, and the code and summary outputs are in the
-public repository. We also attempted the ligand-receptor pair shuffling control the reviewer
-suggests, and we report below why we do not present a result from it.
+public repository. We have also run the third control the reviewer suggests, ligand-receptor
+pair shuffling, and report it below and in the same Results section.
 
 Throughout, spatial coherence of the resulting domain map is quantified with the
 entropy-based local indicator of spatial association (ELSA) computed on the categorical domain
-labels, at neighbourhood radii of 50 and 100 units. ELSA is negatively oriented: lower
+labels, at neighborhood radii of 50 and 100 units. ELSA is negatively oriented: lower
 values mean more spatially coherent domains. The domain-generating pipeline is held fixed
 across observed and control runs, so any difference is attributable to the manipulation
 alone.
@@ -901,7 +748,11 @@ locations, destroying spatial structure while preserving the count distribution 
 and then refit every feature's spatial model from scratch on the permuted data before
 running the identical convolution, clustering, and scoring pipeline. This required
 refitting all 912 features under each of 49 permutations, which we carried out on a
-high-throughput computing cluster.
+high-throughput computing cluster. Because the clustering then had to be repeated for every
+permutation, both the observed and the permuted data were clustered with a faster
+implementation of the same steps rather than with Seurat; the pipeline is identical between
+the two arms of the control, which is what the comparison requires, and the manuscript now
+states this.
 
 The result is unambiguous. The real data yielded 20 domains with ELSA at radius 50 of
 0.075. The 49 coordinate-shuffled replicates yielded 4 to 12 domains with ELSA at radius 50
@@ -925,13 +776,13 @@ to our labels, which our pipeline in turn never sees, so they are an independent
 the sense that matters for a positive control.
 
 For transparency we also checked and now state how those labels were derived: by spatially
-constrained clustering, combining a spatial nearest-neighbour graph with an expression
-nearest-neighbour graph, followed by manual labelling of each cluster from its marker genes
+constrained clustering, combining a spatial nearest-neighbor graph with an expression
+nearest-neighbor graph, followed by manual labeling of each cluster from its marker genes
 against a reference embryo atlas. The comparison is thus between two partitions of the same
 tissue section, which is unavoidable, since a concordance check is only meaningful against
 annotations of the same specimen. The two partitions are nonetheless built from very
-different features, theirs from binned expression across all genes and ours from 1477
-convolved ligand-receptor interaction fields, and the manual labelling step brings in
+different features, theirs from binned expression across all genes and ours from the
+inferred interaction fields of 1477 ligand-receptor pairs, and the manual labeling step brings in
 anatomical knowledge from outside the dataset. We note in the manuscript that the two
 controls answer different questions: the coordinate shuffle asks whether the structure is
 real, and the concordance comparison asks whether the structure that survives is anatomically
@@ -955,47 +806,74 @@ The appropriate conclusion is that the emergent domains recover major anatomical
 while resolving additional substructure, not that they reproduce the anatomical
 segmentation.
 
-\subsubsection*{A pair-shuffling control we ran but do not report}
+\subsubsection*{Control C: ligand-receptor pair shuffling}
 
-We also implemented the ligand-receptor pair shuffling control the reviewer suggests,
-scrambling the assignment of receptors to ligands while holding the fitted fields, the feature
-dimensionality, and the clustering procedure fixed. We are not reporting a result from it, and
-the reason is worth stating rather than passing over in silence.
+We also ran the pair-shuffling control the reviewer suggests. Receptors were reassigned to
+ligands at random, and any reassigned pair that coincided with a real FANTOM5 pairing, or
+paired a gene with itself, was then repaired by targeted swaps, so that no shuffled set
+retained a real pair. The set of receptors is unchanged, so every shuffled set is built from
+exactly the same fitted fields as the true pairing, and only the pairing differs. Each
+shuffled set then passed through the same convolution, clustering and scoring as the true
+pairing.
 
-As run, the comparison could not distinguish signal from noise. The clustering configuration we
-used at the time built its nearest-neighbour graph across four threads without a fixed seed,
-and under concurrent insertion the graph depends on the order in which threads finish. Across
-eight replicate runs on identical unshuffled input, ELSA at radius 50 ranged from 0.053 to
-0.067, a standard deviation of 0.0045, with 19 to 22 domains. The scrambled-pairing null across
-99 shuffles had a standard deviation of 0.0053, barely larger, and the difference between the
-true pairing and the scrambled null was about 0.004, smaller than the run-to-run spread. Any
-$p$-value quoted from that comparison would have reflected which draw we happened to take.
+Our first attempt at this control could not separate signal from noise: it used the faster
+clustering implementation described below in a configuration that did not reproduce exactly
+between runs, and the difference between the true pairing and the shuffled null was smaller
+than the run-to-run spread. We have since rerun it, in that implementation with a single
+thread and a fixed seed, which makes it exactly reproducible, and separately in Seurat, the
+implementation behind Figures 5 and 6.
 
-We should be clear that this is a limitation of how we ran it, not an inherent one, and we have
-since removed the underlying obstacle. Restricting the graph construction to a single thread
-\emph{and} fixing the random seed makes the clustering exactly reproducible: five replicate runs
-returned bit-identical cluster assignments, and three further runs at a second seed likewise
-agreed exactly. Neither condition suffices alone. The pair-shuffling control could therefore now
-be run to a clean conclusion, by re-running the observed condition and the shuffled null under
-those deterministic settings.
+The true pairing did not produce more spatially coherent domains than shuffled pairings. In
+Seurat, with 19 shuffled sets, ELSA at radius 50 was 0.124 for the true pairing against a
+shuffled mean of 0.093 (standard deviation 0.018), and 17 of the 19 shuffles were more
+coherent than the true pairing. In the faster implementation, with 99 shuffled sets, the
+true pairing sat inside the shuffled distribution, with 24 of the 99 shuffles more coherent.
+The direction of the small difference is not consistent between implementations, and we read
+the result as no detectable effect of the pairing on domain coherence.
 
-We have not done so, for two reasons that we would rather state than dress up. The first is
-cost: it means re-running every condition, and we judged the compute better spent elsewhere in
-this revision. The second is that this is the weakest of the three tests by construction, since
-even a scrambled pairing recombines per-feature fields that are themselves genuinely spatially
-structured, so it probes only an incremental contribution on top of structure the coordinate
-permutation test has already established. If the reviewer considers this control important to
-the argument, we are willing to run it properly and report the result.
+That is not the same as the pairing carrying no information. True pairings produced 1449
+numerically distinct interaction fields. This count needs no clustering, so we computed it
+for 9,999 shuffled pairings: they produced 1424 on average (standard deviation 5.9), and only
+one reached 1449 or more, a permutation $p$ of 0.0002. True partners are also more alike in spatial pattern
+than random partners matched for how consistently one partner is the smaller of the two
+(mean Pearson correlation 0.111 against 0.068 across the 1477 pairs; paired $t$-test
+$p = 4 \times 10^{-21}$), although even random partners are positively correlated, so the
+pairing-specific part is modest. Our working interpretation, which we have not tested
+directly, is that the common-minimum operator on raw counts passes little of this
+information on to the clustering: for 42.6\% of pairs the same partner is the smaller one at
+more than 95\% of locations, so the interaction field is largely that partner's field.
 
-The two controls we do report are unaffected by any of this. Their effect sizes are far larger
-than the run-to-run spread, and the concordance comparison comes from fixed stored labels rather
-than a fresh clustering.
+We have reported this control in a new Results subsection, and added a paragraph to the
+Discussion stating the limit it places on our conclusions: the domains reflect the collection
+of fitted ligand and receptor fields, not the specific pairings. We think this is the most
+useful thing the control tells a reader, and we would rather state it than leave the
+reviewer to infer it.
+
+\subsubsection*{Reproducibility of the clustering, and which implementation was used where}
+
+Two implementations of the clustering step appear in this work, and we have made explicit in
+the manuscript which was used where and how reproducible each is. Figures 5 and 6 were clustered with Seurat. Control A, and one arm of Control C,
+were clustered with a faster implementation of the same two steps (an RcppHNSW
+nearest-neighbor graph followed by Louvain clustering in igraph), because Control A needed
+the clustering repeated for every permuted dataset. The two give ELSA values on different
+scales, so each control compares observed and null within one implementation, and the
+manuscript now says which was used where.
+
+The faster implementation is exactly reproducible with a single thread and a fixed seed, and
+not otherwise: across eight replicate runs on identical input with four threads and no seed,
+ELSA at radius 50 ranged from 0.053 to 0.067. For Seurat we have not established exact
+reproducibility. As an indirect check, an independently written script re-ran the published
+feature-depth sweep at six depths and at full depth: mean ELSA at radius 50 was within 0.012
+of the published value at every depth, and 0.1236 against the published 0.1237 at full
+depth, with 19 domains against the published 20. The manuscript now treats each Seurat
+domain map as a single realization with an approximate domain count.
 
 \subsubsection*{What the controls establish together}
 
 Control A shows that the spatial structure is real rather than an artifact of smoothing.
 Control B shows that the resulting structure corresponds to recognized anatomy, while also
-resolving substructure within it. Together we believe these address the reviewer's question
+resolving substructure within it. Control C shows that this structure does not depend on the
+specific ligand-receptor pairings, which narrows what it says about signaling. Together we believe these address the reviewer's question
 of whether the method finds meaningful structure beyond smoothing, dimensionality, and
 clustering: the coordinate shuffle rules out the smoothing and dimensionality explanations,
 since the shuffled data pass through an identical pipeline of identical dimensionality, and
@@ -1112,10 +990,11 @@ Stating our contribution precisely, and more narrowly than the original submissi
 contribute a generative Bayesian geostatistical treatment of spatialomics data that yields a
 posterior distribution rather than a point estimate for every feature field, an argument for
 modeling raw counts as absolute binding density rather than normalized expression, a
-comparison of convolution operators showing that the common minimum outperforms the product
-operator conventionally used, and the thesis that clustering the full high-dimensional
-signaling field without dimensionality reduction produces tissue domains that correspond to
-anatomy. The combination of a Gaussian process with a Bayesian count likelihood is not
+comparison of convolution operators in which, on this dataset, the common minimum gave more
+clusters and more coherent domains than the product operator conventionally used, and the
+finding that clustering the full collection of inferred interaction fields produces tissue
+domains that correspond to anatomy (though, as Control C shows, not domains that depend on the
+specific ligand-receptor pairings). The combination of a Gaussian process with a Bayesian count likelihood is not
 itself new, and we now say so.
 
 We have also corrected an overstatement of our own that this comparison brought into focus.
@@ -1123,9 +1002,17 @@ Earlier drafts described the uncertainty as propagated through to the interactio
 is not: the convolution and every stage downstream of it operate on posterior medians, so the
 interaction fields we present are point estimates and the domain results carry no propagated
 uncertainty. The posteriors exist and the operators are ordinary functions of the two input
-fields, so this is a computation we have not performed rather than one the framework
-precludes, and the Discussion now says exactly that. We would rather state the limit than
-leave a reader to infer a capability from the presence of the posteriors.
+fields, so this is a computation the framework allows rather than precludes. We have now
+taken the first step of it. Because the ligand and receptor fields are fitted separately,
+their posteriors are independent, and the posterior of each interaction field follows from
+the two stored marginal posteriors without refitting. A new Results subsection and S11 Fig
+compare it with the plug-in fields we used. Relative to the posterior median of the
+interaction, the plug-in field is never lower, and is higher by more than 25\% at 22\% of
+pair-bin combinations, most where neither partner is clearly the limiting one; relative to
+the posterior mean it is lower in most bins, because the posteriors are right-skewed. In
+either case the spatial pattern changes little (median correlation over bins 0.988 with the
+posterior median and 0.967 with the posterior mean). Carrying the posterior through the
+clustering itself remains undone, and the Discussion says so.
 
 All of this now appears in a new Discussion subsection, ``Relationship to existing
 methods,'' and all five works are cited. That subsection also states plainly that we have
@@ -1179,7 +1066,7 @@ counts with an interpretable exposure or offset, the spatial support must be den
 that a Gaussian process is identifiable at the length scales of interest, and at
 single-cell-resolution platforms the binning step we rely on would need to be replaced by an
 explicit treatment of cell geometry. We also note that platforms with substantially sparser
-capture may favour a zero-inflated likelihood, which our Table 1 comparison found
+capture may favor a zero-inflated likelihood, which our Table 1 comparison found
 unnecessary at this sparsity but which the framework accommodates.
 
 The specific changes are as follows. The Abstract previously asserted that ``the general
@@ -1226,6 +1113,11 @@ Discussion, so a reader can see exactly how far the claims are from the measurem
 transcript counts are a proxy for transcript abundance, transcript abundance is a proxy for
 protein abundance, co-localization of ligand and receptor proxies is a proxy for the
 opportunity for interaction, and none of these steps is directly observed here.
+We now also state the scope of the method plainly, in the Abstract and the Discussion: the
+interaction fields estimate the potential for signaling under the co-expression assumption
+standard in cell-cell communication analysis, and we propose them as a proxy for signaling
+rather than a measurement of it. The Discussion also notes that co-presence is assessed
+within a bin of 50 by 50 capture spots rather than at a shared cell surface.
 
 The inferential chain now appears explicitly in the Discussion, in the terms the reviewer
 suggests: transcript counts are a proxy for local transcript abundance; transcript abundance
@@ -1256,9 +1148,9 @@ numbers changed.
 \fi
 
 \noindent In preparing this revision we audited the feature and interaction counts reported
-in the original manuscript against the analysis outputs, and found two errors that we have
-corrected throughout. We report them here because they change numbers that appear in the
-text, in Table 1, and in Figure 6.
+in the original manuscript against the analysis outputs, and found errors that we have
+corrected throughout. We report them here because they change numbers and statements that
+appear in the text, in Table 1, and in Figures 5 and 6.
 
 First, the attrition from the curated feature list was not described. The list contains 918
 ligand or receptor genes. Three (\emph{a}, \emph{Calcb}, \emph{Cckar}) were excluded before
@@ -1288,20 +1180,46 @@ for the 918-gene list either: 1493 FANTOM5 pairs have both partners among the 91
 genes. We have corrected the count wherever it appears, including the upper limit of the
 feature-depth sweep in Figure 6.
 
-We do not think this materially affects the results. The duplication gives four of 1477
-interactions twice their intended weight in a scaled clustering over more than a thousand
-dimensions, and it applies equally to every point in the analysis, so it cannot create
-spatial structure. We have not attempted to quantify the difference by re-running the
-clustering without the duplicates, because the configuration used for the published run did
-not reproduce exactly between runs (see our response to R2.8), so a single re-run would not
-isolate an effect of this size from run-to-run variation. It could now be isolated, by
-running both versions under the fixed thread count and seed that make the clustering exactly
-reproducible, but the effect is bounded above by the weight four duplicated dimensions can
-carry out of 1477 and we did not judge it worth the compute.
+We do not expect this to affect the results materially, but we have not measured it directly.
+The duplication gives four of the 1477 interactions twice their intended weight in a clustering
+over more than a thousand scaled dimensions. As an indirect check, a re-run of the full-depth
+clustering without the duplicated columns, by an independently written script, gave a mean
+ELSA at radius 50 of 0.1236 against the published 0.1237, and 19 domains against 20. Because
+we have not established that the Seurat clustering is exactly reproducible (see R2.8), that
+comparison bounds the combined effect of the duplication and of run-to-run variation rather
+than isolating the duplication. The manuscript now discloses the duplication in the Materials
+and methods.
 
 Both corrections have been applied to every occurrence in the manuscript text, in the
 Table 1 caption, and in the Figure 6 caption, and to the panel labels inside the Figure 6
 image, which previously read ``1481 Features''.
+
+Re-deriving the feature-depth experiment (Figure 6) from its saved outputs also showed that
+three statements about it were wrong, and we have corrected them.
+
+The caption said that domains become more numerous as features are added. They become fewer:
+33 at 10 features, 24 at 150, and between 16 and 21 from 350 onward. The Results said that the
+full feature set gave the greatest spatial coherence of the depths swept. Five deeper depths
+(1200 to 1450 features) scored slightly better, although differences of that size are close to
+what a re-run of the clustering can produce. The Results also said that clustering without
+principal-component analysis gave the greatest complexity and coherence of the configurations
+swept. We found no matched comparison with and without principal-component analysis in our
+analysis record, so we have removed that claim and now say only that the clustering was run
+without it.
+
+Because the published experiment admitted features in order of variance, it confounded the
+number of features with which features they were. We have added a control that admits random
+subsets of the same sizes (19 per depth). Mean ELSA at radius 50 then falls steadily with
+depth, from 0.372 at 10 features to 0.120 at 1000, with most of the change by a few hundred
+features. The rise and fall of coherence in the published curve does not appear with random
+subsets, which suggests it reflects the order of admission rather than the number of
+features. Both results are now in the Results.
+
+Finally, the Figure 5 caption and text said that the common minimum gave the most clusters at
+the lowest spatial entropy of the operators tested. It gave the most clusters, but the
+geometric mean had slightly lower spatial entropy (ELSA 0.047 against 0.050 at radius 100), a
+difference within run-to-run variation. The text now says so, and no longer ranks those two
+operators on coherence.
 
 
 \end{document}

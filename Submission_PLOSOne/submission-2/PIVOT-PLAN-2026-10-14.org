@@ -1,0 +1,194 @@
+#+TITLE: Plan: pivoting the PLOS One revision to uncertainty-aware comparison of signaling fields
+#+DATE: 2026-10-14
+
+Companion to =HANDOFF-2026-10-14.org=, which has the orientation a new agent needs. This file is
+the plan itself, in execution order.
+
+* The new message, in one paragraph
+
+Ligand-receptor signaling fields estimated from spatial transcriptomics are routinely read by
+eye: "the signaling field looks different in these two areas". Our model gives every gene field
+a full posterior, and therefore every signaling field too. With it we can ask whether apparent
+differences are supported by the data, and we find places where fields that look different are
+not credibly different, and places where fields that look alike are. We show this for areal
+averages over regions, for one-dimensional slices through the tissue, and for whole fields,
+using joint (simultaneous) inference as the primary answer. Signaling fields (common-minimum
+convolutions) are the primary target, at Sam's request; one gene-field example shows the same
+machinery on a single gene.
+
+Scope stays modest: one tissue section, one platform. These are demonstrations of what the
+framework allows, not biological findings.
+
+* Decisions taken (AOZ, 2026-10-14)
+
+1. Full pivot: the uncertainty-aware comparisons become the paper's central result. The domain
+   clustering and pair-shuffle material shrinks to a shorter section plus Supporting
+   Information.
+2. Regions: a few fixed simple boxes, and a few regions from the published anatomical
+   annotation (Chen et al. 2022, MOSTA). Never our own clustering domains, because those were
+   derived from the same data being compared (double dipping).
+3. Scale: compare rates per unit of total counts (the model's =lambda=), not expected counts,
+   so differences in sequencing depth between regions cannot masquerade as biology.
+4. Both same-field comparisons (one signaling field in two regions or two slices) and
+   cross-field comparisons (two different signaling fields, or two genes).
+5. Joint inference is primary, using excursion sets (R package =excursions=, Bolin and
+   Lindgren); pointwise intervals are secondary, used only to show where a difference lies.
+6. "Looks similar but differs" is reported with the size of the difference, never as a
+   finding on its own.
+7. A systematic version across all signaling fields runs on klone.
+8. Signaling fields are primary; show one gene-field example as well.
+
+* Two technical points the plan rests on
+
+** Scaling, for cross-field comparisons
+
+Two different scalings, doing different jobs:
+
+- *Per unit of total counts* (decision 3). Divides each bin's value by that bin's total count.
+  Removes variation in sequencing depth *across locations*. The model already provides this as
+  =lambda=, the expected count per UMI.
+- *By the field's own spatial average.* Divides a whole field by its average over the tissue.
+  Removes the field's *overall level*, which for different genes or different ligand-receptor
+  pairs mostly reflects capture efficiency and abundance. Concrete case: if field A is
+  everywhere about 10 times field B, comparing raw values says "A is higher" at every
+  location, which is true but uninformative. After dividing each by its own average, the
+  comparison asks whether their *spatial patterns* differ.
+
+Same-field comparisons need only the first. Cross-field comparisons need both: first the rate,
+then each field divided by its own tissue average, computed within each posterior draw so the
+uncertainty of the average is carried through.
+
+Useful identity: both partners share the same total count at a bin, so
+=min(N*a, N*b) = N*min(a, b)=. The rate-scale signaling field is the published count-scale
+field divided by total counts; nothing about the operator changes.
+
+** Why joint posterior draws are needed, and how to store them
+
+Areal averages, slices and whole-field comparisons depend on how uncertainty is correlated
+between locations, which per-bin summaries cannot give. The fitted models were never saved
+(=02-array-run-model.R:733= is commented out), so genes must be refit with joint draws
+(inlabru =generate()= on the fit, same model specification). A signaling field's posterior
+comes from taking the minimum of a ligand draw and an independent receptor draw (the two genes
+are fitted separately, so their posteriors are independent).
+
+Storage: draws at every bin for every gene would be about 1,000 draws x 26,000 bins x 790
+genes, roughly 160 GB as double precision (computed, not measured; 790 = genes needed by the
+1,477 pairs). So, for the systematic run, store float32 draws only at the bins inside the
+fixed regions and along the fixed slices, plus full-field draws for the few genes in the
+showcase examples. Region averages of a signaling field must be computed from bin-level draws
+of both partners, because the average of a minimum is not the minimum of averages.
+
+* The plan, in execution order
+
+** Phase 0. Housekeeping (before any new analysis)
+
+1. Commit the 2026-10-08 work (pending AOZ's yes; see the handoff).
+2. Create the branch =uncertainty-pivot= from =main= for the new work.
+
+** Phase 1. Focused novelty check (about an hour)
+
+Search for spatial-omics methods that report posterior uncertainty for expression or
+ligand-receptor fields and use it for comparisons (Bayesian spatially-variable-gene methods,
+Bayesian deconvolution, GP-based methods, cell-communication methods with uncertainty).
+Output: =code-spatial-smoothing/uncertainty/novelty-uncertainty.org= with every claim tied to a citation that was actually
+read. Gate: if a close precedent exists, bring it to AOZ before Phase 3, since it changes the
+framing.
+
+** Phase 2. Freeze the design before seeing results
+
+Write =code-spatial-smoothing/uncertainty/DESIGN.org= and commit it before running comparisons. It fixes:
+
+1. The boxes: about four, coordinates in the 200 x 130 bin grid.
+2. The anatomical regions: about four, from =controls/e16-fov-annotation.csv=.
+3. The slices: about four line transects, endpoints in bin coordinates.
+4. The showcase signaling fields (two or three ligand-receptor pairs) and the one gene field.
+5. The operational meaning of "looks different": a threshold on the plug-in relative
+   difference between the two regional averages. Propose a value with five concrete example
+   pairs to AOZ and let him rule on them, rather than asking for a number in the abstract.
+6. The naive comparator (see "Comparators" below).
+7. The number of posterior draws, set from the pilot (Phase 3).
+
+Freezing this first means the examples cannot be picked after seeing which ones come out
+dramatic. Any later change is recorded with its reason.
+
+** Phase 3. Local pilot (a few hours)
+
+1. Install =excursions= into the =emacs-r= container's user R library (AOZ approved the use
+   of excursions on 2026-10-14).
+2. Write a fidelity table: published fitting procedure against the refit, row by row (data,
+   mesh, priors, offset, likelihood, sampling), each row SAME or CHANGED with an argument.
+3. Refit the genes behind the showcase pairs (four to six genes, about 140 s each), with
+   joint draws. Check that each refit reproduces the saved posterior medians, within Monte
+   Carlo error, before using its draws.
+4. Build and test the comparison functions:
+   - areal-average contrast: posterior of the difference (same field) or of the
+     shape-normalized difference (cross field) between two regions;
+   - slices: pointwise bands and a simultaneous band, and excursion functions for the
+     difference along the slice;
+   - whole fields: excursion sets for the difference between two fields, positive and
+     negative separately.
+5. Run the naive comparators on the same examples.
+6. Produce draft figures. Bring them to AOZ before Phase 4.
+
+** Phase 4. Systematic run on klone
+
+1. Adapt =controls/control-B-klone.R= (which refit all genes on the cluster for the
+   coordinate-shuffle control) to fit each needed gene on the real data and write float32
+   draws for the frozen region and slice bins.
+2. Measure one task first (=sacct= MaxRSS and Elapsed); size the array from that (MaxRSS x 2,
+   Elapsed plus buffer). Use =ckpt= with =--requeue=, a throttled array, one CPU per task with
+   thread variables pinned to 1. Write intermediate files to node-local =$TMPDIR=.
+3. Second stage, per pair: combine ligand and receptor draws, compute every frozen comparison,
+   write a small summary table.
+4. Tabulate: across all pairs and region or slice pairs, how often the plug-in fields differ by
+   more than the threshold while the joint posterior does not support a difference, and how
+   often they look alike while it does. Report with sizes, not only counts.
+
+** Phase 5. Rewrite
+
+Proposed outline:
+
+1. Abstract and Introduction rebuilt around the new message.
+2. Methods: model (largely as now); posterior of signaling fields; regions and slices;
+   areal averages, slices and joint excursion sets; naive comparators.
+3. Results:
+   1. the model, and raw counts with an offset (Figs 3 and 4 as now);
+   2. signaling fields carry uncertainty: plug-in against posterior (the 2026-10-08 result);
+   3. regional comparisons, same field and cross field, against the naive readings;
+   4. slices;
+   5. whole-field comparisons with excursion sets;
+   6. systematic tabulation;
+   7. a shortened section on domains, with the three controls and the pairing result.
+4. Discussion: what the uncertainty adds, limits (one section; lognormal and Gaussian
+   approximations; INLA's approximation of the joint posterior), and the pairing caution.
+5. Response letter: explain the reframing as a response to the novelty and positioning comments
+   (R1.1, R2.10) and the generality comment (R2.11); update every response whose text moved.
+
+** Phase 6. Review and submission
+
+Sam and AOZ review; Sam also reviews the graphical abstract (to be redone for the new
+message) and Figs 1 and 2. Then the existing upload mechanics: =\embedfigsfalse=,
+=\draftmodefalse=, =export-submission-figures.sh=, cover letter.
+
+* Comparators, and why they are needed
+
+Our posterior intervals alone show what our method says. To show it changes conclusions, each
+example also shows how people answer the same question without it:
+
+1. *Eyeballing the point-estimate maps*, which is how signaling fields are usually read.
+2. *A naive test treating bins as independent observations*: for example, compare the
+   regional values bin by bin with a t-test or Wilcoxon test. Neighboring bins are strongly
+   correlated (the fitted correlation length is about 10 bins), so this test acts as if it had
+   far more independent data than it does and calls too many differences significant.
+
+The core demonstration is a case where the map looks different and the naive test agrees, but
+the joint posterior says the data do not support it. The reverse case is reported with its
+size.
+
+* Risks
+
+- The editor may treat a reframed revision as a substantially new paper and send it back to
+  the reviewers. PLOS One judges technical soundness rather than novelty, which helps.
+- INLA's joint posterior is itself an approximation; say so.
+- If the novelty check finds a close precedent, the framing needs revisiting.
+- Rough guess, not costed in detail: one to two weeks of work in total. Deadline: December 2026.

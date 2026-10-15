@@ -1,7 +1,7 @@
 #+TITLE: Handoff: PLOS One revision, PONE-D-26-04349
 #+DATE: 2026-09-07
 
-Supersedes HANDOFF-2026-09-01.org, which supersedes HANDOFF.md (2026-08-04). This file is
+SUPERSEDED by HANDOFF-2026-10-14.org (uncertainty pivot); read that instead. Supersedes HANDOFF-2026-09-01.org, which supersedes HANDOFF.md (2026-08-04). This file is
 self-contained: you do not need to read the older two except for build mechanics, which
 live in HANDOFF.md's "Build" section and have not changed.
 

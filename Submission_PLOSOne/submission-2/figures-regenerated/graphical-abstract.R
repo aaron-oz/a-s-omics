@@ -96,7 +96,7 @@ L <- rbind(rep(1, 12),
            c(rep(2, 7), rep(4, 5)),
            c(rep(5, 3), rep(6, 3), rep(7, 3), rep(8, 3)))
 layout(L, heights = c(0.30, 1.5, 1.5, 1.2))
-par(omi = c(0.05, 0.05, 0.05, 0.05))
+par(omi = c(0.05, 0.05, 0.05, 0.05), family = "Liberation Sans")
 
 ## 1 title
 par(mar = c(0, 0, 0, 0)); plot.new()

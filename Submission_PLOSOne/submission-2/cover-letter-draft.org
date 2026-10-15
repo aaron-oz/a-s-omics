@@ -1,0 +1,60 @@
+#+TITLE: Cover letter for the revision: DRAFT for AOZ and MSBR
+#+DATE: 2026-10-08
+
+Drafted 2026-10-08 so the submission is not blocked on it. Two things to settle before it goes:
+
+1. Who signs. The original cover letter (2026-01-22) was from MSBR on Yale letterhead; this
+   draft is written for both authors, with MSBR as corresponding author as before.
+2. The submission date, and whether to thank the editor for one extension or two (the
+   repository records the 2026-08-21 extension; the December one was granted later).
+
+The funding text below is the existing Funding Statement, copied unchanged from the round-1
+decision letter (=submission-1/reviewer-comments-round-1.txt=, line 53). It was also the text
+in the original Acknowledgments, which is why the journal flagged it; only its location
+changed.
+
+-----
+
+Dear Dr. D'Acquisto,
+
+Please find attached our revised manuscript, "Spatial Modeling of Tissues for Morphogenic Field
+Analysis" (PONE-D-26-04349), together with a point-by-point response to the reviewers and a
+version of the manuscript with changes marked. We thank you and the reviewers for a careful
+review, and you for the extensions that made a thorough revision possible.
+
+The response letter addresses every comment from the journal, the academic editor and both
+reviewers. In summary:
+
+- At Reviewer 2's request we added controls. Refitting the whole pipeline on spatially permuted
+  data collapses the tissue domains; the domains agree well above chance with the anatomical
+  annotation published independently for the same section; and, in the third control the
+  reviewer suggested, shuffling which receptor is paired with which ligand does not make the
+  domains less coherent. We report that last result in full, together with the limit it places
+  on our conclusions.
+- We rewrote the model specification, added a supplementary table mapping every mathematical
+  symbol to the code that implements it, documented the analysis repository for reproduction,
+  and rebuilt the figures from scripts at the journal's page size.
+- In re-deriving our results from the archived outputs we found and corrected several errors of
+  our own, including two feature counts, the direction of one figure caption, and two claims
+  in the Results that our saved data did not support. These are listed under "Additional
+  corrections" in the response letter.
+- We have narrowed the paper's claims to match the evidence: the method is demonstrated on one
+  field of view, and the inferred fields estimate the potential for signaling rather than
+  measuring it.
+
+Funding Statement, unchanged in content; it now appears only in the Funding Statement and no
+longer in the manuscript text:
+
+#+BEGIN_QUOTE
+This work was supported by T32GM086287 from the NIGMS, and laboratory startup funds from the
+Yale School of Medicine, the Yale Department of Anesthesiology, and Bucknell University. The
+opinions expressed are those of the authors and do not necessarily represent the thoughts or
+opinions of NIGMS, NIH, or the United States government. The funders had no role in study
+design, data collection and analysis, decision to publish, or preparation of the manuscript.
+#+END_QUOTE
+
+Thank you for your consideration.
+
+Sincerely,
+
+Micha Sam Brickman Raredon and Aaron Osgood-Zimmerman

@@ -76,7 +76,7 @@ cbar <- function(zlim, i, ncol, H) {
   plot.new()
   image.plot(zlim = zlim, legend.only = TRUE, horizontal = TRUE, col = COLS,
              smallplot = c(x0, x1, y0, y1),
-             axis.args = list(cex.axis = 0.60, mgp = c(3, 0.20, 0), tcl = -0.14))
+             axis.args = list(cex.axis = 0.70, mgp = c(3, 0.25, 0), tcl = -0.14))
 }
 
 ## Units live in the column headers rather than under the colour bars. Labelling the bars
@@ -95,7 +95,7 @@ rowlab <- function(labs, nrow, H) {
 ## ------------------------------------------------------------------ Figure 3
 g <- solve_h(3, 3); H3 <- g$H
 png(file.path(odir, "Fig3-composite.png"), width = W, height = H3, units = "in", res = DPI)
-par(omi = OMI, mai = MAI, mfrow = c(3, 3)); LAB <- 1
+par(omi = OMI, mai = MAI, mfrow = c(3, 3), family = "Liberation Sans"); LAB <- 1
 
 obs_raw <- d$feat.count; obs_norm <- d$feat.count / d$total.count; tot <- d$total.count
 est_raw <- d$mean;       est_norm <- d$mean / d$total.count
@@ -114,7 +114,7 @@ dev.off()
 ## ------------------------------------------------------------------ Figure 4
 g4 <- solve_h(4, 4); H4 <- g4$H
 png(file.path(odir, "Fig4-composite.png"), width = W, height = H4, units = "in", res = DPI)
-par(omi = OMI, mai = MAI, mfrow = c(4, 4)); LAB <- 1
+par(omi = OMI, mai = MAI, mfrow = c(4, 4), family = "Liberation Sans"); LAB <- 1
 
 dens <- lapply(list(poi, zip, zap), function(o) as.data.table(o$lambda)$mean)
 cnts <- lapply(list(poi, zip, zap), function(o) as.data.table(o$expect)$mean)
@@ -130,13 +130,9 @@ for (i in 1:3) {
 panel(as.numeric(d$feat.count > 0), c(0, 1)); panel(d$feat.count / d$total.count, zl_dens)
 panel(d$feat.count, zl_cnt)
 ## the bottom-right panel is the nUMI, as in the published figure. It is on a different scale
-## from the counts column above it, so it carries its own bar rather than sharing one.
-fields::quilt.plot(d$x, d$y, d$total.count, nx = nx, ny = ny, asp = 1, xlab = "", ylab = "",
-                   axes = FALSE, col = COLS, legend.width = 0.7, legend.mar = 3.0,
-                   legend.cex = 0.5, axis.args = list(cex.axis = 0.5))
-box(lwd = 0.5, col = "grey35")
-usr <- par("usr"); text(usr[1] + 0.028 * diff(usr[1:2]), usr[4] - 0.055 * diff(usr[3:4]),
-                        LETTERS[LAB], adj = c(0, 1), font = 2, cex = 1.0)
+## from the residual column above it; it is drawn on the same scale as Fig 3C (same data), and
+## the caption says so, rather than carrying a bar of its own that would not fit the page.
+panel(d$total.count, range(d$total.count))
 colhead(c("P(non-zero)", "Density (counts/nUMI)", "Counts", "Residual (obs - model)"))
 rowlab(c("Poisson", "ZIP", "ZAP", "Observed"), 4, H4)
 cbar(c(0, 1), 1, 4, H4);   cbar(zl_dens, 2, 4, H4)

@@ -1,28 +1,28 @@
 # Review copies: start here
 
 Snapshot PDFs of the current revision, committed so co-authors can open them directly from
-GitHub without setting up LaTeX. All four were rebuilt 2026-08-06, with zero errors and zero
-undefined references.
+GitHub without setting up LaTeX. Files 1-3 were rebuilt 2026-10-08 (file 4 is unchanged since 2026-07-30), with zero errors
+and zero undefined references.
 
 Read them in this order:
 
 | File | Pages | What it is |
 |---|---|---|
-| `1_Revised-Manuscript_clean.pdf` | 29 | The revised manuscript as it would be read |
-| `2_Revised-Manuscript_track-changes.pdf` | 30 | The same, versus the round-1 submission. Deletions struck through in red, insertions underlined in blue |
-| `3_Response-to-Reviewers.pdf` | 22 | Point-by-point response. **The "Open items" section on page 2 is the single list of everything still outstanding** |
+| `1_Revised-Manuscript_clean.pdf` | 32 | The revised manuscript as it would be read |
+| `2_Revised-Manuscript_track-changes.pdf` | 34 | The same, versus the round-1 submission. Deletions struck through in red, insertions underlined in blue |
+| `3_Response-to-Reviewers.pdf` | 21 | Point-by-point response. The "Open items" section near the start lists what is still outstanding |
 | `4_S9-Table_notation-to-code.pdf` | 4 | New supplementary table mapping each mathematical symbol to the script and line implementing it (R2.2) |
 
 If you are picking this work up rather than reviewing it, start instead with
-`../HANDOFF.md`, which carries the current state, what remains, and the claims that were
-corrected during the revision.
+`../REVISION-SUMMARY-2026-10-08.org`, a plain-language account of all the revision work and
+where it has landed.
 
 Also worth a look, outside this directory:
 
-- `../figures-regenerated/` — Figures 3 and 4 regenerated at correct 1:1 aspect, plus the 22
-  individual sub-panels in `panels/` for Illustrator re-assembly, and `README-panels.md`
-  explaining where each goes. For Raredon.
-- `../supporting-information/README-supporting-information.md` — measured inventory of S1
+- `../figures-regenerated/` - Figures 3 to 6 and the graphical abstract, each built by a
+  script there, at correct 1:1 aspect and with 8 pt or larger type at printed size.
+- `../supporting-information/` - S9 Table, S10 Fig and S11 Fig, staged for upload.
+- `../supporting-information/README-supporting-information.md` - measured inventory of S1
   through S9 and the Supporting Information decision that needs making.
 
 ## Two caveats when reading the track-changes copy
@@ -33,9 +33,8 @@ Also worth a look, outside this directory:
    switch suppresses markup within math displays. The equation change is described in words
    under R2.1 in the response letter.
 
-2. **Figures 5 and 6 are temporarily scaled down** so their long new captions fit on the page.
-   That works against R1.3, which asks for larger figures, and is a stopgap for the reviewable
-   PDF only. It gets undone when the figures are regenerated or stripped for upload.
+2. **Figures 5 and 6 are scaled down in these PDFs** so each shares a page with its long
+   caption. This affects the review PDFs only; the journal receives full-size TIFFs.
 
 ## Screen quality, NOT submission quality
 

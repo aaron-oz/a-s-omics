@@ -6,6 +6,8 @@
 ## Split out here because they need only the small Sup6 objects, not the five large Seurat
 ## assays that the map panels require.
 ##
+## Revised 2026-10-08: rendered at printed size (3.3 in wide) with 8 pt type.
+##
 ## Run: distrobox enter emacs-r -- Rscript fig5-summary-panels.R
 
 suppressMessages({library(ggplot2); library(tidyr); library(ggrepel)})
@@ -15,7 +17,7 @@ sup6 <- file.path(repo, "Supplements for Publication/Sup6 - ELSA Analysis")
 pdir <- file.path(repo, "Submission_PLOSOne/submission-2/figures-regenerated/panels-fig5")
 
 dark <- function() {
-  theme_minimal(base_size = 11) +
+  theme_minimal(base_size = 8, base_family = "Liberation Sans") +
     theme(plot.background  = element_rect(fill = "black", colour = NA),
           panel.background = element_rect(fill = "black", colour = NA),
           panel.grid.major = element_line(colour = "grey22", linewidth = 0.25),
@@ -26,7 +28,9 @@ dark <- function() {
           legend.background = element_rect(fill = "black", colour = NA),
           legend.key = element_rect(fill = "black", colour = NA),
           legend.text  = element_text(colour = "grey85"),
-          legend.title = element_text(colour = "grey90"))
+          legend.title = element_text(colour = "grey90"),
+          legend.key.height = unit(0.1, "in"), legend.spacing.y = unit(0, "in"),
+          legend.margin = margin(0, 0, 0, 0))
 }
 
 e1 <- new.env(); load(file.path(sup6, "assay.mean.elsa.trends.2025-07-27.Robj"), envir = e1)
@@ -40,19 +44,19 @@ td <- pivot_longer(td, cols = -param_d, names_to = "assay", values_to = "elsa")
 td <- td[td$assay %in% keep, ]
 
 p_d <- ggplot(td, aes(param_d, elsa, colour = assay, group = assay)) +
-  geom_line(linewidth = 0.6) + geom_point(size = 1.1) + ylim(0, NA) +
-  labs(x = "ELSA neighbourhood radius (param_d)", y = "mean ELSA", colour = NULL) +
+  geom_line(linewidth = 0.4) + geom_point(size = 0.6) + ylim(0, NA) +
+  labs(x = "ELSA neighborhood radius (param_d)", y = "mean ELSA", colour = NULL) +
   scale_colour_brewer(palette = "Set2") + dark()
 ggsave(file.path(pdir, "Fig5_summary_elsa-vs-paramD.png"), p_d,
-       width = 6.5, height = 2.6, dpi = 300, bg = "black")
+       width = 3.3, height = 1.75, dpi = 600, bg = "black")
 
 p_n <- ggplot(scat, aes(num.clust, elsa)) +
-  geom_point(size = 2.4, colour = "grey70") +
-  geom_point(data = scat[scat$assay == "m.est.min", ], size = 3.4, colour = "#E4572E") +
+  geom_point(size = 1.0, colour = "grey70") +
+  geom_point(data = scat[scat$assay == "m.est.min", ], size = 1.6, colour = "#E4572E") +
   geom_text_repel(data = scat[scat$assay %in% keep, ], aes(label = assay),
-                  size = 2.5, colour = "grey85", max.overlaps = 20, segment.colour = "grey45") +
+                  size = 8 / .pt, family = "Liberation Sans", colour = "grey85", max.overlaps = 20, segment.colour = "grey45", segment.size = 0.2) +
   ylim(0, NA) + labs(x = "number of clusters", y = "mean ELSA (d = 100)") + dark()
 ggsave(file.path(pdir, "Fig5_summary_elsa-vs-numclust.png"), p_n,
-       width = 6.5, height = 2.6, dpi = 300, bg = "black")
+       width = 3.3, height = 1.75, dpi = 600, bg = "black")
 
 cat("rebuilt both Figure 5 summary panels on a dark ground\n")

@@ -9,6 +9,8 @@
 ## Loads only the l.est and r.est assays, not the three operator assays that the interaction
 ## panels need.
 ##
+## Revised 2026-10-08: rendered at printed size (0.73 in wide) so the 8 pt titles print at 8 pt.
+##
 ## Run: distrobox enter emacs-r -- Rscript fig5-input-panels.R
 
 suppressMessages({library(Seurat); library(ggplot2)})
@@ -28,13 +30,15 @@ meta <- lig@meta.data
 panel <- function(values, title, thresh) {
   d <- cbind(meta[, c("x","y")], v = as.numeric(values))
   ggplot(d, aes(x, y, colour = v)) +
-    geom_point(shape = 15, size = 0.45) +
+    geom_point(shape = 15, size = 0.035) +
     scale_colour_viridis_c(option = "A", guide = "none",
                            limits = c(0, thresh * max(d$v, na.rm = TRUE)),
                            oob = scales::squish) +
     coord_fixed(ratio = 1) + ggtitle(title) +
     Seurat::DarkTheme() + Seurat::NoAxes() +
-    theme(plot.title = element_text(size = 9, colour = "white"),
+    theme(text = element_text(family = "Liberation Sans"),
+          plot.background = element_rect(fill = "black", colour = NA),
+          plot.title = element_text(size = 8, colour = "white", hjust = 0.5),
           plot.margin = margin(1, 1, 1, 1),
           panel.grid = element_blank(), panel.border = element_blank(),
           panel.background = element_blank(), axis.line = element_blank())
@@ -47,9 +51,9 @@ for (m in MECHS) {
   ## one file per mechanism, not one per operator column: these panels are the reason the
   ## duplication was removed from the figure, so duplicating them on disk would be perverse
   ggsave(file.path(pdir, sprintf("Fig5_input_%s_ligand.png", mech)),
-         panel(lc[L, ], L, thr), width = 2.4, height = 1.68, dpi = 300, bg = "black")
+         panel(lc[L, ], L, thr), width = 0.73, height = 0.62, dpi = 600, bg = "black")
   ggsave(file.path(pdir, sprintf("Fig5_input_%s_receptor.png", mech)),
-         panel(rc[R, ], R, thr), width = 2.4, height = 1.68, dpi = 300, bg = "black")
+         panel(rc[R, ], R, thr), width = 0.73, height = 0.62, dpi = 600, bg = "black")
   n <- n + 2
 }
 cat("rewrote", n, "input panels without colour bars\n")

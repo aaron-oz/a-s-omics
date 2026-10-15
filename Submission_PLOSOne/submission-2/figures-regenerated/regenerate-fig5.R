@@ -11,6 +11,12 @@
 ## Nothing is re-clustered. Every panel is drawn from the stored cluster labels and stored
 ## fields of the 2025-07-25/26 run, so the published result is preserved exactly.
 ##
+## Revised 2026-10-08: panels are rendered at the size they print in the transposed composite
+## (compose-fig-5-transposed.py, 6.69 in wide), so type is 8 pt in print as PLOS requires
+## (it was about 3 pt after shrinking). Titles that only repeated the composite's row and
+## column labels are dropped. The per-operator copies of the input panels are no longer
+## written; the composite shows each input once (fig5-input-panels.R).
+##
 ## Run: distrobox enter emacs-r -- Rscript regenerate-fig5.R
 
 suppressMessages({
@@ -41,26 +47,36 @@ cols.global <- unique(c(cols.epi, cols.endo, cols.mes, cols.lymph, cols.myelo,
 load_assay <- function(a) { e <- new.env(); load(file.path(hd, paste0(a, "assay.2025-07-25.Robj")), envir = e); e$temp }
 
 ## The fix. Every spatial panel goes through this.
-spatial_theme <- function(p, title) {
-  p + coord_fixed(ratio = 1) +                       # <- the R2.6 correction for Fig 5
-    ggtitle(title) + Seurat::DarkTheme() + Seurat::NoAxes() +
-    theme(legend.title = element_blank(),
-          plot.title = element_text(size = 10),
+TXT <- 8
+spatial_theme <- function(p, title = NULL) {
+  p <- p + coord_fixed(ratio = 1)                    # <- the R2.6 correction for Fig 5
+  if (!is.null(title)) p <- p + ggtitle(title)
+  p + Seurat::DarkTheme() + Seurat::NoAxes() +
+    theme(text = element_text(family = "Liberation Sans"),
+          plot.background = element_rect(fill = "black", colour = NA),
+          legend.background = element_rect(fill = "black", colour = NA),
+          legend.title = element_blank(),
+          plot.title = element_text(size = TXT, hjust = 0.5),
+          legend.text = element_text(size = TXT),
+          legend.key.width = unit(0.06, "in"), legend.key.height = unit(0.16, "in"),
+          legend.margin = margin(0, 0, 0, 0), legend.box.spacing = unit(0.03, "in"),
+          plot.margin = margin(1, 1, 1, 1),
           panel.grid = element_blank(), panel.border = element_blank(),
           panel.background = element_blank(),
           axis.line = element_blank())   # DarkTheme draws one; drop it so every panel matches
 }
 
-save_panel <- function(p, name, w = 5.2, h = 3.6) {
-  ggsave(file.path(pdir, paste0(name, ".png")), p, width = w, height = h, dpi = 300, bg = "black")
+## final printed sizes in the transposed composite: interaction 1.48 in wide, maps 1.98 in
+save_panel <- function(p, name, w = 1.98, h = 1.36) {
+  ggsave(file.path(pdir, paste0(name, ".png")), p, width = w, height = h, dpi = 600, bg = "black")
   invisible(name)
 }
 
-field_panel <- function(meta, values, title, thresh = 0.25, option = "A") {
+field_panel <- function(meta, values, title = NULL, thresh = 0.25, option = "A") {
   d <- cbind(meta[, c("x","y")], v = as.numeric(values))
   spatial_theme(
-    ggplot(d, aes(x, y, colour = v)) + geom_point(shape = 15, size = 0.45) +
-      scale_colour_viridis_c(option = option,
+    ggplot(d, aes(x, y, colour = v)) + geom_point(shape = 15, size = 0.06) +
+      scale_colour_viridis_c(option = option, n.breaks = 3,
                              limits = c(0, thresh * max(d$v, na.rm = TRUE)),
                              oob = scales::squish),
     title)
@@ -84,21 +100,17 @@ for (op in names(OPERATORS)) {
     L <- m[1]; R <- m[2]; mech <- paste(L, R, sep = "-")
     if (!(mech %in% rownames(cnt))) { message("  skip ", mech, " (absent)"); next }
     thr <- if (mech == "WNT4-FZD6") 0.2 else 0.5
-    save_panel(field_panel(meta_lr, lig_counts[L, ], paste(L, "| l.est"), thr),
-               sprintf("Fig5_%s_%s_ligand", op, mech), w = 3.0, h = 2.1)
-    save_panel(field_panel(meta_lr, rec_counts[R, ], paste(R, "| r.est"), thr),
-               sprintf("Fig5_%s_%s_receptor", op, mech), w = 3.0, h = 2.1)
-    save_panel(field_panel(meta, cnt[mech, ], paste(mech, "|", a), thr),
-               sprintf("Fig5_%s_%s_interaction", op, mech), w = 5.2, h = 3.6)
+    save_panel(field_panel(meta, cnt[mech, ], NULL, thr),
+               sprintf("Fig5_%s_%s_interaction", op, mech), w = 1.48, h = 0.86)
   }
 
   ## ---- middle: the tissue domains this operator produces -------------------------------
   dom <- data.frame(x = meta$x, y = meta$y, cluster = factor(meta$seurat_clusters))
   save_panel(spatial_theme(
-      ggplot(dom, aes(x, y, colour = cluster)) + geom_point(shape = 15, size = 0.45) +
+      ggplot(dom, aes(x, y, colour = cluster)) + geom_point(shape = 15, size = 0.08) +
         scale_colour_manual(values = rep(cols.global, length.out = nlevels(dom$cluster))) +
         guides(colour = "none"),
-      sprintf("%s | %d domains", a, nlevels(dom$cluster))),
+      sprintf("%d domains", nlevels(dom$cluster))),
     sprintf("Fig5_%s_domains", op))
 
   ## ---- below that: the corresponding entrogram -----------------------------------------
@@ -107,42 +119,13 @@ for (op in names(OPERATORS)) {
   ed <- as.data.frame(ev, xy = TRUE); names(ed)[3] <- "ELSA"
   save_panel(spatial_theme(
       ggplot(ed, aes(x, y, fill = ELSA)) + geom_raster() +
-        scale_fill_viridis_c(option = "A", limits = c(0, 1)) +
-        geom_point(alpha = 0),
-      sprintf("%s | entrogram, ELSA d=50", a)),
+        scale_fill_viridis_c(option = "A", limits = c(0, 1), breaks = c(0, 0.5, 1)) +
+        geom_point(alpha = 0)),
     sprintf("Fig5_%s_entrogram", op))
 
   rm(obj, cnt); gc(verbose = FALSE)
 }
 
-## ---- bottom row: the two summary panels, no spatial aspect to correct -------------------
-message("summary panels ...")
-e1 <- new.env(); load(file.path(sup6, "assay.mean.elsa.trends.2025-07-27.Robj"), envir = e1)
-trends <- get(ls(e1)[1], envir = e1)
-e2 <- new.env(); load(file.path(sup6, "scatter.dat.2025-08-07.Robj"), envir = e2)
-scat <- get(ls(e2)[1], envir = e2)
-
-keep <- c("l.est","r.est","m.est.min","m.est.prod","m.est.gm","l","r")
-td <- data.frame(trends); td$param_d <- seq(50, 1000, 50)
-td <- tidyr::pivot_longer(td, cols = -param_d, names_to = "assay", values_to = "elsa")
-td <- td[td$assay %in% keep, ]
-
-p_d <- ggplot(td, aes(param_d, elsa, colour = assay, group = assay)) +
-  geom_point(size = 1.2) + geom_line() + ylim(0, NA) +
-  labs(x = "ELSA neighbourhood radius (param_d)", y = "mean ELSA") +
-  theme_classic() + Seurat::DarkTheme()
-ggsave(file.path(pdir, "Fig5_summary_elsa-vs-paramD.png"), p_d,
-       width = 6.5, height = 3.4, dpi = 300, bg = "black")
-
-sc <- as.data.frame(scat)
-p_n <- ggplot(sc, aes(num.clust, elsa)) +
-  geom_point(size = 2.6, colour = "grey70") +
-  geom_point(data = sc[sc$assay == "m.est.min", ], size = 3.4, colour = "red") +
-  ggrepel::geom_text_repel(data = sc[sc$assay %in% keep, ], aes(label = assay),
-                           size = 2.6, colour = "white", max.overlaps = 20) +
-  ylim(0, NA) + labs(x = "number of clusters", y = "mean ELSA (d = 100)") +
-  theme_classic() + Seurat::DarkTheme()
-ggsave(file.path(pdir, "Fig5_summary_elsa-vs-numclust.png"), p_n,
-       width = 6.5, height = 3.4, dpi = 300, bg = "black")
+## Summary panels: see fig5-summary-panels.R, which owns them.
 
 message("wrote ", length(list.files(pdir, pattern = "[.]png$")), " panels to ", pdir)

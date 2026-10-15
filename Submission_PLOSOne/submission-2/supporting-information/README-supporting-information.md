@@ -1,5 +1,11 @@
 # Supporting Information: what exists, what can be uploaded, what cannot
 
+**Update 2026-10-08.** Three items are staged here for upload: `S9_Table.pdf`,
+`S10_Fig.png` (controls; from `../figures-regenerated/make-controls-figure.R`) and
+`S11_Fig.png` (plug-in interaction fields against their posteriors; from
+`code-spatial-smoothing/uncertainty/jensen-bias-figure.R`). The S1-S8 discussion below is
+from 2026-07-27 and still applies.
+
 Prepared 2026-07-27 for reviewer requirement JR-5 ("Please upload a copy of Supporting
 Information ... which you refer to in your text on page 19").
 
@@ -53,7 +59,7 @@ the links can be revoked or expire and the citation becomes dead.
 
 ## What is in this directory
 
-- `S9_Table.pdf` — the notation-to-code mapping, ready to upload as Supporting Information.
+- `S9_Table.pdf`: the notation-to-code mapping, ready to upload as Supporting Information.
   Built from `../plos-port/S9-notation-to-code.tex`.
 
 Nothing else is staged here, because nothing else is small enough to be worth staging.

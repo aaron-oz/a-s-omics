@@ -5,8 +5,13 @@ AOZ chose, 2026-10-08: report the pair-shuffle result in the response letter, an
 Discussion note that frames it as a limitation of the common-minimum operator on raw counts,
 not as evidence that ligand-receptor pairing carries no spatial information.
 
-Nothing below has been applied yet. The draft text is here for AOZ and MSBR to edit before it
-goes into the letter and manuscript.
+*Status 2026-10-08: applied.* AOZ gave the go-ahead to edit the manuscript. The text that went
+in differs from the drafts below: it leads with the Seurat result (the standing decision that
+reported clustering uses Seurat), it names the test behind the correlation p-value correctly (a
+paired t-test, not Wilcoxon as the table below said), and the manuscript's reproducibility
+section was rewritten at the same time because it had attributed the faster implementation's
+determinism to Seurat. The drafts are kept for the record; the manuscript and letter are the
+source of truth.
 
 * What the pair-shuffle control is
 
@@ -47,7 +52,7 @@ ELSA (entropy-based local indicator of spatial association) is the paper's coher
 lower means cleaner domains. Partner correlation (=cor-true-vs-matched.R=): mean Pearson
 correlation between the two partners' fields is 0.1110 for true pairs against 0.0675 for
 random partners matched on how often each partner is the smaller of the two; paired
-difference +0.0435 over 1,477 interactions, Wilcoxon p = 4.0e-21. Caveat for any use of it:
+difference +0.0435 over 1,477 interactions, paired t-test p = 4.0e-21 (Wilcoxon p = 3.7e-25). Caveat for any use of it:
 even random pairs correlate (Spearman 0.325), so the effect rides on a large shared baseline.
 
 * Draft 1: letter, replaces the subsection "A pair-shuffling control we ran but do not report"
