@@ -1,0 +1,168 @@
+#+TITLE: Frozen design: uncertainty-aware comparisons of signaling and gene fields
+#+DATE: 2026-10-14
+
+Phase 2 of =Submission_PLOSOne/submission-2/PIVOT-PLAN-2026-10-14.org=. This file fixes, before
+any posterior comparison is run, what will be compared and how. Any later change goes in the
+change log at the bottom with its date and reason.
+
+STATUS: DRAFT. Two items are pending AOZ's ruling and are marked PENDING: the "looks different"
+threshold and the showcase selection rule. Everything else is proposed as final.
+
+* What was looked at when choosing
+
+- The MOSTA anatomical annotation (Chen et al. 2022) clipped to our field of view, and the total
+  UMI count per bin. Maps: =design/design-annotation.png=, =design/design-totalcount.png=
+  (script =design/design-maps.R=).
+- For the threshold examples only: the plug-in signaling fields (published common-minimum
+  fields divided by total count) and their regional averages (=design/plugin-ratios.R=,
+  =design/threshold-examples.R=). No posterior spread, no posterior draw and no comparison
+  result has been computed or looked at.
+- Correction to the handoff: the annotation file is
+  =data-outputs/mouse-embryo-raw/controls/e16-fov-annotation.csv=, not under
+  =code-spatial-smoothing/controls/=.
+
+* Grid and notation
+
+Bin indices: i = (x - 15025)/50 + 1, from 1 to 200; j = (y - 11525)/50 + 1, from 1 to 130; x, y
+in chip (DNB spot) units. The single source of truth for every region and slice is
+=design/design-regions.rds=, written by =design/design-regions.R=; later scripts read it and never
+re-derive regions.
+
+For gene g, lambda_g(s) is the rate at bin s (expected count per UMI). For a ligand-receptor pair
+with ligand L and receptor R, the rate-scale signaling field is M(s) = min(lambda_L(s),
+lambda_R(s)). Posterior draws d = 1, ..., D: lambda_L^(d) and lambda_R^(d) come from separate fits,
+so they are independent, and M^(d)(s) = min(lambda_L^(d)(s), lambda_R^(d)(s)).
+
+* Regions
+
+** Fixed boxes (15 x 15 bins = 225 bins each)
+
+Side 15 bins is about 1.5 fitted correlation lengths (correlation length about 10 bins, from the
+handoff, not re-measured here).
+
+| name        | i range | j range | MOSTA label composition         |
+|-------------+---------+---------+---------------------------------|
+| box-heart-1 | 100-114 | 85-99   | Heart 99%, Connective tissue 1% |
+| box-heart-2 | 115-129 | 105-119 | Heart 100%                      |
+| box-liver   | 170-184 | 100-114 | Liver 100%                      |
+| box-cord-1  | 30-44   | 6-20    | Spinal cord 100%                |
+| box-cord-2  | 85-99   | 3-17    | Spinal cord 100%                |
+
+** Anatomical regions (every bin carrying the MOSTA label)
+
+| name             | bins |
+|------------------+------|
+| anat-heart       | 4240 |
+| anat-liver       | 3346 |
+| anat-lung        | 1785 |
+| anat-spinal-cord | 2953 |
+| anat-thymus      |  548 |
+
+Thymus is included as the small region, so region size varies by a factor of about 8.
+
+** Frozen region comparisons (13)
+
+- Same tissue, expected to look alike: box-heart-1 vs box-heart-2; box-cord-1 vs box-cord-2.
+- Different tissue, boxes: box-heart-1 vs box-liver.
+- All 10 pairs of the five anatomical regions.
+
+* Slices (straight transects, one bin per unit step)
+
+| name                  | from (i, j) | to (i, j) | bins | labels crossed, in order                                          |
+|-----------------------+-------------+-----------+------+-------------------------------------------------------------------|
+| slice-cord-to-muscle  | (50, 1)     | (50, 51)  |   51 | meninges, spinal cord, meninges, connective, cartilage, connective, muscle |
+| slice-heart-to-liver  | (85, 95)    | (200, 95) |  116 | heart 54, connective 5, liver 56                                  |
+| slice-along-cord      | (10, 10)    | (150, 5)  |  141 | spinal cord throughout (expected homogeneous)                     |
+| slice-thymus-to-heart | (40, 75)    | (140, 75) |  101 | thymus 35, heart 7, connective 6, heart 51                        |
+
+Overlay: =design/design-regions.png=.
+
+* Fields
+
+- Signaling fields: all 1,477 ligand-receptor pairs of the published clustering, from
+  =controls/sweep/fantom-hierarchy.Robj= (object =output=), 397 distinct ligands and 393
+  distinct receptors.
+- Gene-field example: Cd44, the paper's representative feature (Fig 3), for continuity.
+- Showcase pairs: PENDING (see "Showcase selection rule").
+- Cross-field comparisons are restricted to fields sharing a gene: 4,305 field pairs share a
+  ligand and 7,413 share a receptor (counted from the pair table, 2026-10-14).
+
+* Quantities compared (all on the rate scale, compared as log ratios)
+
+1. *Areal average*, same field: A_R^(d) = (1/|R|) sum over s in R of M^(d)(s). Contrast between
+   regions R1, R2: log A_R1^(d) - log A_R2^(d). Computed from bin-level draws of both partners,
+   because the average of a minimum is not the minimum of averages.
+2. *Shape normalization*, cross field: S^(d)(s) = M^(d)(s) / (mean over all 26,000 bins of
+   M^(d)), computed within each draw so the uncertainty of the tissue average is carried
+   through. Cross-field regional contrast in region R: log A_R(S1)^(d) - log A_R(S2)^(d), i.e.
+   "is field 1 relatively more concentrated in R than field 2?".
+3. *Slices*: (a) same field, log M^(d)(p) - log(mean over the slice of M^(d)) at slice position
+   p, asking whether the field varies along the slice; (b) cross field, log S1^(d)(p) - log
+   S2^(d)(p).
+4. *Whole fields*: (a) cross field, Delta^(d)(s) = log S1^(d)(s) - log S2^(d)(s); (b) Cd44,
+   log lambda^(d)(s) - log(tissue mean of lambda^(d)).
+
+* Inference
+
+- *Primary, joint.* Scalar contrasts (areal averages): 95% equal-tailed posterior interval;
+  "credibly different" if it excludes 0. For a scalar, joint and pointwise coincide. Slices and
+  whole fields: excursion sets from Monte Carlo draws, =excursions::excursions.mc=, level u = 0,
+  alpha = 0.05, positive (type ">") and negative (type "<") separately; slices also get a
+  simultaneous 95% band, =excursions::simconf.mc=.
+- *Secondary, pointwise.* Pointwise 95% intervals, used only to show where a difference lies.
+- *Size, always.* Every result reports the posterior median ratio exp(contrast) and its
+  interval, never "different / not different" alone (AOZ decision 6).
+
+* "Looks different" (plug-in reading): PENDING
+
+Operational definition: the plug-in ratio r = max(a, b) / min(a, b) >= T, with a, b the regional
+averages of the plug-in rate field (published common-minimum field divided by total count).
+Proposed T = 1.5, to be set from AOZ's rulings on five examples
+(=design/threshold-examples.png=, =design/threshold-examples.csv=). Rulings and the final T are
+recorded here once given.
+
+Distribution of r across the 1,477 pairs (plug-in only, =design/plugin-ratios.csv=): median r
+ranges from 1.17 (box-cord-1 vs box-cord-2) to 1.71 (anat-lung vs anat-spinal-cord) across the
+13 frozen comparisons; the share with r >= 1.5 ranges from 15% to 59%.
+
+* Naive comparators
+
+1. *Eyeballing / plug-in*: the threshold above.
+2. *Bins treated as independent*: two-sided Wilcoxon rank-sum test, alpha = 0.05, on the plug-in
+   rate values of the bins in R1 against R2 (same field); paired Wilcoxon signed-rank on plug-in
+   S1 - S2 over the bins of R (cross field).
+3. *Pointwise intervals without multiplicity* for slices and whole fields: a position or bin is
+   called different if its pointwise 95% interval excludes 0.
+
+* Showcase selection rule: PENDING
+
+Proposed (rule fixed before results, using plug-in quantities only, so the verdict is whatever
+the posterior says):
+
+- Three same-field showcases, one each for anat-heart vs anat-liver, box-cord-1 vs box-cord-2,
+  and slice-heart-to-liver: one pair drawn at random (seed 20261015) among pairs with plug-in
+  r >= T and whose plug-in median rate over the union of the two regions is at or above the
+  median across all pairs (to exclude near-empty, speckled fields).
+- One cross-field showcase (regional, slice and whole field): one field pair drawn at random
+  (same seed) among field pairs sharing a ligand where both fields pass the same sparsity filter.
+- Gene field: Cd44.
+
+* Posterior draws
+
+D = 1,000 (matching =predict(..., n.samples = 1000)= in =02-array-run-model.R=), to be confirmed
+by the Phase 3 pilot from Monte Carlo error of the contrasts.
+
+* Novelty check (Phase 1) result
+
+=novelty-uncertainty.org= (agent-run search, 2026-10-14; read levels recorded there). No single
+published method combining model-based posteriors of expression fields, posteriors of signaling
+fields, and joint inference over areal averages, transects and whole fields was found, with the
+caveat that the search was limited and many sources were read at abstract level. Partial
+precedents: Splotch (Aijo et al., bioRxiv 2019; Bayesian region comparisons of gene expression,
+per coefficient, no signaling fields), Mejia et al. (JASA 2020; INLA plus excursion sets, fMRI),
+SHADE (PLOS Comput Biol 2026; simultaneous bands along a distance axis, imaging), SpaceBF (2025;
+per-spot credible intervals for ligand-receptor co-expression).
+
+* Change log
+
+- 2026-10-14: draft written.

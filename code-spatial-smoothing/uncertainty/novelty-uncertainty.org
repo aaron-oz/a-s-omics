@@ -1,0 +1,136 @@
+#+TITLE: Novelty check: posterior uncertainty for spatial expression and signaling fields, used for comparisons
+#+DATE: 2026-10-14
+#+OPTIONS: toc:nil num:nil
+
+* How to read this file
+
+Literature search run 2026-10-14 (about one hour). "Read level" says what was actually opened:
+- "abstract" means only the abstract (from Europe PMC, Crossref, arXiv, or the publisher page) was read.
+- "methods/full text (extraction)" means the page was opened with a web-fetch tool that returns a model-generated extraction of the page text, not a verbatim copy. For long pages the tool covered only the first 100,000 characters; the character counts are given per paper. Quotes below come from that extraction. I did not verify them against a PDF.
+- Venue and year are taken from the page opened or from Europe PMC / Crossref records. Where a claim comes only from a search-result snippet, it is marked "snippet only".
+
+Acronyms: ST = spatial transcriptomics; LR = ligand-receptor; SPDE = stochastic partial differential equation; INLA = integrated nested Laplace approximation; GP = Gaussian process; CAR = conditional autoregressive; BF = Bayes factor; FDR = false discovery rate; SVG = spatially variable gene; DE = differential expression; CCC = cell-cell communication.
+
+* 1. Bottom line
+
+I found no single published method that does what the revised paper proposes, namely (a) a model-based posterior for each gene's expression field on ST data, (b) posterior fields for LR signaling built from the gene fields, and (c) joint (simultaneous) inference to compare areal averages, 1D transects, and whole fields via excursion sets. Pieces exist separately. The closest gene-field precedent is Splotch (Aijo et al., bioRxiv 2019): a fully Bayesian hierarchical model (zero-inflated Poisson with a CAR spatial term, per-spot UMI size factors, Stan sampling) whose posteriors over anatomical-region coefficients are compared between regions with Savage-Dickey Bayes factors; this covers posterior uncertainty on expression and region comparisons, but the comparisons are element-wise (per coefficient, not joint), there are no transects, no whole-field or excursion-set inference, and no signaling fields. The closest precedent for the inferential machinery is Mejia et al. (JASA 2020), who fit latent fields with INLA and used excursion sets on the joint posterior (via the excursions package) to localize activation in cortical-surface fMRI (abstract only); it is not genomics. The closest precedent for simultaneous bands along a 1D axis is SHADE (Eliason et al., PLOS Comput Biol 2026), which reports simultaneous 95% credible bands on spatial interaction curves between cell types in multiplexed imaging and compares cohorts by whether the bands overlap; it is not expression fields or LR signaling. For LR signaling, the Bayesian ST methods I found (SpaceBF, BATCOM, spacia) give posterior summaries for coefficients, with SpaceBF reporting per-spot credible intervals and masking non-credible spots, but none of those I opened builds a posterior for a signaling field and compares fields jointly. The established LR/CCC tools I opened (CytoSignal preprint, SpatialDM, COMMOT) use permutation or analytical null tests and descriptive comparisons, not posterior fields. Caveat: the search was limited (Section 4), several relevant sources were abstract-only or inaccessible, so absence here is "not found", not "does not exist".
+
+* 2. Table of precedents
+
+Columns: "Joint vs pointwise" refers to the uncertainty statements used for comparisons.
+
+| Method | Citation | Uncertainty provided | Used for comparisons, how | Joint vs pointwise | Read level |
+|---|---|---|---|---|---|
+| Splotch | Aijo T, Maniatis S, Vickovic S, Kang K, Cuevas M, Braine C, Phatnani H, Lundeberg J, Bonneau R. "Splotch: Robust estimation of aligned spatial temporal gene expression data." bioRxiv 2019. doi:10.1101/757096 | Full posterior (Stan HMC) over region, spot-neighborhood (CAR), and spot-level terms | Yes: Bayes factors (Savage-Dickey) on region coefficients; "one region vs rest" style contrasts | Element-wise per coefficient; no joint statement stated | Methods/full text (extraction), 100,000 of 104,412 chars |
+| Cortical-surface Bayesian GLM | Mejia AF, Yue YR, Bolin D, Lindgren F, Lindquist MA. "A Bayesian General Linear Modeling Approach to Cortical Surface fMRI Data Analysis." JASA 2020. doi:10.1080/01621459.2019.1611582 | INLA posterior of latent activation fields | Yes: excursion sets "based on the joint posterior distribution of the latent fields, rather than the marginal distribution at each location" (abstract) | Joint (excursion sets) | Abstract only. Not genomics. |
+| excursions method and package | Bolin D, Lindgren F. "Excursion and contour uncertainty regions for latent Gaussian models." JRSS-B 2015. doi:10.1111/rssb.12055. Bolin D, Lindgren F. "Calculating probabilistic excursion sets and related quantities using excursions." J Stat Softw 2018;86(5). doi:10.18637/jss.v086.i05 (arXiv:1612.04101) | Method for joint excursion sets, contour credible regions, simultaneous bands for latent Gaussian models | Method paper | Joint | Abstracts only (Crossref; arXiv page) |
+| SHADE | Eliason J, Peruzzi M, Rao A. "SHADE: A multilevel Bayesian framework for modeling directional spatial interactions in tissue microenvironments." PLOS Comput Biol 2026. doi:10.1371/journal.pcbi.1013930 | Posterior for spatial interaction curves (distance axis) | Yes: simultaneous 95% credible bands; significance judged by whether the band excludes zero; cohort differences judged by band overlap | Simultaneous bands along 1D distance | Methods/full text (extraction). Imaging cell-cell interactions, Stan, not INLA, not expression fields |
+| SpaceBF | Seal S, Neelon B. "SpaceBF: spatial coexpression analysis using Bayesian fused approaches in spatial omics datasets." bioRxiv 2025 (doi:10.1101/2025.03.29.646124); GigaScience 2026 (doi:10.1093/gigascience/giag006) | Posterior for local (per-spot) and global slopes between two molecules (LR-motivated); negative binomial or Gaussian likelihood | Credible interval and probability of direction used to call local/global co-expression; non-credible spots masked; no formal region-vs-region test | Pointwise per spot, plus one global slope | Preprint methods (extraction), 100,000 of 218,014 chars; GigaScience abstract |
+| BayesTME | Zhang H, Hunter MV, Chou J, Quinn JF, Zhou M, White RM, Tansey W. "BayesTME: An end-to-end method for multiscale spatial transcriptional profiling of the tissue microenvironment." Cell Syst 2023;14:605-619. doi:10.1016/j.cels.2023.06.003 | Posterior over latent variables (cell counts per spot, marker genes, spatial programs) | Bayesian FDR to select features; no region-vs-region test described in the text read | Pointwise / per feature | Preprint (bioRxiv 10.1101/2022.07.08.499377) methods (extraction), 100,000 of 118,001 chars; journal version not opened |
+| Non-stationary Matern in R-INLA | Velidi P, Wei Z, Nathoo FS. "Covariance Nonstationarity is Evident in Spatial Transcriptomics and Provides a New Categorization of Spatially Varying Genes." bioRxiv 2026. doi:10.64898/2026.08.10.743911 | Approximate Bayes factors from R-INLA comparing stationary vs non-stationary Matern (SPDE) models, per gene, on Visium | Model comparison per gene; no region or field comparison | Not applicable | Full text (extraction) |
+| BOOST-GP | Li Q, Zhang M, Xie Y, Xiao G. "Bayesian modeling of spatial molecular profiling data via Gaussian process." Bioinformatics 2021;37(22):4129-4136. doi:10.1093/bioinformatics/btab455 | Bayesian GP with zero-inflated negative binomial | SVG detection | Per gene | Abstract only |
+| BATCOM | Wu D, Gaskins JT, Sekula M, Datta S. "Inferring Cell-Cell Communications from Spatially Resolved Transcriptomics Data Using a Bayesian Tweedie Model." Genes 2023;14(7):1368. doi:10.3390/genes14071368 | HMC posterior for cell-type-to-cell-type communication coefficients | Wald-type statistic from posterior mean and variance, FDR; compared to Giotto, COMMOT, SpaTalk by counting significant interactions | Per coefficient | Methods/full text (extraction), 100,000 of 115,043 chars |
+| spacia | Zhu J, Wang Y, Chang WY, et al. "Mapping Cellular Interactions from Spatially Resolved Transcriptomics Data." bioRxiv 2024. doi:10.1101/2023.09.18.558298 | Bayesian multi-instance learning for CCC | Not determined | Not determined | Abstract only (full text blocked) |
+| CytoSignal | Liu J, Manabe H, Qian W, Wang Y, Gu Y, Chu AKY, Gadhvi G, Song Y, Ono N, Welch JD. bioRxiv 2024 (doi:10.1101/2024.03.08.584153); Nature Genetics 2026 (doi:10.1038/s41588-026-02624-9) | Permutation null (permuting cell locations), one-sided p-values, spatial FDR; no posterior | Gradients described descriptively; one-sided Wilcoxon tests between significant and non-significant cells within clusters; no formal differential-signaling test found in the preprint text read | Pointwise p-values | Preprint (extraction), 100,000 of 214,214 chars. Nature Genetics version not opened (redirect to login). Uses Stereo-seq mouse embryo E9.5 to E16.5 (per preprint). |
+| SpatialDM | Li Z, Wang T, Liu P, Huang Y. "SpatialDM for rapid identification of spatially co-expressed ligand-receptor and revealing cell-cell communication patterns." Nat Commun 2023;14:3995. doi:10.1038/s41467-023-39608-w | Analytical (z-test) or permutation null for bivariate Moran's R; per-spot local p-values | Differential communication between conditions via likelihood ratio test on global z-scores across samples; no confidence intervals on local fields | Pointwise (per spot, per pair) | Full text (extraction), 100,000 of 107,665 chars |
+| COMMOT | Cang Z, Zhao Y, Almet AA, Stabell A, Ramos R, Plikus M, Atwood SX, Nie Q. "Screening cell-cell communication in spatial transcriptomics via collective optimal transport." Nat Methods 2023 (journal details from search-result snippet only; doi:10.1038/s41592-022-01728-4). bioRxiv doi:10.1101/2022.08.24.505185 | Permutation p-values at cluster level only; no uncertainty on spot-level scores in the text read | Cluster networks compared by thresholding and Jaccard distance; direction fields by cosine distance | Cluster-level | Preprint methods (extraction), 100,000 of 142,214 chars |
+| C-SIDE | Cable DM, Murray E, Shanmugam V, Zhang S, Zou LS, Diao M, Chen H, Macosko EZ, Irizarry RA, Chen F. "Cell type-specific inference of differential expression in spatial transcriptomics." Nat Methods 2022. doi:10.1038/s41592-022-01575-3 | Asymptotic standard errors from Fisher information; z-tests (preprint version, which then used the name GLAMDE) | Region comparisons via covariate coefficients, Benjamini-Hochberg FDR; pixel counts treated as independent given random effects in the version read | Per gene, pointwise | Journal abstract; preprint (extraction), 100,000 of 216,606 chars |
+| smiDE | Vasconcelos AG, McGuire D, Simon N, Danaher P, Shojaie A. "Differential expression analysis for spatially correlated data using smiDE." Genome Biol 2026. doi:10.1186/s13059-025-03867-1 | Not determined | Abstract states standard models "inflate statistical significance" because of correlation among neighboring cells and proposes corrections | Not determined | Abstract only (publisher page blocked) |
+| DESpace / DESpace2 | Cai P, Robinson MD, Tiberi S. Bioinformatics 2024 (doi:10.1093/bioinformatics/btae027); Bioinformatics 2026 (doi:10.1093/bioinformatics/btag450) | Not determined | Differential testing between spatial clusters (DESpace) and between conditions (DESpace2); can identify tissue regions affected | Not determined | Abstracts only |
+| GASTON, Belayer, StarTrail | Chitra U et al., Nat Methods 2025 (doi:10.1038/s41592-024-02503-3); Ma C, Chitra U, Zhang S, Raphael BJ, Cell Syst 2022 (doi:10.1016/j.cels.2022.09.002); Chen J et al., JASA 2026 (doi:10.1080/01621459.2026.2654225) | Point-estimate piecewise or gradient models; no posterior stated in abstracts | Domain and gradient detection | Not applicable | Abstracts only |
+| SVG methods: SpatialDE, SPARK-X, nnSVG | Svensson V, Teichmann SA, Stegle O. Nat Methods 2018 (doi:10.1038/nmeth.4636); Zhu J, Sun S, Zhou X. Genome Biol 2021 (doi:10.1186/s13059-021-02404-0); Weber LM, Saha A, Datta A, Hansen KD, Hicks SC. Nat Commun 2023 (doi:10.1038/s41467-023-39748-z) | Hypothesis tests for spatial variation; no field posterior stated in abstracts | Per-gene tests | Per gene | Abstracts only |
+| Others, abstracts only | BayesSpace (Zhao E et al., bioRxiv 2020, doi:10.1101/2020.09.04.283812); MEFISTO (Velten B et al., Nat Methods 2022, doi:10.1038/s41592-021-01343-9); Smoother (Su J et al., Genome Biol 2023, doi:10.1186/s13059-023-03138-x); SpaTalk (Shao X et al., bioRxiv 2022, doi:10.1101/2022.04.12.488047); stLearn (Pham D et al., bioRxiv 2020, doi:10.1101/2020.05.31.125658); MISTy (Tanevski J et al., Genome Biol 2022, doi:10.1186/s13059-022-02663-5); VISGP (Wang Z et al., preprint 2025, doi:10.64898/2025.12.10.25341956); DiSTect (Zhao Q et al., Bioinformatics 2025, doi:10.1093/bioinformatics/btaf530) | Not assessed beyond the abstract | Not assessed | Not assessed | Abstracts only |
+
+* 3. Per-paper notes
+
+** Splotch (closest for gene fields)
+Read: methods/full text via extraction (bioRxiv 2019 preprint). The fetch described a hierarchical zero-inflated Poisson regression with exponential link, a tissue-context term, a CAR local-neighborhood term over a 4-connected spot graph, and a spot-level term; size factors from per-spot UMI totals; full Bayesian inference by adaptive HMC in Stan. Region differences were quantified with Savage-Dickey Bayes factors, "element-wise" on coefficients; the extraction said no BF threshold was given and credible intervals for DE calls were not reported in the main text. Differences from the revised paper: CAR on the spot lattice rather than a Matern SPDE field on a mesh; per-coefficient comparisons rather than joint inference; no signaling fields; no transects. A peer-reviewed version was not found in Europe PMC (only the preprint), so cite as a preprint unless the authors know otherwise.
+
+** Mejia et al. 2020 and Bolin and Lindgren (inferential machinery)
+Mejia et al. (abstract only) fit latent fields with INLA and identify activation regions with an excursions set "based on the joint posterior distribution of the latent fields, rather than the marginal distribution at each location". This is the same inferential recipe the revised paper uses, applied to fMRI. Bolin and Lindgren 2015 (JRSS-B) describe excursion sets and contour credible regions for latent Gaussian models and relate the problem to "multiple significance testing" (abstract). The 2018 JSS paper documents the excursions package, which per the arXiv abstract also computes simultaneous confidence bands.
+
+** SHADE (simultaneous bands on 1D curves)
+Read via extraction. Simultaneous 95% credible bands are used for smooth spatial interaction curves along a distance axis, and groups are compared by whether the bands exclude zero or overlap. Closest analog to the transect analysis; differences: multiplexed cell-type imaging, Stan not INLA, interaction curves not expression or signaling fields.
+
+** SpaceBF (closest for LR with posterior intervals)
+Read preprint methods via extraction (first 100,000 of 218,014 chars). Local and global slopes between two molecules with credible intervals; probability of direction as a p-value analogue; non-credible spots greyed out. Negative binomial likelihood with Polya-Gamma augmentation, not Poisson with an offset, and the two-molecule slope is not a pointwise-minimum signaling field. The extraction said there is no formal region test and no joint test across locations.
+
+** BayesTME
+Read preprint methods via extraction. "Full quantification of uncertainty" over latent variables; posterior uncertainty used for Bayesian-FDR feature selection. No region-vs-region test described in the text read.
+
+** Velidi, Wei, Nathoo 2026
+Read via extraction. Uses R-INLA with SPDE Matern models on 13 Visium datasets (the abstract text I saw said 12; the extraction said 13, so the count is unverified) to compare stationary and non-stationary covariance per gene via approximate Bayes factors. Methodological neighbor (INLA/SPDE on ST) but no field comparison.
+
+** CytoSignal, SpatialDM, COMMOT (LR tools)
+All three provide null-hypothesis-based significance (permutation or analytical), not posterior fields. SpatialDM tests differential communication across samples with a likelihood ratio test on global scores and, in the extraction, notes few replicates make this hard and suggests a Bayesian approach as a possible mitigation. COMMOT's p-values are at the cluster level; spot-level scores had no stated uncertainty in the text read. CytoSignal (preprint) uses permutation of locations plus spatial FDR and Wilcoxon tests between significant and non-significant cells within clusters; the Wilcoxon tests are the kind of independence-assuming comparison the revised paper contrasts against. CytoSignal uses the same Stereo-seq mouse embryo atlas (per the preprint text; the final Nature Genetics version was not opened and may differ).
+
+** C-SIDE
+Journal abstract says it gives "valid uncertainty quantification" for DE; the preprint version read used z-tests from Fisher-information standard errors and a pixel-wise likelihood product, and the extraction found no discussion of spatial autocorrelation. Whether the journal version differs was not checked.
+
+** BATCOM, spacia
+BATCOM provides an HMC posterior but converts it to a Wald-type test with FDR; it works at the cell-type-pair level, not on fields. spacia was abstract only.
+
+** Not accessed or not found
+- INLAomics (bioRxiv 10.1101/2025.05.02.651831): fetch failed (file too large); only a search-result snippet seen, which described a CAR-based INLA multi-omic model. Not characterized here.
+- BOOST-GP and spacia full texts: blocked by a PMC human-verification page; abstracts only.
+- Nature Genetics CytoSignal and Nature Methods COMMOT publisher pages: redirected to login; not opened (preprints read instead).
+- SpNeigh (bioRxiv 2025): appeared only in a search-result snippet; not opened.
+- NICHES, SpaOTsc, GPcounts, SpatialDE2, Giotto, CellChat v2, DeepTalk, Chen et al. 2022 (the Stereo-seq embryo atlas): no usable record or page obtained in this search; no characterization offered.
+
+* 4. What appears not to have been done (candidate novelty, stated cautiously)
+
+Based only on what I found and read, the following combination was not found in any source I opened:
+1. A single-gene expression field model for ST with a Matern SPDE latent field, Poisson likelihood and total-UMI offset, fit with INLA, used as the basis for reporting a full posterior of the rate field. Closest: Splotch (CAR, Stan, ZIP) and Velidi et al. (R-INLA SPDE on Visium, for covariance model comparison, not rate-field inference).
+2. A posterior for an LR signaling field constructed from the ligand and receptor posterior fields (pointwise minimum). The LR tools opened give null-test p-values (CytoSignal, SpatialDM, COMMOT) or posterior summaries of regression coefficients (SpaceBF, BATCOM), not a signaling-field posterior.
+3. Joint posterior inference (excursion sets and simultaneous bands) applied to ST expression or signaling fields. The recipe exists in neuroimaging (Mejia et al. 2020, abstract only) and simultaneous bands exist in imaging-based spatial interaction curves (SHADE); I found neither applied to ST expression or LR signaling.
+4. A side-by-side comparison of areal averages, line transects with simultaneous bands, and whole-field excursion sets against naive readings (map eyeballing, independence-assuming tests such as the Wilcoxon tests used in CytoSignal's pipeline or the z-tests in C-SIDE as described in the preprint).
+
+Caveats on this conclusion:
+- Many sources were abstract-only; a method that does these things inside its Methods section could be invisible to me.
+- The fetch tool covers only the first 100,000 characters of long pages, so later methods and supplementary text were not read for several papers (CytoSignal, SpaceBF, C-SIDE, COMMOT, BayesTME).
+- Europe PMC search indexes titles, abstracts and some full text; recent preprints and non-biomedical statistics venues (spatial statistics, Annals of Applied Statistics, Biometrics) may be under-covered.
+- Preprint-only and 2026 entries may have changed since they were indexed.
+
+Search queries run (Europe PMC unless marked WebSearch):
+- WebSearch: Splotch Aijo hierarchical Bayesian spatial transcriptomics anatomical regions differential expression
+- WebSearch: CytoSignal Liu Nature Genetics spatial cell-cell communication Stereo-seq
+- WebSearch: INLA SPDE spatial transcriptomics Poisson gene expression Bayesian posterior
+- WebSearch: excursion sets simultaneous credible bands spatial transcriptomics Bayesian uncertainty
+- WebSearch: C-SIDE ...; COMMOT ...; BayesTME ...; SpatialDM ...; Bayesian cell-cell communication spatial transcriptomics posterior uncertainty ligand receptor credible; Gaussian process spatial transcriptomics posterior credible interval differential expression regions boundaries uncertainty quantification; BOOST-GP ...
+- (INLA OR "integrated nested Laplace") AND (spatial transcriptomics OR spatially resolved transcriptomics OR Stereo-seq)
+- SPDE AND (spatial transcriptomics OR spatially resolved transcriptomics)
+- "excursion sets" OR "excursions package" AND (genomic OR transcriptomic OR omics OR neuroimaging)
+- "simultaneous credible" AND (spatial transcriptomics OR gene expression)
+- spatial transcriptomics AND Gaussian process AND (uncertainty OR credible interval) AND differential
+- spatial transcriptomics AND Bayesian AND differential expression AND (region OR anatomical)
+- Title/DOI lookups for Splotch, Smoother, SpatialDE, SPARK-X, nnSVG, BayesSpace, MEFISTO, GPcounts, SpaTalk, stLearn, MISTy, NICHES, SpaOTsc, DESpace, GASTON, Belayer, C-SIDE
+- (ligand-receptor OR cell-cell communication) AND spatial AND (uncertainty quantification OR posterior distribution OR credible interval)
+- spatial transcriptomics AND (contour OR excursion) AND (credible OR joint posterior)
+- spatial transcriptomics AND (log-Gaussian Cox OR Matern) AND Bayesian AND (INLA OR SPDE OR latent Gaussian)
+- spatial transcriptomics AND Bayesian AND (simultaneous OR joint credible OR credible band)
+- Stereo-seq/Slide-seq/Visium AND Gaussian random field/process AND Poisson AND posterior AND offset
+- spatial transcriptomics AND (areal OR block-level OR change of support) AND Bayesian AND (smooth OR kriging)
+- spatial transcriptomics AND (confidence band OR credible band OR uncertainty band) AND (gradient OR transect OR profile)
+
+* 5. Suggested citations for Introduction and Discussion
+
+Verify each against the source before use; read levels are in Section 2.
+
+Closest precedents for Bayesian region comparison of expression:
+- Aijo T et al. 2019. Splotch. bioRxiv. doi:10.1101/757096 (describe as: region-level Bayes factors from a hierarchical Bayesian model with a CAR spatial term; not joint, not field-level).
+- Zhang H et al. 2023. BayesTME. Cell Syst 14:605-619. doi:10.1016/j.cels.2023.06.003 (posterior uncertainty used for Bayesian-FDR feature selection).
+- Seal S, Neelon B. 2026. SpaceBF. GigaScience. doi:10.1093/gigascience/giag006 (credible-interval-based local and global co-expression).
+
+Naive-comparison practice and spatial-correlation problem:
+- Cable DM et al. 2022. C-SIDE. Nat Methods. doi:10.1038/s41592-022-01575-3
+- Vasconcelos AG et al. 2026. smiDE. Genome Biol. doi:10.1186/s13059-025-03867-1 (abstract states neighbor correlation inflates significance in standard models).
+- Liu J et al. CytoSignal (Nature Genetics 2026, doi:10.1038/s41588-026-02624-9; preprint doi:10.1101/2024.03.08.584153), Li Z et al. 2023 SpatialDM (doi:10.1038/s41467-023-39608-w), Cang Z et al. 2023 COMMOT (doi:10.1038/s41592-022-01728-4) as examples of permutation or analytical-null tests without a posterior field.
+
+Inferential machinery:
+- Bolin D, Lindgren F. 2015. JRSS-B. doi:10.1111/rssb.12055
+- Bolin D, Lindgren F. 2018. J Stat Softw 86(5). doi:10.18637/jss.v086.i05
+- Mejia AF et al. 2020. JASA. doi:10.1080/01621459.2019.1611582 (INLA plus joint-posterior excursion sets in fMRI).
+- Eliason J et al. 2026. SHADE. PLOS Comput Biol. doi:10.1371/journal.pcbi.1013930 (simultaneous credible bands along a distance axis).
+
+INLA/SPDE on ST:
+- Velidi P, Wei Z, Nathoo FS. 2026. bioRxiv. doi:10.64898/2026.08.10.743911 (R-INLA Matern SPDE models on Visium; covariance stationarity).
