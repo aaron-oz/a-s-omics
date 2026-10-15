@@ -34,14 +34,10 @@ analysis of 2026-10-08 already lives there).
 - The revision as of 2026-10-08 is complete and builds clean: manuscript 32 pages, track
   changes 34, letter 21, all 0 errors. Every reviewer item is answered; only the graphical
   abstract (R1.5) is open, waiting on Sam.
-- *That work is NOT committed.* The last commit is =1c3a9ae= (2026-10-08 morning). Everything
-  after it is in the working tree; AOZ has not yet said yes to the commit. Do not start new
-  work on top of an uncommitted tree: ask first (the question is restated under "Open
-  questions" below).
+- That work is committed and pushed as =efbc628= on =main= and =plosone-revision=
+  (2026-10-14, AOZ approved). =submission-figures/= is gitignored.
 - Two untracked files are AOZ's, not ours: =REVISION-SUMMARY-2026-10-08.tex= and =.pdf=
   (an editor export). Leave them out of commits.
-- =submission-figures/= (28 MB of TIFFs) is regenerable by script; it should be gitignored
-  rather than committed.
 
 * The pivot, and the decisions already taken
 
@@ -120,18 +116,12 @@ AOZ's rulings, 2026-10-14 (do not re-ask):
 
 * Open questions for AOZ (restated in full)
 
-1. *Commit the 2026-10-08 work?* Proposed: commit all of it to =main= with a message along
-   the lines of "Revision edits: corrections, three controls, plug-in vs posterior result,
-   figures rebuilt at 8 pt", push, and fast-forward =plosone-revision=; gitignore
-   =submission-figures/=; exclude AOZ's =REVISION-SUMMARY-2026-10-08.tex/.pdf=. This blocks
-   Phase 0 of the plan. Recommendation: yes, before any pivot work, so the pre-pivot revision
-   is recoverable as one commit.
+1. None blocking. (The commit question was answered yes and done: =efbc628=.)
 2. *The threshold for "looks different"* is to be set in Phase 2 from concrete examples
    shown to AOZ, not asked in the abstract.
 
 * First steps for the next agent
 
-1. Ask open question 1 if it is still unanswered; commit if yes.
-2. Branch =uncertainty-pivot= from =main=.
-3. Phase 1 of =PIVOT-PLAN-2026-10-14.org= (novelty check), then Phase 2 (freeze the design),
+1. Branch =uncertainty-pivot= from =main=.
+2. Phase 1 of =PIVOT-PLAN-2026-10-14.org= (novelty check), then Phase 2 (freeze the design),
    then Phase 3 (local pilot). Bring the pilot figures to AOZ before Phase 4.
