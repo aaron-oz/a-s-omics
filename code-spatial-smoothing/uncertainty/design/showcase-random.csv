@@ -1,0 +1,5 @@
+slot,pair,r,n_eligible
+anat-heart vs anat-liver,CALR-ITGA2B,3.39,457
+box-cord-1 vs box-cord-2,NID1-ITGB1,1.38,218
+slice-heart-to-liver: heart part vs liver part,ADAM12-ITGB1,1.43,507
+"cross-field, shared ligand",CALM1-KCNQ3 & CALM1-PDE1A,,1683

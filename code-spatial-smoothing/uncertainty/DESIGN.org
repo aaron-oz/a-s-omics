@@ -5,7 +5,7 @@ Phase 2 of =Submission_PLOSOne/submission-2/PIVOT-PLAN-2026-10-14.org=. This fil
 any posterior comparison is run, what will be compared and how. Any later change goes in the
 change log at the bottom with its date and reason.
 
-STATUS: DRAFT. One item is pending AOZ's ruling and is marked PENDING: the showcase selection rule. Everything else is proposed as final.
+STATUS: FROZEN 2026-10-16 (Sam may still add showcase pairs under the rule in "Showcase selection").
 
 * What was looked at when choosing
 
@@ -82,7 +82,7 @@ Overlay: =design/design-regions.png=.
   =controls/sweep/fantom-hierarchy.Robj= (object =output=), 397 distinct ligands and 393
   distinct receptors.
 - Gene-field example: Cd44, the paper's representative feature (Fig 3), for continuity.
-- Showcase pairs: PENDING (see "Showcase selection rule").
+- Showcase pairs: see "Showcase selection" (random draw and the four Fig 5 pairs).
 - Cross-field comparisons are restricted to fields sharing a gene: 4,305 field pairs share a
   ligand and 7,413 share a receptor (counted from the pair table, 2026-10-14).
 
@@ -149,18 +149,34 @@ ranges from 1.17 (box-cord-1 vs box-cord-2) to 1.71 (anat-lung vs anat-spinal-co
 3. *Pointwise intervals without multiplicity* for slices and whole fields: a position or bin is
    called different if its pointwise 95% interval excludes 0.
 
-* Showcase selection rule: PENDING
+* Showcase selection
 
-Proposed (rule fixed before results, using plug-in quantities only, so the verdict is whatever
-the posterior says):
+AOZ, 2026-10-16: use both a random rule and biology-chosen pairs ("pair" = ligand-receptor pair,
+i.e. one signaling field).
 
-- Three same-field showcases, one each for anat-heart vs anat-liver, box-cord-1 vs box-cord-2,
-  and slice-heart-to-liver: one pair drawn at random (seed 20261015) among pairs with plug-in
-  r >= T and whose plug-in median rate over the union of the two regions is at or above the
-  median across all pairs (to exclude near-empty, speckled fields).
-- One cross-field showcase (regional, slice and whole field): one field pair drawn at random
-  (same seed) among field pairs sharing a ligand where both fields pass the same sparsity filter.
-- Gene field: Cd44.
+** (a) Random rule, drawn 2026-10-16 (=design/showcase-draw.R=, =design/showcase-random.csv=)
+
+Plug-in only. Eligible for a slot: r >= 1.25 between the slot's two areas, and plug-in median rate
+over the union of the two areas at or above the median of that quantity across all 1,477 pairs.
+One pair per slot, seed 20261015.
+
+| slot                                           | drawn pair                  | plug-in r | eligible pairs |
+|------------------------------------------------+-----------------------------+-----------+----------------|
+| anat-heart vs anat-liver                       | CALR-ITGA2B                 |      3.39 |            457 |
+| box-cord-1 vs box-cord-2                       | NID1-ITGB1                  |      1.38 |            218 |
+| slice-heart-to-liver, heart part vs liver part | ADAM12-ITGB1                |      1.43 |            507 |
+| cross field, shared ligand                     | CALM1-KCNQ3 and CALM1-PDE1A |        NA |  1,683 field pairs |
+
+Genes to refit for these plus Cd44: CALR, ITGA2B, NID1, ITGB1, ADAM12, CALM1, KCNQ3, PDE1A, CD44.
+
+** (b) Biology-chosen pairs (AOZ, 2026-10-16)
+
+The four ligand-receptor pairs shown in Fig 5 of the submitted manuscript, chosen long before any
+posterior comparison existed: WNT4-FZD6, RSPO1-LGR6, DHH-PTCH1, VEGFA-KDR. Each is compared in all
+13 frozen region comparisons and the 4 slices. Sam may add or swap pairs; any addition must be
+named before a posterior for it is computed, and is recorded here with the date received.
+
+Genes to refit for these: WNT4, FZD6, RSPO1, LGR6, DHH, PTCH1, VEGFA, KDR.
 
 * Posterior draws
 
@@ -181,4 +197,5 @@ per-spot credible intervals for ligand-receptor co-expression).
 * Change log
 
 - 2026-10-14: draft written.
+- 2026-10-16: showcase rule (a) drawn; (b) set to the four Fig 5 pairs (AOZ); design frozen.
 - 2026-10-16: threshold set to T = 1.25 from AOZ's rulings, with T = 1.5 and 2 as sensitivity analyses.
