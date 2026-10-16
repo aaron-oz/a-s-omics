@@ -1,0 +1,499 @@
+#+TITLE: Notes on four partial precedents for uncertainty-based comparison of spatial expression
+#+DATE: 2026-10-14
+#+STARTUP: overview
+
+Purpose: reading notes on four papers named as partial precedents for our reframed
+paper (R-INLA/inlabru Poisson SPDE fits per gene on one Stereo-seq E16.5 mouse embryo
+section, 26,000 bins of 50 x 50 spots, total UMI (unique molecular identifier) count
+per bin as offset; joint posterior draws used to compare regions, 1D transects with
+simultaneous bands, and whole fields with excursion sets).
+
+Conventions in these notes: "I read" statements describe what was opened in this
+session. Anything not read is said to be not read. Quotes are short and verbatim from
+the text I extracted. Abbreviations: GLM = general linear model; GMRF = Gaussian Markov
+random field; SPDE = stochastic partial differential equation; INLA = integrated nested
+Laplace approximation; MCMC = Markov chain Monte Carlo; HMC = Hamiltonian Monte Carlo;
+UMI = unique molecular identifier; ST = spatial transcriptomics; LR = ligand-receptor.
+
+* 1. Splotch (Aijo et al., bioRxiv 2019) and Maniatis et al. (Science 2019)
+
+** Citation and what I read
+- Aijo T, Maniatis S, Vickovic S, Kang K, Cuevas M, Braine C, Phatnani H, Lundeberg J,
+  Bonneau R. "Splotch: Robust estimation of aligned spatial temporal gene expression
+  data." bioRxiv 2019, doi:10.1101/757096 (version 1, posted 2019-09-05).
+- I read: the bioRxiv v1 full PDF (39 pages), text extracted with pdftotext, including
+  the Methods and the supplementary figure legends that are in the PDF. The
+  supplementary figures themselves are legends only; the prior definitions are in
+  "Supplementary Fig. 1c", which is a figure and whose numbers I did not recover.
+- No peer-reviewed journal version found: a web search and a Europe PMC title search
+  returned only the preprint (Europe PMC source "PPR"). I cannot rule out one exists.
+- Application paper: Maniatis S, Aijo T, Vickovic S, Braine C, Kang K, Mollbrink A,
+  Fagegaltier D, Andrusivova Z, Saarenpaa S, Saiz-Castro G, Cuevas M, Watters A,
+  Lundeberg J, Bonneau R, Phatnani H. "Spatiotemporal dynamics of molecular pathology
+  in amyotrophic lateral sclerosis." Science 364(6435):89-93, 2019,
+  doi:10.1126/science.aav9776. I read only the bioRxiv preprint main text (doi
+  10.1101/389270, v3, 20 pages). Its Materials and Methods and "Data 1" are listed as
+  supplementary and are NOT in that PDF, and the Science version is not open access
+  (Europe PMC: not in PMC). So I did not read the Maniatis supplementary methods; the
+  model description below comes from the Splotch preprint, which says the core model
+  "was used previously" in the ALS paper.
+- Software repository read: github.com/tare/Splotch (README and src/splotch/models.py).
+
+** Data type and scale
+- Spatial Transcriptomics (Stahl-style array, spots on a lattice; not Stereo-seq).
+  Mouse lumbar spinal cord: "76,136 ST spots across 1,165 tissue sections"; mouse main
+  olfactory bulb: 3,045 spots, 12 sections. 11,138 genes quantified on the spinal cord
+  data. Median per-section depth quoted as 1,415 genes and 2,227 unique transcripts
+  per spot before integration. Multiple sections, mice, timepoints, genotypes.
+
+** Model (as written in the preprint Methods)
+- Likelihood: zero-inflated Poisson (ZIP), counts n_{g,s,i} for gene g, section s,
+  spot i; Poisson-only is the alternative in the code.
+- Rate: log-link, exp(lambda_{g,s,i}) = x_i^T beta_{g,f(s)} + phi_{g,s,i} + epsilon_{g,s,i}.
+  Three components: (1) beta, a linear model over predefined anatomical annotation
+  regions (11 tissue contexts for spinal cord, 5 for olfactory bulb), arranged in a
+  hierarchy (genotype+timepoint, then sex, then mouse); (2) phi, a spatial random
+  effect per section with a conditional autoregressive (CAR) prior on the 4-neighbor
+  lattice graph, with spatial autocorrelation parameter rho_g and conditional
+  precision tau_g; (3) epsilon, independent spot-level noise with SD sigma_g.
+- Normalization: a non-random exposure ("size factor") s_{s,i} = N_{s,i}/2208, where N
+  is the spot's total UMI count and 2,208 is the median depth; the Poisson mean is
+  lambda * s. This is the same role as our total-UMI offset.
+- Inference: Stan, adaptive HMC, "four independent chains (each with 500 warm-up and
+  500 sampling iterations)", R-hat monitored. One gene at a time (the gene index g is
+  in every parameter).
+- IMPORTANT discrepancy between preprint and current code. The preprint says CAR. The
+  README of the repository says "Gaussian Process prior for spatial random effect",
+  "NumPyro", "Hilbert space approximate Bayesian Gaussian process". In
+  src/splotch/models.py (the version I read) the spatial effect is a Hilbert-space
+  approximate GP with a squared-exponential spectral density, with 5 basis functions
+  per dimension hard-coded (num_basis = 5), default priors alpha ~ Gamma(2,2),
+  length ~ Gamma(10,10), theta ~ Beta(1,2), sigma_spot ~ HalfNormal(0.3), and the
+  region coefficient prior beta_level_1 = 2.0 * Normal(0,1). So the code is a
+  different spatial model from the one in the preprint. The code samples with NumPyro
+  NUTS (run_nuts) or SVI (run_svi).
+
+** Uncertainty produced and how it is used
+- Posterior samples of beta (log-scale region coefficients at each level of the
+  design), of phi, and of spot-level rates lambda, per gene.
+- Comparison rule: "Detection of differential expression between conditions and
+  regions was done by quantitating element-wise differences in the estimated posterior
+  distributions of the random variables beta using the Savage-Dickey density ratio as
+  described previously" (Methods, Analysis of ST data). Figures report a Bayes factor
+  for, e.g., ventral horn versus the combination of medial grey and dorsal horn
+  (Fig. 1 legend, Lcp1 and Ngb).
+- So: the compared quantity is the region-level coefficient beta (a fixed effect for a
+  predefined annotation region), not an average of the posterior spatial field over a
+  region, and not a transect or an excursion set. The comparison is on marginal
+  posteriors of a contrast for one gene and one region pair. Multiplicity handling
+  across genes or region pairs: not stated in what I read. The Maniatis preprint main
+  text figure legends show "posterior difference distributions" for human tissue
+  (Fig. 4A) but I did not see a decision rule beyond that in the main text.
+- Splotch uses the spatial terms to improve estimates and to share information across
+  sections; the uncertainty of the spatial field itself is not used for comparisons in
+  anything I read.
+
+** Ligand-receptor or signaling
+- None computed in either text I read. The Splotch preprint only says the methods are
+  matched to ST for "interrogating spatiotemporal dynamics of diseases, cell-cell
+  communication, and regulatory dynamics" (Main, last paragraph). The Maniatis
+  preprint discusses TREM2/TYROBP and APOE biologically; it computes no signaling
+  fields. Splotch also builds gene co-expression modules by Pearson correlation of
+  posterior-mean rates across genes (Methods, "Spatiotemporal and disease-dependent
+  co-expression analysis"), which uses posterior means only.
+
+** Naive comparators and evidence about ignoring spatial correlation
+- The preprint's comparator is a "spatially uninformed approach": counts divided by
+  per-spot total UMI and rescaled by the median. Fig. 1b reports Pearson correlation
+  of its estimates against Splotch's as a function of detection rate; the text says
+  they agree for high-signal genes (Mbp, Snap25) and that the uninformed approach
+  "fails to capture expression localization predicted by Splotch of lowly expressed
+  genes" later checked by protein and in situ images (Lcp1, Ngb). That is evidence
+  about point-estimate quality in low-count genes, not about false-positive rates.
+- It also compares with SpatialDE and trendsceek for spatially variable gene
+  detection: "271 of the 6100 (4.4%) q-values are <= 0.05" for SpatialDE, attributed
+  to "low SNR and insufficient spatial sampling" (this is a detection rate, not a
+  false-positive rate; there is no false-positive simulation in what I read).
+- No test that treats bins as independent is argued against, and no quantitative
+  statement that ignoring spatial correlation inflates false positives, in what I read.
+
+** Software
+- Python (JAX/NumPyro), BSD-3 license, repository created 2018-08-07, last push
+  2025-05-19 in the GitHub API (recent commits I saw were dependency bumps by a bot),
+  23 stars, 1 open issue at the time of reading. pip package name "splotch-st" per the
+  README.
+- Inputs: one tab-separated count file per section (genes by spots, with spot
+  coordinates as "x_y" column names); one tab-separated one-hot annotation file per
+  section assigning each spot to exactly one anatomical region ("we do not currently
+  support more than one annotation category per ST spot"; unannotated spots are
+  dropped); a metadata table with a mandatory categorical column level_1 (and level_2,
+  level_3 for two- and three-level designs). Run time: not stated in what I read.
+- Could it be run on our data? My judgment, not tested: technically plausibly yes for
+  one gene, as a one-section, one-level design with spots as bins and region labels we
+  supply (fixed boxes or published anatomical regions as the annotation). It would
+  give a Poisson (or ZIP) fit with a UMI size factor, a region coefficient per region,
+  a smooth spatial effect, and per-bin noise, and a posterior for differences of
+  region coefficients. Caveats that would limit it as a comparator for the same
+  quantity: (a) the estimand is a region fixed effect, which is not the region
+  average of lambda(s) from a spatial field; (b) a 5 x 5 basis GP is much coarser
+  than a Matern SPDE mesh on a 200 x 130 grid, and the extra iid bin-level noise term
+  adds 26,000 latent variables; (c) regions are annotations (hard assignment per bin)
+  so regions cannot overlap; (d) per-gene HMC cost at 26,000 bins is unknown to me and
+  would need a timing test; (e) I have not run it, and the code differs from the
+  preprint, so a result would be a verdict on the repository's HSGP variant only.
+- A faithful "Splotch" comparison would require the preprint's CAR/ZIP Stan model,
+  which I did not find as a maintained package (the maintained repository is the
+  NumPyro re-implementation described above).
+
+** Similarity and difference to our approach (factual)
+- Similar: per-gene count model with a UMI-based exposure, log link, Bayesian
+  posterior, a spatially structured random effect, comparison of anatomical regions
+  using posteriors.
+- Different: multi-section hierarchical design is the point of the method; the
+  regional comparison is through coefficients of fixed region effects; MCMC (HMC)
+  rather than INLA; zero-inflation and iid spot noise; no joint posterior of the field
+  used for credible regions, transects, or excursion sets; no multiplicity or
+  simultaneous-band logic in what I read.
+
+* 2. Mejia, Yue, Bolin, Lindgren, Lindquist (JASA 2020; BayesfMRI)
+
+** Citation and what I read
+- Mejia AF, Yue YR, Bolin D, Lindgren F, Lindquist MA. "A Bayesian general linear
+  modeling approach to cortical surface fMRI data analysis." Journal of the American
+  Statistical Association 115(530):501-520, 2020, doi:10.1080/01621459.2019.1611582.
+- I read: arXiv:1706.00959 version 1 (stat.AP, submitted 2017-06-03), the full 35+ page
+  text with simulation and application sections and discussion, text extracted with
+  pdftotext. arXiv lists only v1. I did NOT read the JASA version, so I cannot say
+  what changed between this 2017 preprint and the 2020 article. The appendices
+  (proof of equation 12, supplementary figures) I did not examine closely.
+- Software: CRAN page for BayesfMRI (version 0.11.0, published 2025-12-22) and
+  github.com/mandymejia/BayesfMRI (mentioned in the CRAN URL field; I did not open the
+  repository itself).
+
+** Data type and scale
+- Cortical surface fMRI (functional magnetic resonance imaging): a triangular mesh,
+  "approximately 30,000 vertices in each hemisphere" (Introduction); Human Connectome
+  Project motor task data, 20 randomly sampled subjects, 284 time points per subject,
+  hemisphere resampled to about 6,000 vertices (mesh about 5,300 vertices). A
+  simulation study uses a 46 x 55 phantom with 1,256 voxels and T = 200.
+
+** Model
+- Likelihood: Gaussian time-series regression y = sum_k X_k beta_k + sum_j Z_j b_j +
+  epsilon, with AR(p) errors in the simulation and prewhitening plus independent
+  errors in the application. NOT a count model; no offset concept.
+- Spatial prior: each activation field beta_k has an SPDE (Matern, alpha = 2, so nu = 1
+  in 2D) prior via the finite-element GMRF of Lindgren et al. (2011); hyperparameters
+  log kappa and log tau each get independent N(0,1) priors ("log(kappa) ~ N(0,1) and
+  log(tau) ~ N(0,1)").
+- Inference: INLA through R-INLA, chosen over variational Bayes, which they say
+  "tend to severely underestimate posterior variance in latent Gaussian models".
+- Multi-subject: a joint modeling approach in which subject-level Gaussian full
+  conditionals are combined and the hyperparameters are integrated by importance
+  sampling from a Gaussian approximation q(theta | y); also a two-level approach that
+  refits INLA on posterior samples.
+
+** Uncertainty and decision rule (the part closest to our design)
+- Quantity: joint posterior of each latent field, in the INLA mixture form pi(f | y) =
+  sum_l lambda_l pi(f | y, theta_l).
+- Decision rule: the positive excursion set E+_{gamma,alpha}(f) = argmax_D {|D| :
+  P(D subset of A+_gamma(f)) >= 1 - alpha}, "the largest set of vertices such that
+  with at least probability 1 - alpha the level gamma is exceeded at all locations in
+  that set" (Section 2.3), computed with the R package excursions (Bolin and
+  Lindgren), via its R-INLA interface. They call this the joint posterior probability
+  map (joint PPM) and report the excursion function F_gamma(u).
+- Joint versus pointwise: they contrast it with the marginal PPM, D = {u : P(f(u) >
+  gamma) > 1 - alpha}, and say marginal use "introduces a multiple comparisons
+  problem" and that the probability the whole region is active "may be less than
+  1 - alpha". Abstract: the excursion method "eliminates the need for multiple
+  comparisons correction".
+- Thresholds: gamma = 0 and gamma = 1 percent of baseline signal were used.
+- Not done in this paper: region averages (linear functionals) of the field, 1D
+  transects, or comparisons of two fields' difference; it is detection of where a
+  single field exceeds a level. Group-level inference is by the group-average linear
+  combination beta_G = A beta, whose joint Gaussian conditional is available in
+  closed form.
+
+** Ligand-receptor or signaling
+- None.
+
+** Naive comparator and evidence
+- Comparator: the classical voxel-wise ("massive univariate") GLM with 6 mm FWHM
+  (full width at half maximum) smoothing, t-tests at every vertex, with false
+  discovery rate control (Benjamini-Yekutieli) or family-wise error control by
+  permutation (max-t). These are multiplicity-corrected, not "independent bins without
+  correction". Simulation (one simulated data set as far as I could tell; replicates
+  not stated in what I read), significance 0.01: false positive rate / false negative
+  rate for activation 1: joint PPM 0.56% / 0.08%, marginal PPM 1.11% / 0.00%, FDR
+  1.51% / 1.59%, FWER 1.35% / 1.91%; activation 2: joint 0.16% / 0.88%, marginal
+  0.64% / 0.48%, FDR 0.48% / 3.58%, FWER 0.24% / 3.74% (Figure 7 caption). Areas under
+  the ROC curve: Bayesian above 0.998; classical 0.913 and 0.874 (FDR), 0.942 and
+  0.931 (FWER).
+- Point stated in the text: joint and marginal PPMs give identical ROC curves because
+  the excursion function is a monotone transformation of the marginal probabilities
+  in the family used by the excursions package; the difference is in how values
+  cluster near 0 and 1 and so how thresholds behave and how false positives are
+  controlled. The marginal PPM gave about twice or more the false positive rate of the
+  joint PPM in that one simulation.
+- In the HCP data the FWER-corrected classical maps are described as "very
+  conservative".
+
+** Software
+- R package BayesfMRI, CRAN, GPL-3, version 0.11.0 (2025-12-22), maintained by Mandy
+  Mejia; depends on ciftiTools, excursions, fMRItools; INLA in Suggests; NeedsCompilation
+  yes. Input is task fMRI in CIFTI format with a cortical surface; the model is
+  Gaussian time series.
+- Could it run on our data? No, in my judgment: the likelihood is Gaussian and
+  built around fMRI design matrices and CIFTI inputs; there is no Poisson-with-offset
+  mode in the CRAN description I read. What carries over is the method, not the
+  package: R-INLA fit, SPDE prior, joint posterior, and the excursions package, which
+  our own pipeline can call directly (excursions accepts INLA results and Gaussian
+  samples).
+
+** Similarity and difference
+- Very similar in machinery: R-INLA, Matern SPDE field, joint posterior and
+  excursion sets with the excursions package, explicit contrast of joint versus
+  marginal (pointwise) thresholds, and explicit statement that INLA's posterior
+  variance is preferable to variational Bayes.
+- Different: Gaussian fMRI time series versus Poisson counts with an offset; mesh on
+  a cortical surface versus a regular 200 x 130 grid; target is detection of an
+  activated region above a level, not comparison of two regions' averages or
+  transects; their comparator is voxel-wise GLM with multiplicity correction.
+
+* 3. SHADE (Eliason, Peruzzi, Rao; PLOS Computational Biology 2026)
+
+** Citation and what I read
+- Eliason J, Peruzzi M, Rao A. "SHADE: A multilevel Bayesian framework for modeling
+  directional spatial interactions in tissue microenvironments." PLoS Comput Biol
+  22(2):e1013930, 2026, doi:10.1371/journal.pcbi.1013930 (received 2025-07-31,
+  accepted 2026-01-19, published 2026-02-04).
+- I read: the full open-access journal HTML text (journals.plos.org, extracted to
+  text; math was dropped by my extraction so equations are read from the prose only),
+  plus the supplementary text file S1 Text (PDF, 2,792 lines) for the section on
+  simultaneous credible bands (D.1) and parts of the simulation description (I read
+  D.1 closely and skimmed the rest; I did not read the colorectal-cancer
+  supplementary results in detail). SHADE stands for Spatial Hierarchical Asymmetry via
+  Directional Estimation.
+- Repository: github.com/jeliason/SHADE (README read); analysis code in
+  github.com/jeliason/shade_paper_code (not opened).
+
+** Data type and scale
+- NOT gene expression. Multiplexed imaging (e.g., multiplexed immunofluorescence)
+  point patterns of annotated cell types in tissue. Application: a colorectal cancer
+  data set of 35 patients, 140 images, 8 cell types. Timing experiment on simulated
+  cells: "At 100,000 cells, total fitting time was approximately 36 seconds; at
+  250,000 cells, approximately 133 seconds" (via variational inference, per Section 2.5).
+
+** Model
+- Conditional inhomogeneous Poisson point process for a target cell type given
+  source cell types; log intensity = intercept + covariates + sum over source types of
+  basis-expanded functions of distance to source cells. The spatial interaction curve
+  (SIC) is the resulting function of distance s. Hierarchy: image within patient within
+  cohort with partial pooling.
+- Likelihood is computed by a logistic-regression approximation with dummy points
+  (Baddeley et al. 2014), "rather than direct Poisson likelihood estimation".
+- Inference: Stan HMC via cmdstanr (variational inference for the timing test).
+  Hyperpriors: in S1 Text Section F; not read.
+
+** Uncertainty and decision rule
+- Quantity: posterior of the SIC, a 1D function of distance over [r_min, r_max].
+- Simultaneous bands: S1 Text D.1. For posterior draws j, standardized residual
+  Z^(j)(s) = (SIC^(j)(s) - posterior mean(s)) / posterior SD(s); T^(j) = sup over s of
+  |Z^(j)(s)|; critical value c = the (1 - alpha) empirical quantile of T^(j); band =
+  posterior mean +/- c * posterior SD for all s. Main text: "simultaneous 95% credible
+  bands that account for multiple comparisons across the distance domain. Unlike
+  pointwise credible intervals, simultaneous bands provide joint coverage across all
+  distances".
+- Decision rules: an interaction is called when the band excludes zero somewhere in a
+  distance range (detection test in simulations: "whether 95% simultaneous credible
+  bands ... excluded zero at any distance"). Group comparison: "Differences between
+  groups are then assessed by comparing the posterior distributions of these
+  cohort-level parameters, as quantified through SICs ... and their associated
+  simultaneous credible bands". In the application they report that "simultaneous 95%
+  credible bands overlap at all distances for all cell type pairs" for the two
+  immune-phenotype groups and treat suggestive trends as "strictly
+  hypothesis-generating". (My observation, not the authors' statement: overlap of two
+  separate groups' bands is not the same as a band for their difference; I did not see
+  a band on the difference in the main text.)
+- Multiple cell-type pairs: prioritization summaries (peak location and magnitude,
+  persistence, overall strength) rather than formal multiplicity correction across
+  pairs, as I read S1 Text D.2.
+- This is the closest of the four to our 1D-transect idea: a simultaneous band built
+  from the maximum standardized deviation of joint posterior draws. It is a
+  sup-norm band centered at the posterior mean, assembled from MCMC draws, not an
+  excursions-package (Gaussian orthant probability) construction.
+
+** Ligand-receptor or signaling
+- None. The Discussion says "the SICs reflect spatial dependence rather than
+  molecular signaling pathways".
+
+** Naive comparators and evidence
+- Comparators: G-cross and K-cross (L-cross) envelope tests with 99 complete spatial
+  randomness simulations, and a "Flat" non-hierarchical version of SHADE. These are
+  about point-pattern summaries and pooling, not about bins treated as independent.
+- Simulation results, with their own context (40 patients, 1 to 3 images per patient,
+  50 replicates per condition): SHADE Flat had "poor coverage (73%) regardless of
+  scenario and ... severely inflated type I error rates (28%)"; hierarchical SHADE had
+  median type I error 0.8 to 7.5% with 2 to 3 images per patient. With unmodeled
+  tissue compartments and both cell types abundant, SHADE had type I error 11.7 to
+  17.1% and coverage 43 to 52% ("incorrectly attributing compartment effects to
+  source-target interactions"). With only 1 image per patient the method "exhibits
+  extreme behavior". These are findings about pooling and about unmodeled spatial
+  heterogeneity, not a head-to-head on spatial correlation versus independence for
+  expression data.
+
+** Software
+- R package SHADE (GitHub, jeliason/SHADE; last push 2026-02-20 in the GitHub API,
+  2 stars), requires CmdStan through cmdstanr. Inputs: x, y coordinates, cell_type,
+  image_id, and a patient metadata table with Spot, Patient, Group.
+- Could it be run on our data? No, in my judgment: it needs point patterns of
+  labeled cells, and our data are counts on a regular bin grid with no cell
+  segmentation or cell-type labels. One could force-fit with discretized "types" but
+  that would not be a comparator for the same question. What is reusable is the band
+  construction in S1 Text D.1, which is a few lines applied to posterior draws.
+
+** Similarity and difference
+- Similar: full posterior draws used to build a simultaneous band over a 1D domain
+  with an explicit contrast against pointwise intervals; band excludes zero as the
+  decision rule; group comparison via posterior of group-level parameters.
+- Different: object is a distance-interaction curve of cell types, not an expression
+  field; HMC not INLA; hierarchical across images and patients; no regions, no
+  whole-field excursion sets, no expression offsets, no ligand-receptor quantities.
+
+* 4. SpaceBF (Seal and Neelon; bioRxiv 2025, GigaScience 2026)
+
+** Citation and what I read
+- Seal S, Neelon B. "SpaceBF: Spatial coexpression analysis using Bayesian Fused
+  approaches in spatial omics datasets." bioRxiv 2025, doi:10.1101/2025.03.29.646124
+  (version posted 2025-04-03). Published as a GigaScience Technical Note,
+  GigaScience 15:giag006, 2026, doi:10.1093/gigascience/giag006 (PMC12954175).
+- I read: (a) the bioRxiv v1 full PDF (44 pages), main text, methods, references; the
+  Supplementary Material it refers to ("Theorem 1", more discussion of the prior) is
+  NOT in that PDF; (b) the GigaScience full text via the Europe PMC XML (open
+  access), main text and methods; the OUP page itself returned a bot-block stub, and
+  the Supplementary Material files were not read. Math in the XML was stripped by my
+  extraction, so symbols and some numbers (for example the exact MCMC counts) were
+  recovered by hand from the XML.
+- Software: github.com/sealx017/SpaceBF (README, DESCRIPTION, R/SpaceBF_main.R read).
+
+** Data type and scale
+- Spatial transcriptomics (the older Spatial Transcriptomics array): a cutaneous
+  melanoma section with 293 spots (100 micrometer spots at 200 micrometer
+  center-to-center), 16,148 genes; a cutaneous squamous cell carcinoma section with
+  621 spots; plus, in the published version, a MALDI (matrix-assisted laser
+  desorption/ionization) mass spectrometry imaging section of ductal carcinoma in
+  situ. Single sample each. Runtime benchmark up to n = 5,000 locations.
+
+** Model
+- Pairwise spatially varying coefficient (SVC) regression: gene m is the outcome and
+  gene m' is a predictor, with spatially varying intercept beta0(s) and slope beta1(s)
+  plus optional covariates (e.g., cell type). Count outcome: negative binomial (NB)
+  with logit-form failure probability and constant dispersion r; the predictor
+  enters as its observed count (the authors note "the count-valued nature of the
+  molecule ... is not prioritized, appearing as a spatially varying predictor"). A
+  Gaussian version also exists.
+- Spatial prior: a "fused horseshoe" GMRF prior on differences of coefficients across
+  edges of a graph, by default the minimum spanning tree (MST) of the locations
+  (random tie-breaking on regular grids); half-Cauchy global and local scales; setting
+  local scales to one recovers an intrinsic CAR (ICAR) prior. The published version
+  also compares HS and ICAR priors on MST, Delaunay and k-nearest-neighbor graphs and
+  sdmTMB Matern (SPDE, Laplace-approximate maximum likelihood) fits.
+- Normalization or offset: none in the model as written; the function SpaceBF() in
+  R/SpaceBF_main.R has arguments y1, y2, X, G, which.model, which.prior, nIter, etc.;
+  I found no offset argument (grep for "offset" in the NB sampler files returned
+  nothing). A log total-UMI term could in principle be passed as a covariate in X but
+  that is a fixed effect, not an offset, and I did not test it.
+- Inference: Gibbs sampler with Polya-Gamma augmentation (NB), sparse Cholesky via
+  the spam package. In the published version: "In most analyses, we ran 5,000 MCMC
+  iterations with 2,500 burn-in" (numbers recovered from the XML).
+
+** Uncertainty and decision rules
+- Quantity: posterior of beta1(s) at each spot, and of its tissue average.
+- Global test: credible interval and probability of direction (pd, the posterior
+  proportion sharing the sign of the median) of the average slope over all locations,
+  reported as p = 2(1 - pd). Local test: "directly based on the credible intervals of
+  [the] beta1(s)'s", that is, pointwise per spot. Multiplicity: "For FDR control, we
+  apply the Benjamini-Hochberg procedure using the p.adjust function in R" (published
+  Methods), which in the application is across gene pairs for the global test (for
+  example in the preprint: 53 LR pairs at level 0.05 and 33 at FDR < 0.1 in
+  melanoma). I did not see any joint (simultaneous or excursion-based) treatment of
+  the local, per-spot tests; they are marginal.
+- Not compared: regions, transects, or excursion sets of the field. Regions are used
+  only descriptively (clustering slope surfaces and comparing to pathologist regions).
+
+** Ligand-receptor or signaling
+- Yes, as an application: the melanoma analysis tests 161 LR pairs (of 1,180 in
+  CellChatDB, after filtering genes with fewer than 0.2 x n reads) by regressing
+  ligand count and receptor count against each other with spatially varying slope.
+  The signaling quantity is a coefficient of association, not a min of rate fields.
+  It is a different definition from ours (pointwise minimum of ligand and receptor
+  rate fields).
+
+** Naive comparators and evidence about spatial correlation
+- Comparators: Pearson correlation, MERINGUE, SpatialDM, Lee's L, SpaGene (all
+  permutation or exact tests on a global statistic). The authors report that
+  "even when two variables are independently simulated with certain spatial covariance
+  structures, the unmodeled spatial autocorrelation introduces a confounding effect on
+  the bivariate association, leading to significantly inflated type 1 error rates".
+  Results text (simulation design 1, n = 293 locations of the melanoma sample, Gaussian
+  copula NB data with exponential-kernel spatial correlation, lengthscale l = 3.6):
+  SpaceBF "maintains the correct type 1 error" while "all other methods suffer from
+  inflated type 1 errors", Pearson being the least inflated, Lee's L the most, and the
+  inflation grows with l. I did not extract numeric error rates; they are in figures
+  (preprint Fig. 3 and 4) which I did not inspect as images.
+- This is the one paper of the four with an explicit simulation of false-positive
+  inflation from ignoring spatial autocorrelation, but it concerns the association
+  between two genes, not a difference between regions.
+
+** Software
+- R package SpaceBF, GitHub sealx017/SpaceBF; version 0.2.0 in DESCRIPTION; last push
+  2026-06-17 in the GitHub API; 5 stars; README updates dated 2025-10-16 and
+  2026-04-05; installed with devtools::install_github; imports include BayesLogit,
+  MERINGUE, SpaGene, spam, igraph, bayestestR, coda, ComplexHeatmap and others, so the
+  install is heavy. The preprint said the package "will be made available soon"; the
+  repository now exists.
+- Runtime reported (published version): "For n = 5,000, SpaceBF completes in about 20
+  min on a Mac Pro (M3 Max)" and "scaling approximately linearly with n" (Figure 10,
+  not inspected as an image), for one gene pair. Complexity statement in the
+  Discussion: near linear on trees, "typically around" n^1.5 for planar graphs (my
+  reading of the stripped math; check before quoting). They list VI as future work to
+  "improve scalability".
+- Could it be run on our data? Partly, with a different estimand: for one gene pair
+  it takes two count vectors over 26,000 bins and an adjacency matrix and returns
+  slope-surface posteriors. Rough extrapolation, not a measurement: if the reported
+  linear scaling held, 26,000 bins would take on the order of 5 times the 20 min
+  reported for 5,000, per pair, on a fast laptop; 790 genes would mean 790 x 789 / 2
+  pairs if all pairs were wanted, so a pair-level run is only feasible for a short list
+  of ligand-receptor pairs. It cannot produce our estimand: no total-UMI offset in
+  the interface, the answer is a spatially varying regression slope rather than
+  min(ligand rate, receptor rate), and the local inference is pointwise. It could
+  serve as a comparator for "is this ligand-receptor association credible" with the
+  differences stated, not for region comparisons of signaling fields.
+
+** Similarity and difference
+- Similar: count likelihood for ST, Bayesian spatial prior (a GMRF), posteriors with
+  credible intervals, ligand-receptor application, an explicit argument that
+  ignoring spatial autocorrelation inflates false positives.
+- Different: association regression of one gene on another, not rate fields with an
+  offset; MCMC Gibbs, not INLA; ST arrays with hundreds of spots, not 26,000 bins;
+  per-spot tests pointwise; no joint region, transect or excursion treatment.
+
+* Access problems
+- Splotch: no peer-reviewed version found (only bioRxiv v1; I cannot rule out one
+  exists). The prior definitions are in a supplementary figure (Supplementary Fig. 1c)
+  that I could only see as legend text.
+- Maniatis et al., Science 2019: only the bioRxiv preprint main text (v3) was read;
+  its Materials and Methods and "Data 1" supplement were not in the PDF, and the
+  Science version is not open access.
+- BayesfMRI paper: only arXiv v1 (2017) read; JASA 2020 version not accessed; the
+  appendix proofs were not examined.
+- SHADE: journal text and S1 Text were read, but only D.1 (bands) closely; hyperpriors
+  (S1 Text Section F) and the colorectal supplementary results were not read in
+  detail; math in the journal HTML was lost in my extraction.
+- SpaceBF: the Supplementary Material (theory of the prior, extra analyses) was not
+  available in either read version; figures (type 1 error curves, runtime plot) were
+  not inspected as images, so no numeric error rates are quoted; the OUP page was
+  blocked but the PMC XML full text was obtained.
+- I did not run any of the four software packages. All run-ability judgments above are
+  from reading documentation and source, not from tests.
+- The arXiv API search by author returned no results once (rate limited), then a web
+  search found the arXiv identifier 1706.00959.

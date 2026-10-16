@@ -5,8 +5,7 @@ Phase 2 of =Submission_PLOSOne/submission-2/PIVOT-PLAN-2026-10-14.org=. This fil
 any posterior comparison is run, what will be compared and how. Any later change goes in the
 change log at the bottom with its date and reason.
 
-STATUS: DRAFT. Two items are pending AOZ's ruling and are marked PENDING: the "looks different"
-threshold and the showcase selection rule. Everything else is proposed as final.
+STATUS: DRAFT. One item is pending AOZ's ruling and is marked PENDING: the showcase selection rule. Everything else is proposed as final.
 
 * What was looked at when choosing
 
@@ -113,17 +112,33 @@ Overlay: =design/design-regions.png=.
 - *Size, always.* Every result reports the posterior median ratio exp(contrast) and its
   interval, never "different / not different" alone (AOZ decision 6).
 
-* "Looks different" (plug-in reading): PENDING
+* "Looks different" (plug-in reading)
 
 Operational definition: the plug-in ratio r = max(a, b) / min(a, b) >= T, with a, b the regional
-averages of the plug-in rate field (published common-minimum field divided by total count).
-Proposed T = 1.5, to be set from AOZ's rulings on five examples
-(=design/threshold-examples.png=, =design/threshold-examples.csv=). Rulings and the final T are
-recorded here once given.
+averages of the plug-in rate field (published common-minimum field divided by total count). It
+concerns LEVEL only (is the field generally higher in one region), not shape or arrangement, and
+not whether the two regions follow different generating processes (the model assumes one
+stationary field per gene, so the comparison is about the realized field).
+
+Rulings (AOZ, 2026-10-16, judging level only, on =design/threshold-examples.png=):
+
+| panel | pair        | regions                       |    r | AOZ ruling                        |
+|-------+-------------+-------------------------------+------+-----------------------------------|
+| A     | CNTN2-CNTN1 | box-heart-1 vs box-heart-2    | 1.16 | same                              |
+| C     | EGF-CAV1    | anat-heart vs anat-lung       | 1.27 | hard to tell, probably different  |
+| E     | NRTN-GFRA1  | box-cord-1 vs box-cord-2      | 1.49 | definitely different              |
+| B     | CALM1-FAS   | anat-heart vs anat-thymus     | 1.99 | hard to tell, probably different  |
+| D     | NID1-ITGB1  | anat-lung vs anat-thymus      | 2.94 | definitely different              |
+
+Primary threshold: T = 1.25 (between the largest "same", 1.16, and the smallest "probably
+different", 1.27). Because the rulings near the boundary were "hard to tell", every tabulation
+is also reported at T = 1.5 and T = 2 as sensitivity analyses; these are fixed now, not chosen
+after results.
 
 Distribution of r across the 1,477 pairs (plug-in only, =design/plugin-ratios.csv=): median r
 ranges from 1.17 (box-cord-1 vs box-cord-2) to 1.71 (anat-lung vs anat-spinal-cord) across the
-13 frozen comparisons; the share with r >= 1.5 ranges from 15% to 59%.
+13 frozen comparisons; the share with r >= 1.25 ranges from 37% to 72%, and with r >= 1.5 from
+15% to 59%.
 
 * Naive comparators
 
@@ -166,3 +181,4 @@ per-spot credible intervals for ligand-receptor co-expression).
 * Change log
 
 - 2026-10-14: draft written.
+- 2026-10-16: threshold set to T = 1.25 from AOZ's rulings, with T = 1.5 and 2 as sensitivity analyses.
