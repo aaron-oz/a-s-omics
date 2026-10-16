@@ -1,0 +1,52 @@
+#+TITLE: Fidelity table: published gene-field fits vs the pilot refits with joint draws
+#+DATE: 2026-10-16
+
+Phase 3, step 2 of =Submission_PLOSOne/submission-2/PIVOT-PLAN-2026-10-14.org=. Published procedure:
+=raw-counts/00-load-pkg-set-io-set-params.R=, =01-array-run-job.R= (data, mesh) and
+=02-array-run-model.R= (Poisson branch). Refit: =pilot/refit-draws.R=. Every row is SAME or
+CHANGED; every CHANGED row is argued harmless or tested.
+
+| Row                        | Published                                                                 | Refit                                                                      | Status                                                       |
+|----------------------------+---------------------------------------------------------------------------+----------------------------------------------------------------------------+--------------------------------------------------------------|
+| Data source                | =pre-fit-obj-binned-50.Rdata= (=all.dat=), clipped to =sub.bound= with =splancs::inout= | =bin50-subregion-raw.rds=, extracted from the same object with the same bound (=controls/control-B-extract-input.R=) | SAME (same object, same clip); confirmed by the reproduction check below |
+| Bins                       | 26,000 (200 x 130, bin 50)                                                | 26,000, same coordinates, sorted by x then y                               | SAME (checked bin by bin against the saved tables)          |
+| Likelihood                 | Poisson                                                                   | Poisson                                                                    | SAME                                                         |
+| Offset                     | =E = total.count=                                                         | =E = total.count=                                                          | SAME                                                         |
+| Linear predictor           | intercept + Matern SPDE field on (x, y)                                   | same components, same names                                                | SAME                                                         |
+| Mesh                       | =fm_mesh_2d=, max.edge = c(0.15, 2) x 10000/15, offset = c(max.edge, 10000/3/1.5), cutoff = max.edge/10, min.angle 21 | identical call                                                             | SAME                                                         |
+| SPDE                       | =inla.spde2.pcmatern=, alpha 2, =constr = TRUE=                           | same                                                                       | SAME                                                         |
+| Priors                     | PC: P(range < 500) = 0.95, P(sigma > 0.1) = 0.05 (lines 63-67, overriding line 32) | same                                                                       | SAME                                                         |
+| Fitting                    | =bru(..., bru_max_iter = 1)=                                              | same                                                                       | SAME                                                         |
+| CPO                        | =control.compute = list(cpo = TRUE)=                                      | =cpo = FALSE=                                                              | CHANGED, harmless: CPO is computed after the fit as a diagnostic and does not change the posterior |
+| INLA / inlabru versions    | not recorded (fits dated 2025-04-10; a comment mentions an R 4.2 library) | INLA 25.10.19, inlabru 2.13.0, fmesher as installed in =emacs-r=           | CHANGED, tested: the reproduction check passes for all 17 genes |
+| Threads                    | not recorded                                                              | =inla.setOption(num.threads = "1:1")=                                     | CHANGED, tested by the same check                           |
+| Posterior sampling         | =predict(..., n.samples = 1000)=, saving only per-bin summaries           | =generate(..., n.samples = 1000)=, saving the joint draws                  | CHANGED in output only: inlabru's =predict()= calls =generate()= internally (checked in the installed source, 2026-10-16), so the sampler is the same |
+| Seed                       | not recorded                                                              | fixed per gene (20261016 + gene index)                                     | CHANGED, harmless: affects only Monte Carlo noise, which the check measures |
+| Quantity drawn             | lambda, expect, obs_prob                                                  | lambda only (expect = lambda x total.count is recoverable)                 | CHANGED, harmless: the design works on the rate scale       |
+
+Caveat that applies to both: the joint draws come from INLA's approximation to the joint
+posterior (Gaussian approximations conditional on hyperparameter integration points), not from
+exact posterior sampling. The published summaries carry the same approximation.
+
+* Reproduction check (=pilot/check-refit.R=, results in =pilot/check-refit.csv=)
+
+Pass rule, fixed before running: per bin, dlog = log(refit median) - log(saved median); under
+Monte Carlo error alone, z = dlog / (sqrt(2) x 1.2533 x s / sqrt(1000)) should be about N(0, 1),
+with s the log-scale posterior sd implied by the saved 2.5% and 97.5% quantiles. Pass if
+|mean z| < 0.2, sd(z) < 1.3 and |median dlog| < 0.02.
+
+Result, 2026-10-16: all 17 genes pass. sd(z) ranges 0.993 to 1.017 and |mean z| is at most 0.077,
+consistent with the refit and the published fit differing only by Monte Carlo noise. The median
+ratio of refit to saved 95% interval width (log scale) ranges 0.995 to 1.002.
+
+Run time: 48 s (Cd44, alone) to 74 s (four genes in parallel) per gene, fit plus 1,000 joint
+draws, single-threaded, on this workstation. The handoff's 140 s per gene is from a different
+machine and included the published =predict()= of three quantities.
+
+* Finding that corrects an earlier statement
+
+The fitted Matern range (posterior mean, PC parameterization, in chip units; 50 units = 1 bin)
+is 469 for Cd44 but 94 to 342 for the other 16 genes, i.e. about 2 to 7 bins. The handoff's
+"correlation length about 10 bins" holds for Cd44, not for these genes in general. The boxes
+(15 bins on a side) are therefore 2 to 8 ranges across, and the naive bins-as-independent test is
+less badly wrong for short-range genes than the plan's wording suggests.

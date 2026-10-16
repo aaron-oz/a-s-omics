@@ -1,0 +1,3 @@
+comparison,n_bins,n_pointwise_pos,n_pointwise_neg,n_excursion_pos,n_excursion_neg
+CALM1-KCNQ3 vs CALM1-PDE1A,26000,1386,1226,106,92
+Cd44 vs its tissue average,26000,6321,9110,3358,5467

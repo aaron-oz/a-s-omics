@@ -1,0 +1,62 @@
+#+TITLE: Phase 3 pilot: what was run and what came out (draft, for AOZ review)
+#+DATE: 2026-10-16
+
+Design: =../DESIGN.org= (frozen 2026-10-16, commit 86b34b0). Fidelity and reproduction check:
+=FIDELITY.org= (all 17 refits reproduce the saved medians within Monte Carlo error).
+
+* Run
+
+- =refit-draws.R=: 17 genes, 1,000 joint draws each, saved outside Dropbox at
+  =/var/home/aoz/data/a-s-omics-uncertainty/draws/= (3.2 GB).
+- =compare-lib.R=, =pilot-run.R=: every frozen comparison for the seven showcase signaling fields
+  (CALR-ITGA2B, NID1-ITGB1, ADAM12-ITGB1 from the random draw; WNT4-FZD6, RSPO1-LGR6, DHH-PTCH1,
+  VEGFA-KDR from Fig 5), Cd44, and the cross-field pair CALM1-KCNQ3 vs CALM1-PDE1A. About one
+  minute on one core.
+- =pilot-figures.R=: =fig-P1= to =fig-P5=.
+- Pointwise calls use the same one-sided level as the excursion sets (P >= 0.95), so the joint set
+  is always a subset of the pointwise set. (A first run used two-sided pointwise intervals, which
+  are not comparable; corrected before any figure was drawn.)
+
+* Results (seven signaling fields x 13 region comparisons = 91 instances; results-regional.csv)
+
+| plug-in reading (r >= 1.25)  | posterior 95% interval | naive Wilcoxon p < 0.05 | instances |
+|------------------------------+------------------------+-------------------------+-----------|
+| looks different              | excludes 1             | yes                     |        40 |
+| looks different              | excludes 1             | no                      |         1 |
+| looks different              | includes 1             | yes                     |        14 |
+| looks different              | includes 1             | no                      |         5 |
+| looks alike                  | excludes 1             | yes                     |         1 |
+| looks alike                  | includes 1             | yes                     |        24 |
+| looks alike                  | includes 1             | no                      |         6 |
+
+- "Looks different, naive test agrees, posterior does not support it": 14 of 91. Largest:
+  DHH-PTCH1, box-heart-1 vs box-heart-2, plug-in ratio 2.33, posterior median 1.54, 95% interval
+  0.40 to 7.13, Wilcoxon p = 5e-19.
+- "Looks alike but credibly differs": 1 of 91. WNT4-FZD6, lung vs spinal cord: plug-in ratio 1.20,
+  posterior median 1.32, 95% interval 1.05 to 1.66 (size reported per AOZ decision 6).
+- The naive Wilcoxon test calls a difference in 79 of 91 instances; the posterior interval
+  excludes 1 in 42 of 91.
+- Cd44 (gene field, 13 comparisons): every posterior interval is narrow; 10 look different and are
+  credible, 3 look alike and are credible. A single abundant gene is far less uncertain than a
+  signaling field built from two sparser genes.
+- Cross field (CALM1-KCNQ3 vs CALM1-PDE1A, shape-normalized, 10 regions): all 10 look different
+  and all 10 have Wilcoxon signed-rank p < 1e-14; the posterior interval includes 1 in 3
+  (box-heart-2, box-liver, anat-liver).
+- Whole field, same cross-field pair: 2,612 bins pointwise-credible (P >= 0.95, above or below),
+  198 bins in the joint 95% excursion sets. Cd44 against its own tissue average: 15,431 pointwise,
+  8,825 joint.
+- Slices (results-slices-summary.csv): for the four Fig 5 pairs, at most 2 positions per slice
+  are in a joint excursion set (WNT4-FZD6 none on any slice), although their plug-in max/min
+  ratios along a slice range 2.3 to 38. The three drawn pairs have 0 to 10 positions per slice;
+  Cd44 has 17 to 85.
+
+* Limits (state with any use of these numbers)
+
+- Seven signaling fields, three drawn at random and four chosen earlier for the paper's Fig 5; not
+  a sample from which rates can be generalized. The systematic run (Phase 4) is for that.
+- The 13 region comparisons share regions, so they are not independent questions.
+- One tissue section, one platform; INLA's approximation to the joint posterior.
+- The plug-in ratio uses the published fields (min of posterior medians), which are biased upward
+  against the posterior of the minimum (the 2026-10-08 result); part of the gap between "x" and
+  the posterior median in fig-P1 is that bias, not uncertainty.
+- D = 1,000 draws not yet checked for Monte Carlo stability of the interval endpoints.
