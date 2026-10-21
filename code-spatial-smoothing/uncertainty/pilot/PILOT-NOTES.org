@@ -60,3 +60,22 @@ Design: =../DESIGN.org= (frozen 2026-10-16, commit 86b34b0). Fidelity and reprod
   against the posterior of the minimum (the 2026-10-08 result); part of the gap between "x" and
   the posterior median in fig-P1 is that bias, not uncertainty.
 - D = 1,000 draws not yet checked for Monte Carlo stability of the interval endpoints.
+
+* Decorrelated-posterior comparator (shuffle-test.R; added to DESIGN.org before running)
+
+Each bin's 1,000 draws permuted independently across bins: every bin keeps its own posterior,
+only the between-bin correlation is removed. Results: results-shuffle-regional.csv,
+results-shuffle-crossfield.csv; thin black bars in fig-P1.
+
+- Signaling fields, 91 regional instances: credible with the joint posterior 42; with the
+  decorrelated posterior 64; Wilcoxon p < 0.05 in 79. All 22 changes go from "not credible" to
+  "credible"; none the other way.
+- Interval width on the log scale, joint / decorrelated: median 2.69, range 1.93 to 5.97 (boxes
+  median 2.53, anatomical regions 2.70). Ignoring the correlation makes the intervals 2 to 6 times
+  too narrow, while every bin's own uncertainty is still counted.
+- Cd44: 13 credible either way (width ratio median 2.4; its intervals are narrow regardless).
+- Cross field, 10 regions: credible 7 joint, 9 decorrelated (width ratio median 2.52).
+- Rough reading of the gap between the joint posterior (42) and the Wilcoxon test (79): ignoring
+  correlation alone accounts for 22 of the 37 extra calls. The remainder is consistent with also
+  discarding each bin's uncertainty, but the Wilcoxon test is a different statistic, so this split
+  is indicative, not an exact decomposition.

@@ -5,7 +5,7 @@ Phase 2 of =Submission_PLOSOne/submission-2/PIVOT-PLAN-2026-10-14.org=. This fil
 any posterior comparison is run, what will be compared and how. Any later change goes in the
 change log at the bottom with its date and reason.
 
-STATUS: FROZEN 2026-10-16 (Sam may still add showcase pairs under the rule in "Showcase selection").
+STATUS: FROZEN 2026-10-16; showcase set final 2026-10-21 (Sam approved, no additions).
 
 * What was looked at when choosing
 
@@ -142,6 +142,13 @@ ranges from 1.17 (box-cord-1 vs box-cord-2) to 1.71 (anat-lung vs anat-spinal-co
 
 * Naive comparators
 
+0. (Added 2026-10-16, before its results were seen; AOZ approved.) *Decorrelated posterior*: each
+   bin's posterior draws are permuted independently across bins, which keeps every bin's marginal
+   posterior exactly and removes only the correlation between bins. Regional intervals are then
+   recomputed. Reported for every regional instance. Purpose: isolate the effect of ignoring
+   spatial correlation from the effect of ignoring uncertainty, which the Wilcoxon comparator
+   confounds.
+
 1. *Eyeballing / plug-in*: the threshold above.
 2. *Bins treated as independent*: two-sided Wilcoxon rank-sum test, alpha = 0.05, on the plug-in
    rate values of the bins in R1 against R2 (same field); paired Wilcoxon signed-rank on plug-in
@@ -173,8 +180,8 @@ Genes to refit for these plus Cd44: CALR, ITGA2B, NID1, ITGB1, ADAM12, CALM1, KC
 
 The four ligand-receptor pairs shown in Fig 5 of the submitted manuscript, chosen long before any
 posterior comparison existed: WNT4-FZD6, RSPO1-LGR6, DHH-PTCH1, VEGFA-KDR. Each is compared in all
-13 frozen region comparisons and the 4 slices. Sam may add or swap pairs; any addition must be
-named before a posterior for it is computed, and is recorded here with the date received.
+13 frozen region comparisons and the 4 slices. Sam approved these four with no additions or swaps
+(relayed by AOZ, 2026-10-21), so the showcase set is final.
 
 Genes to refit for these: WNT4, FZD6, RSPO1, LGR6, DHH, PTCH1, VEGFA, KDR.
 
@@ -197,5 +204,7 @@ per-spot credible intervals for ligand-receptor co-expression).
 * Change log
 
 - 2026-10-14: draft written.
+- 2026-10-21: Sam approved the four Fig 5 pairs, no additions; showcase set final.
+- 2026-10-16: added the decorrelated-posterior comparator (see Naive comparators, item 0), before running it.
 - 2026-10-16: showcase rule (a) drawn; (b) set to the four Fig 5 pairs (AOZ); design frozen.
 - 2026-10-16: threshold set to T = 1.25 from AOZ's rulings, with T = 1.5 and 2 as sensitivity analyses.

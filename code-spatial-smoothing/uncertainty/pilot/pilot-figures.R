@@ -9,19 +9,21 @@ lab <- function(ld, cr) factor(ifelse(ld, ifelse(cr, names(cat4)[1], names(cat4)
 th <- theme_bw(9) + theme(panel.grid.minor = element_blank(), legend.position = "bottom")
 
 ## ---- Fig P1: regional, same field
-r <- fread("results-regional.csv")
+r <- fread("results-shuffle-regional.csv")   # results-regional.csv plus the decorrelated intervals
 r[, cat := lab(looks_diff, credible)][, cmp := paste(r1, "vs", r2)]
 r[, wil := ifelse(wilcox_p < 0.05, "Wilcoxon p < 0.05", "Wilcoxon p >= 0.05")]
 g1 <- ggplot(r, aes(y = cmp)) +
   geom_vline(xintercept = 1, color = "grey50", linewidth = 0.3) +
   annotate("rect", xmin = 1 / 1.25, xmax = 1.25, ymin = -Inf, ymax = Inf, fill = "grey85", alpha = 0.5) +
   geom_segment(aes(x = lo, xend = hi, yend = cmp, color = cat), linewidth = 0.6) +
+  geom_segment(aes(x = dec_lo, xend = dec_hi, y = as.numeric(factor(cmp)) - 0.3, yend = as.numeric(factor(cmp)) - 0.3),
+               color = "black", linewidth = 0.4) +
   geom_point(aes(x = post_ratio, color = cat, shape = cat), size = 1.8) +
   geom_point(aes(x = plug_ratio), shape = 4, size = 1.6) +
   scale_x_log10() + scale_color_manual(values = cat4, name = NULL) + scale_shape_manual(values = shp4, name = NULL) +
   facet_wrap(~ field, ncol = 4) + th + labs(x = "ratio of regional averages, region 1 / region 2 (log scale)", y = NULL,
     title = "Regional comparisons, same field: posterior 95% interval (colored) vs plug-in ratio (x)",
-    subtitle = "Gray band: plug-in ratio within 1/1.25 to 1.25 ('looks alike'). Credible = 95% interval excludes 1.")
+    subtitle = "Gray band: plug-in ratio within 1/1.25 to 1.25 ('looks alike'). Credible = 95% interval excludes 1.\nThin black bar below each row: 95% interval if spatial correlation is ignored (draws shuffled across bins).")
 ggsave("fig-P1-regional.png", g1, width = 13, height = 9, dpi = 120)
 
 ## ---- Fig P2: regional, cross field
