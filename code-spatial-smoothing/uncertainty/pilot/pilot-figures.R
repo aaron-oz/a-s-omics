@@ -56,25 +56,25 @@ g3 <- ggplot(sel, aes(pos)) + geom_hline(yintercept = 0, color = "grey50", linew
        subtitle = "Orange ticks: positions in the joint 95% excursion set (credibly above or below the slice average)")
 ggsave("fig-P3-slices.png", g3, width = 11, height = 7, dpi = 120)
 
-## ---- Fig P4/P5: whole fields
-W <- readRDS("/var/home/aoz/data/a-s-omics-uncertainty/wholefield.rds")
-xy <- W$xy[, .(i = (x - 15025) / 50 + 1, j = (y - 11525) / 50 + 1)]
-wf_panels <- function(J, plugv, ttl) {
-  d <- cbind(xy, plug = pmax(pmin(plugv, 3), -3),
-             pw = factor(ifelse(J$pw_pos, "above", ifelse(J$pw_neg, "below", "neither")), c("above", "below", "neither")),
-             ex = factor(ifelse(J$pos, "above", ifelse(J$neg, "below", "neither")), c("above", "below", "neither")))
-  cols <- c(above = "#D55E00", below = "#0072B2", neither = "grey92")
-  base <- list(coord_fixed(expand = FALSE), theme_void(9), theme(legend.position = "bottom"))
-  a <- ggplot(d, aes(i, j, fill = plug)) + geom_raster() + base +
-    scale_fill_gradient2(low = "#0072B2", mid = "grey92", high = "#D55E00", midpoint = 0, name = "plug-in log ratio") +
-    labs(title = "plug-in (what the map shows)")
-  b <- ggplot(d, aes(i, j, fill = pw)) + geom_raster() + base + scale_fill_manual(values = cols, name = NULL) +
-    labs(title = sprintf("pointwise P >= 0.95: %d above, %d below", sum(J$pw_pos), sum(J$pw_neg)))
-  c <- ggplot(d, aes(i, j, fill = ex)) + geom_raster() + base + scale_fill_manual(values = cols, name = NULL) +
-    labs(title = sprintf("joint 95%% excursion sets: %d above, %d below", sum(J$pos), sum(J$neg)))
-  (a | b | c) + plot_annotation(title = ttl)
+## ---- Fig P4: whole fields, three comparisons (rows) x four panels (columns), from additions-run.R
+A <- readRDS("/var/home/aoz/data/a-s-omics-uncertainty/wholefield-additions.rds")
+xy <- A$xy[, .(i = (x - 15025) / 50 + 1, j = (y - 11525) / 50 + 1)]
+cols <- c(above = "#D55E00", below = "#0072B2", neither = "grey92")
+lab3 <- function(p, n) factor(ifelse(p, "above", ifelse(n, "below", "neither")), c("above", "below", "neither"))
+base <- list(coord_fixed(expand = FALSE), theme_void(8), theme(legend.position = "none", plot.title = element_text(size = 7.5)))
+row_for <- function(nm) {
+  b <- A$maps[[paste(nm, "bin")]]; k <- A$maps[[paste(nm, "blk")]]
+  kb <- k$J; kb <- lapply(kb[c("pos", "neg")], function(v) v[A$blk])   # block results painted onto bins
+  d <- cbind(xy, plug = pmax(pmin(b$plug, 3), -3), pw = lab3(b$J$pw_pos, b$J$pw_neg),
+             ex = lab3(b$J$pos, b$J$neg), exb = lab3(kb$pos, kb$neg))
+  pa <- ggplot(d, aes(i, j, fill = plug)) + geom_raster() + base + theme(legend.position = "right") +
+    scale_fill_gradient2(low = "#0072B2", mid = "grey92", high = "#D55E00", midpoint = 0, name = "log ratio") +
+    labs(title = paste0(nm, "\nplug-in (what the map shows)"))
+  f <- function(v, t) ggplot(d, aes(i, j, fill = .data[[v]])) + geom_raster() + base + scale_fill_manual(values = cols) + labs(title = t)
+  pa | f("pw", sprintf("\npointwise P >= 0.95: %d bins", sum(b$J$pw_pos | b$J$pw_neg))) |
+    f("ex", sprintf("\njoint 95%%, bins: %d of 26,000", sum(b$J$pos | b$J$neg))) |
+    f("exb", sprintf("\njoint 95%%, 5x5 blocks: %d of 1,040", sum(k$J$pos | k$J$neg)))
 }
-ggsave("fig-P4-wholefield-cross.png", wf_panels(W$Jx, W$plug_x, "Whole field: log(CALM1-KCNQ3 / CALM1-PDE1A), each shape-normalized"),
-       width = 14, height = 4.2, dpi = 120)
-ggsave("fig-P5-wholefield-cd44.png", wf_panels(W$Jc, W$plug_c, "Whole field: log(Cd44 / its tissue average)"),
-       width = 14, height = 4.2, dpi = 120)
+g4 <- row_for("CALM1-KCNQ3 vs CALM1-PDE1A") / row_for("Cd44 vs its tissue average") / row_for("PKM-CD44 vs its tissue average") +
+  plot_annotation(title = "Whole fields: orange = credibly above, blue = credibly below (one field vs another, or a field vs its own tissue average)")
+ggsave("fig-P4-wholefield.png", g4, width = 15, height = 9.5, dpi = 120)

@@ -1,0 +1,19 @@
+comparison,level,T,n,looks_diff,looks_diff_in_joint,looks_diff_not_joint,looks_alike_in_joint,pointwise,joint,looks_alike_in_joint_max_post_ratio
+CALM1-KCNQ3 vs CALM1-PDE1A,bin,1.25,26000,22350,198,22152,0,2612,198,
+CALM1-KCNQ3 vs CALM1-PDE1A,bin,1.5,26000,19292,198,19094,0,2612,198,
+CALM1-KCNQ3 vs CALM1-PDE1A,bin,2,26000,14603,198,14405,0,2612,198,
+CALM1-KCNQ3 vs CALM1-PDE1A,5x5 block,1.25,1040,913,63,850,0,243,63,
+CALM1-KCNQ3 vs CALM1-PDE1A,5x5 block,1.5,1040,807,63,744,0,243,63,
+CALM1-KCNQ3 vs CALM1-PDE1A,5x5 block,2,1040,648,63,585,0,243,63,
+Cd44 vs its tissue average,bin,1.25,26000,13579,8825,4754,0,15431,8825,
+Cd44 vs its tissue average,bin,1.5,26000,8132,7740,392,1085,15431,8825,1.52
+Cd44 vs its tissue average,bin,2,26000,4705,4702,3,4123,15431,8825,2.04
+Cd44 vs its tissue average,5x5 block,1.25,1040,530,530,0,186,815,716,1.26
+Cd44 vs its tissue average,5x5 block,1.5,1040,297,297,0,419,815,716,1.5
+Cd44 vs its tissue average,5x5 block,2,1040,152,152,0,564,815,716,1.99
+PKM-CD44 vs its tissue average,bin,1.25,26000,16164,2084,14080,0,9221,2084,
+PKM-CD44 vs its tissue average,bin,1.5,26000,10398,2084,8314,0,9221,2084,
+PKM-CD44 vs its tissue average,bin,2,26000,5026,1991,3035,93,9221,2084,2.06
+PKM-CD44 vs its tissue average,5x5 block,1.25,1040,527,348,179,0,540,348,
+PKM-CD44 vs its tissue average,5x5 block,1.5,1040,339,305,34,43,540,348,1.49
+PKM-CD44 vs its tissue average,5x5 block,2,1040,165,165,0,183,540,348,2.03

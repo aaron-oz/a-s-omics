@@ -79,3 +79,31 @@ results-shuffle-crossfield.csv; thin black bars in fig-P1.
   correlation alone accounts for 22 of the 37 extra calls. The remainder is consistent with also
   discarding each bin's uncertainty, but the Wilcoxon test is a different statistic, so this split
   is indicative, not an exact decomposition.
+
+* Additions logged 2026-10-21 (additions-run.R; DESIGN.org section logged and committed before running)
+
+Drawn CD44-containing pair: PKM-CD44 (12 of the 15 CD44 pairs passed the sparsity filter; seed
+20261021; =../design/cd44-pair-draw.R=). Pkm refit passes the reproduction check (sd z 0.999).
+Figure: =fig-P4-wholefield.png= (replaces the earlier fig-P4 and fig-P5): rows are
+CALM1-KCNQ3 vs CALM1-PDE1A, Cd44 vs its tissue average, PKM-CD44 vs its tissue average; columns
+are plug-in, pointwise, joint at bins, joint at 5 x 5 blocks.
+
+| comparison                    | joint, bins (of 26,000) | joint, blocks (of 1,040) | pointwise, bins |
+|-------------------------------+-------------------------+--------------------------+-----------------|
+| CALM1-KCNQ3 vs CALM1-PDE1A    |                     198 |                       63 |           2,612 |
+| Cd44 vs its tissue average    |                   8,825 |                      716 |          15,431 |
+| PKM-CD44 vs its tissue average|                   2,084 |                      348 |           9,221 |
+
+- Blocks recover coherent structure that bins do not: for the cross-field pair, 63 blocks
+  (6.1% of the tissue) vs 198 bins (0.8%); the spinal-cord band appears at block level.
+- Same gene, alone vs as the minimum with a partner: Cd44 alone has 8,825 bins in the joint
+  sets, PKM-CD44 has 2,084. With one random partner this is an illustration, not a rate.
+- Per-position "looks different" (|plug-in log ratio| >= log 1.25), results-wholefield-additions.csv:
+  cross-field, 22,350 of 26,000 bins look different and 198 of them are in the joint sets;
+  PKM-CD44, 16,164 and 2,084; Cd44, 13,579 and 8,825. No bin that looks alike is in a joint set at
+  T = 1.25 (at blocks, Cd44 has 186 such blocks, posterior ratios up to 1.26). At bin level, a 1.25
+  threshold labels most bins "looks different" because single-bin plug-in values vary a lot; the
+  1.5 and 2 rows are in the csv.
+- Slices (results-slices-lookslike.csv), four slices pooled: signaling fields have 172 to 362 of
+  409 positions that look different, of which 0 to 25 are in the joint sets; Cd44 has 227, of which
+  203.
