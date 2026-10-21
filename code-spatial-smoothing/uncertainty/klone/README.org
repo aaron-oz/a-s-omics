@@ -1,0 +1,16 @@
+#+TITLE: Systematic run on klone (Phase 4)
+
+Stage 1 (=uq-stage1.R=, =uq-stage1.sbatch=): refit the 790 genes needed by the 1,477 pairs with
+the published model, 1,000 joint draws each, written as int16 log rates (resolution 0.001 on the
+log scale; 52 MB per gene, about 41 GB in total) to =/gscratch/csde/azimmer/uq-draws=, plus a
+per-gene reproduction check against the saved medians (=out/check/<gene>.csv=).
+Stage 2 (=uq-stage2.R=, =uq-stage2.sbatch=): per pair, the minimum of ligand and receptor draws;
+writes tissue means, frozen-region means (joint and decorrelated) and slice draws to
+=out/pairs/<pair>.rds= (about 1 MB each). All comparisons are then computed locally.
+Inputs (=prep-inputs.R= writes them to =stage/=): genes.txt, pairs.csv, check-bins.rds,
+design-index.rds; plus =bin50-subregion-raw.rds=.
+
+Local test, 2026-10-21: A2m and Abca1 pass the reproduction check (sd z 1.05, 1.03); quantization
+error at most 0.0005 on the log scale; stage 2 about 5 s per pair.
+
+Measured on klone: (filled in after the measurement task)
