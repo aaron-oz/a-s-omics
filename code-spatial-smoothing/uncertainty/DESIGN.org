@@ -201,9 +201,33 @@ per coefficient, no signaling fields), Mejia et al. (JASA 2020; INLA plus excurs
 SHADE (PLOS Comput Biol 2026; simultaneous bands along a distance axis, imaging), SpaceBF (2025;
 per-spot credible intervals for ligand-receptor co-expression).
 
+* Additions logged 2026-10-21, before any of them was run (AOZ approved)
+
+1. *Coarse-grid excursion sets.* Whole-field contrasts are also computed on 5 x 5-bin blocks
+   (200 x 130 bins -> 40 x 26 = 1,040 blocks): within each posterior draw, average the field over
+   each block first, then form the contrast, then run =excursions.mc= (u = 0, alpha = 0.05, both
+   directions). Block size fixed now: 5 bins is about 1 to 2.5 fitted correlation ranges for the
+   pilot genes. Purpose: bin-level joint sets give no credit to structure much larger than the
+   correlation range; blocks trade resolution for power while keeping the joint guarantee.
+   Regional averages remain the primary test for named structures.
+2. *Gene field vs a signaling field containing that gene.* One pair containing CD44 is drawn at
+   random (seed 20261021) from the 15 pairs in the pair table that contain CD44, restricted to
+   pairs whose plug-in median rate over the whole tissue is at or above the median across all
+   1,477 pairs; if none qualify, the draw is from all 15. That signaling field is compared with
+   its own tissue average exactly as Cd44 is (same three panels, bin level and block level), so
+   the Cd44 figure and its partner differ only in "one gene" vs "minimum of Cd44 and a partner".
+3. *"Looks different" at each slice position, bin and block (AOZ's option b).* A position looks
+   different if the plug-in map differs from its reference by at least the same factor as for
+   regions: |plug-in log ratio| >= log(1.25). References: the slice average (slices), the tissue
+   average (single field), the other field (cross field). Cross-tabulated against the joint
+   excursion sets; "looks alike but in the excursion set" is reported with its size. Sensitivity
+   at 1.5 and 2 as for regions.
+
 * Change log
 
 - 2026-10-14: draft written.
+- 2026-10-21: added coarse-grid excursion sets, a Cd44-containing pair, and per-position
+  'looks different' labels (section above), before running them.
 - 2026-10-21: Sam approved the four Fig 5 pairs, no additions; showcase set final.
 - 2026-10-16: added the decorrelated-posterior comparator (see Naive comparators, item 0), before running it.
 - 2026-10-16: showcase rule (a) drawn; (b) set to the four Fig 5 pairs (AOZ); design frozen.
