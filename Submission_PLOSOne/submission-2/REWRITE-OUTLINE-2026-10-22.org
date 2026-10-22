@@ -1,0 +1,241 @@
+#+TITLE: Rewrite outline and figure plan (Phase 5 of the uncertainty pivot)
+#+DATE: 2026-10-22
+#+AUTHOR: Aaron Osgood-Zimmerman, with Claude
+#+OPTIONS: toc:nil num:t
+#+LATEX_HEADER: \usepackage[margin=1in]{geometry}
+#+LATEX_HEADER: \usepackage{parskip}
+#+LATEX_HEADER: \usepackage{tabularx}
+
+For AOZ and Sam. Decisions taken by AOZ on 2026-10-22 are recorded below; the remaining asks of
+Sam and the TODO list are near the end, followed by the draft figures. Branch =uncertainty-pivot=.
+Source of every number below: =code-spatial-smoothing/uncertainty/pilot/PILOT-NOTES.org= and
+=code-spatial-smoothing/uncertainty/klone/results/RESULTS.org=.
+
+* The message, in one paragraph
+
+Signaling fields estimated from spatial transcriptomics are usually read from point-estimate
+maps. Our model gives every gene field, and therefore every ligand-receptor signaling field, a
+joint posterior. Using it, we ask whether differences that are visible on the maps are supported
+by the data: between regions (fixed boxes and published anatomical regions), along line
+transects, and over whole fields. On one E16.5 mouse embryo section, many visible differences are
+not supported once the posterior uncertainty, and in particular its spatial correlation, is taken
+into account, and a smaller number of differences that are not visible are supported, mostly with
+small effect sizes. A test that treats bins as independent agrees with the map far more often
+than the posterior does. These are demonstrations of what the framework allows on one section,
+not biological findings.
+
+* Decisions taken (AOZ, 2026-10-22)
+
+1. New title (wording to agree with Sam; candidates in the asks below).
+2. Current Fig 5 (comparison of the three ligand-receptor convolution operators) moves to the
+   Supporting Information.
+3. Domains: Fig 6 stays in the main text with one condensed paragraph on the three controls.
+   Note: moving Fig 6 to the Supporting Information as well would focus the paper further on
+   uncertainty; revisit if the main text runs long or reviewers find the two threads distracting.
+4. Fig 1 (project schematic) is redrawn to include the uncertainty step (Sam).
+5. Drafting order: Methods, then Results, then Introduction and Discussion, then abstract,
+   cover letter and response letter.
+
+* Abstract (skeleton, not prose)
+
+1. Problem: signaling fields are read by eye from point estimates; uncertainty is rarely
+   propagated, and bins are spatially correlated.
+2. Method: per-gene Poisson-SPDE models with a total-count offset; joint posterior draws; the
+   posterior of each common-minimum signaling field; comparisons over regions, transects, whole
+   fields; joint inference by excursion sets.
+3. Data: one field of view, E16.5 mouse embryo, Stereo-seq, 790 genes, 1,477 ligand-receptor
+   pairs.
+4. Results (numbers at T = 1.25; 1.5 and 2 in the text): of 19,201 region comparisons, 11,527
+   look different on the published maps and 3,603 of those are not credible; a bin-independent
+   Wilcoxon test calls 90% of comparisons different, the posterior with spatial correlation
+   removed 73%, the joint posterior 46%; small and same-tissue regions carry most of the
+   unsupported readings.
+5. Scope sentence: one section, one platform; the inferred fields estimate the potential for
+   signaling under the co-expression assumption, not signaling itself.
+
+* Section-by-section plan
+
+** Introduction (revise, about the same length)
+
+- Keep the three existing subsections, shortened.
+- New final subsection: reading signaling fields under uncertainty. Point estimates are read by
+  eye; bins are correlated, so independence-based tests overstate evidence; joint inference
+  (excursion sets, simultaneous bands) answers "where" questions with a stated error rate.
+- Position against: Splotch (Bayesian region comparisons of expression, per coefficient),
+  Mejia et al. 2020 (INLA plus excursion sets, fMRI), SHADE (simultaneous bands along a
+  distance axis), SpaceBF (per-spot credible intervals for ligand-receptor co-expression);
+  see =precedent-notes.org= in =code-spatial-smoothing/uncertainty/=. Claim only the combination, not
+  any single ingredient.
+
+** Materials and methods
+
+Keep (light edits): ligand-receptor principles, spatial modeling principles, the model
+specification, dataset selection and preprocessing, the three-likelihood comparison.
+
+New subsections:
+1. Joint posterior draws: refits with the published specification, 1,000 joint draws per gene;
+   the fidelity table in brief and the reproduction check (778 of 790 genes within Monte Carlo
+   noise; 12 sparse genes differ, 17 pairs, flagged and reported both ways).
+2. Posterior of a signaling field: M(s) = min of the two rate fields, per draw; rate scale;
+   independence of ligand and receptor posteriors.
+3. Regions and transects: five 15 x 15-bin boxes, five MOSTA anatomical regions, 13 frozen
+   comparisons; four transects; all fixed before any posterior comparison (frozen design,
+   dated).
+4. Quantities: areal-average ratios; shape normalization for cross-field comparisons; deviation
+   from the transect average; whole-field contrasts at bins and at 5 x 5-bin blocks.
+5. Inference: 95% intervals for scalar contrasts; excursion sets and simultaneous bands for
+   transects and whole fields; pointwise intervals as secondary.
+6. Readings we compare against: "looks different" (plug-in ratio >= T, T = 1.25 from author
+   rulings on five examples, with 1.5 and 2); Wilcoxon tests treating bins as independent; the
+   posterior with between-bin correlation removed (draws shuffled across bins).
+7. Showcase selection: three pairs drawn at random under a fixed rule, the four Fig 5 pairs,
+   Cd44, PKM-CD44; all chosen before their posteriors were computed.
+
+Shrink: the convolution-operator comparison and the hyperfield-clustering methods move to a
+shorter subsection (detail to Supporting Information).
+
+** Results (proposed order)
+
+1. Model and data model (current Figs 3, 4 and Table 1, unchanged).
+2. Signaling fields carry uncertainty: the plug-in vs posterior result (current final Results
+   subsection and S11 Fig), moved up because it motivates everything after it.
+3. Region comparisons: showcase (new figure) then systematic counts (new table), including the
+   decorrelated comparator, which isolates the effect of ignoring spatial correlation.
+4. Transects (new figure; systematic counts in text or SI).
+5. Whole fields: bin-level and block-level excursion sets; Cd44 alone vs PKM-CD44 (new figure).
+6. Domains from the full collection of fields, shortened: current Figs 5 and 6 and the three
+   controls, condensed.
+
+** Discussion
+
+1. What the uncertainty adds, stated with the counts and their limits.
+2. Why bins-as-independent fails here (fitted correlation ranges of about 2 to 9 bins for the showcase genes, longer for some sparse genes; the decorrelated
+   comparator).
+3. Limits: one section, one platform; INLA's approximation; the plug-in bias; "looks different"
+   as a proxy for eyeballing; counts share regions and genes, so they are not rates; 12 genes
+   whose refits differ from the published fit.
+4. Future work: cluster-level inference in the fMRI sense (with a null that a single section
+   cannot supply by permutation), multiple sections, other platforms; the existing transfer
+   paragraph.
+5. Relationship to existing methods: keep, add the four precedents above.
+
+* Figure and table plan
+
+| Current item   | Content                                   | Proposed fate                                      |
+|----------------+-------------------------------------------+----------------------------------------------------|
+| Fig 1          | project schematic                         | redraw to include the uncertainty step (Sam)       |
+| Fig 2          | data and parameters                       | keep                                               |
+| Fig 3          | raw vs normalized (Cd44)                  | keep                                               |
+| Fig 4, Table 1 | Poisson vs ZIP vs ZAP                     | keep                                               |
+| Fig 5          | convolution operators                     | move to SI (decided)                               |
+| Fig 6          | domains                                   | keep in main text (could move to SI later)         |
+| S10 Fig        | controls                                  | keep in SI                                         |
+| S11 Fig        | plug-in vs posterior                      | promote to main text (new Fig 7)                   |
+
+#+ATTR_LATEX: :environment tabularx :width \textwidth :align l l X
+| New item | Source (pilot)                 | Content                                                                 |
+|----------+--------------------------------+-------------------------------------------------------------------------|
+| Fig 8    | fig-P1-regional (cut down)     | region comparisons for 3 or 4 showcase pairs: plug-in ratio, joint interval, decorrelated interval |
+| Table 2  | klone/results/summary.org      | systematic counts at T = 1.25, 1.5, 2; Wilcoxon, decorrelated, joint   |
+| Fig 9    | fig-P3-slices                  | transects: plug-in, pointwise and simultaneous bands, excursion positions |
+| Fig 10   | fig-P4-wholefield              | whole fields at bins and 5 x 5 blocks; cross field, Cd44, PKM-CD44     |
+| S12 Fig  | design-regions, threshold examples | frozen regions and transects; the five threshold examples with rulings |
+| S13 Fig  | fig-P1-regional (full), fig-P2 | all showcase region comparisons; cross-field regions                   |
+| S14 Table| check2, flagged pairs          | reproduction check and the 17 flagged pairs                             |
+| S15 File | results csvs                   | per-pair systematic results                                             |
+
+All new figures need rebuilding at PLOS size (8 pt minimum, Liberation Sans, as Figs 3 to 6 were
+on 2026-10-08).
+
+* Response letter
+
+- Explain the reframing as a response to the novelty and positioning comments (R1.1, R2.10) and
+  the generality comment (R2.11), without claiming more than the counts support.
+- Re-check every response whose text or figure moved; the letter checker
+  (=python3 check-response-letter.py=) must still pass.
+
+* Asks of Sam
+
+1. Title. Candidates (none final):
+   - "Uncertainty-aware comparison of spatial signaling fields estimated from spatial transcriptomics"
+   - "Do visible differences in spatial signaling fields survive their uncertainty? A Bayesian geostatistical approach"
+   - "Spatial modeling of tissues for morphogenic field analysis, with uncertainty-aware comparison of signaling fields" (closest to the reviewed title)
+2. Redraw Fig 1 to add the uncertainty step: per-gene posterior, posterior of each signaling
+   field, comparisons over regions, transects and whole fields.
+3. Redo the graphical abstract for the new message (open from the 2026-10-08 revision, reviewer
+   item R1.5).
+4. Check text size in Figs 1 and 2 (8 pt minimum; open from the 2026-10-08 revision).
+5. Biology read of the showcase results: do any look implausible or worth a sentence? For
+   example DHH-PTCH1 between the two heart boxes (plug-in ratio 2.33, posterior 95% interval 0.40
+   to 7.13), and WNT4-FZD6 lung vs spinal cord (plug-in ratio 1.20, posterior 1.32, interval 1.05
+   to 1.66).
+6. Agreement with the reframing: uncertainty as the central result, domains shortened, Fig 5 to
+   the Supporting Information.
+
+* TODO list (remaining work)
+
+Manuscript (=plos-port/paper-plos.tex=, on =uncertainty-pivot=):
+1. Methods: new subsections (joint draws and reproduction check; posterior of a signaling field;
+   frozen regions and transects; quantities; inference; comparison readings; showcase
+   selection); condense the operator-comparison and clustering methods.
+2. Results: reorder; move the plug-in vs posterior result up (S11 Fig becomes main-text Fig 7);
+   new region, transect and whole-field sections; systematic Table 2; shortened domains section.
+3. Introduction and Discussion: uncertainty framing; four precedents (Splotch, Mejia et al. 2020,
+   SHADE, SpaceBF) with citations re-checked against the papers; limits; cluster-level inference
+   as future work; the note that the domains could move to the SI.
+4. New title; abstract rewritten from the skeleton above.
+5. Figures: rebuild Figs 7 to 10 and S12 to S14 at PLOS size (8 pt minimum, Liberation Sans);
+   move Fig 5 to the SI and renumber; export TIFFs with =export-submission-figures.sh=.
+6. Supporting Information: per-pair results files (S15), frozen design and threshold examples,
+   reproduction check and flagged pairs.
+7. Code and data availability: describe =code-spatial-smoothing/uncertainty/= and the klone
+   harness; decide where the per-pair outputs (1.5 GB) are deposited.
+
+Letters:
+8. Response letter: explain the reframing against R1.1, R2.10 and R2.11; re-check every response
+   whose text or figure moved; =python3 check-response-letter.py= must pass.
+9. Cover letter: say plainly that the revision reframes the paper around uncertainty-aware
+   comparison.
+10. Track changes: =latexdiff --math-markup=off= against tag =rev1-baseline=; with this many
+    changes, consider whether a clean copy plus a summary serves the reviewers better.
+
+From Sam: items 1 to 6 under "Asks of Sam".
+
+Housekeeping:
+11. Merge =uncertainty-pivot= into =main= once the draft is stable (AOZ approval).
+12. Remove the per-pair outputs left on klone scratch (=/gscratch/csde/azimmer/uq-out=, 1.6 GB;
+    a local copy exists) when no longer needed.
+
+\clearpage
+* Draft figures (pilot, not yet at PLOS size)
+
+#+ATTR_LATEX: :width 0.95\textwidth :float nil
+[[../../code-spatial-smoothing/uncertainty/design/design-regions.png]]
+
+Frozen regions (boxes) and transects, chosen from anatomy and total counts only.
+
+\clearpage
+
+#+ATTR_LATEX: :width \textwidth :float nil
+[[../../code-spatial-smoothing/uncertainty/pilot/fig-P1-regional.png]]
+
+Region comparisons for the seven showcase signaling fields and Cd44. Cross (x): ratio of regional
+averages on the published map. Colored bar: joint posterior 95% interval (orange triangles: looks
+different, not credible). Thin black bar: interval with between-bin correlation removed.
+
+\clearpage
+
+#+ATTR_LATEX: :width \textwidth :float nil
+[[../../code-spatial-smoothing/uncertainty/pilot/fig-P3-slices.png]]
+
+Transects: published map (dashed), posterior median (line), pointwise (dark) and simultaneous
+(light) 95% bands; orange ticks mark positions in the joint 95% excursion set.
+
+\clearpage
+
+#+ATTR_LATEX: :width \textwidth :float nil
+[[../../code-spatial-smoothing/uncertainty/pilot/fig-P4-wholefield.png]]
+
+Whole fields. Rows: CALM1-KCNQ3 vs CALM1-PDE1A (each divided by its own tissue average); Cd44 vs
+its tissue average; PKM-CD44 vs its tissue average. Columns: published map; bins credible one at
+a time; joint 95% set at bins; joint 95% set at 5 x 5-bin blocks.
