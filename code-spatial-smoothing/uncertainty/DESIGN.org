@@ -223,9 +223,23 @@ per-spot credible intervals for ligand-receptor co-expression).
    excursion sets; "looks alike but in the excursion set" is reported with its size. Sensitivity
    at 1.5 and 2 as for regions.
 
+* Addition logged 2026-10-21, before it was run (AOZ approved, defaults accepted)
+
+4. *Posterior-draw cluster inference.* For a whole-field contrast X (bins x draws), within each
+   draw d: mark the bins with X > u (and separately X < -u), with u = 0; find connected
+   components of marked bins (4-neighbor connectivity on the 200 x 130 grid,
+   =terra::patches=); set I(s, d) = 1 if bin s lies in a component of at least k = 25 bins (the
+   area of one 5 x 5 block). The cluster-level joint set is the largest set E with
+   P(I(s) = 1 for all s in E) >= 0.95, from =excursions.mc= on the indicator draws (u = 0.5,
+   type ">"). Because clusters are re-formed in every draw, their uncertainty is carried into the
+   statement rather than conditioned on (no cluster-then-test double dipping). Run first on the
+   three showcase whole-field comparisons (CALM1-KCNQ3 vs CALM1-PDE1A; Cd44 and PKM-CD44 vs their
+   tissue averages) and reported beside the bin-level and block-level joint sets.
+
 * Change log
 
 - 2026-10-14: draft written.
+- 2026-10-21: added posterior-draw cluster inference (u = 0, k = 25), before running it.
 - 2026-10-21: added coarse-grid excursion sets, a Cd44-containing pair, and per-position
   'looks different' labels (section above), before running them.
 - 2026-10-21: Sam approved the four Fig 5 pairs, no additions; showcase set final.
