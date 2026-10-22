@@ -1,0 +1,4 @@
+comparison,cluster_joint_pos,cluster_joint_neg,secs,bin_joint,block_joint_bins
+CALM1-KCNQ3 vs CALM1-PDE1A,101,67,169,198,1575
+Cd44 vs its tissue average,3297,5440,98,8825,17900
+PKM-CD44 vs its tissue average,1035,984,96,2084,8700

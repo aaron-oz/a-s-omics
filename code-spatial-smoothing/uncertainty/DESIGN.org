@@ -239,6 +239,8 @@ per-spot credible intervals for ligand-receptor co-expression).
 * Change log
 
 - 2026-10-14: draft written.
+- 2026-10-22: cluster inference stopped (AOZ): the u = 0, k = 25 variant added nothing over the
+  bin-level joint sets (pilot/PILOT-NOTES.org); fMRI-style cluster-level inference noted as future work.
 - 2026-10-21: added posterior-draw cluster inference (u = 0, k = 25), before running it.
 - 2026-10-21: added coarse-grid excursion sets, a Cd44-containing pair, and per-position
   'looks different' labels (section above), before running them.

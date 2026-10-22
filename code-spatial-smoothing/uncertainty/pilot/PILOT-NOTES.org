@@ -107,3 +107,20 @@ are plug-in, pointwise, joint at bins, joint at 5 x 5 blocks.
 - Slices (results-slices-lookslike.csv), four slices pooled: signaling fields have 172 to 362 of
   409 positions that look different, of which 0 to 25 are in the joint sets; Cd44 has 227, of which
   203.
+
+* Posterior-draw cluster inference, u = 0, k = 25 (cluster-inference.R; logged in DESIGN.org before running)
+
+| comparison                     | cluster-level joint set | bin-level joint set | block-level joint set (in bins) |
+|--------------------------------+-------------------------+---------------------+---------------------------------|
+| CALM1-KCNQ3 vs CALM1-PDE1A     |                     168 |                 198 |                           1,575 |
+| Cd44 vs its tissue average     |                   8,737 |               8,825 |                          17,900 |
+| PKM-CD44 vs its tissue average |                   2,019 |               2,084 |                           8,700 |
+
+This variant adds nothing over the bin-level joint sets: its sets are slightly smaller and almost
+entirely inside them (154 of 168, 8,734 of 8,737, 2,012 of 2,019). Reason: at u = 0, the bins with
+X > 0 in a single draw percolate into large connected regions, so the "component of at least 25
+bins" condition almost never binds (median posterior probability that a bin lies in such a
+positive component is 0.24 to 0.40 across all bins), and the statement still requires every bin
+in the set simultaneously. This is a verdict on this variant (u = 0, k = 25, per-bin indicator),
+not on cluster-level inference in general: a version that makes a statement about the cluster
+itself, or uses a higher u, could behave differently and has not been run.
