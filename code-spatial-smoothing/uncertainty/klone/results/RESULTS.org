@@ -1,0 +1,68 @@
+#+TITLE: Systematic run (Phase 4): results, first pass
+#+DATE: 2026-10-21
+
+Draws deleted from klone scratch 2026-10-21 (AOZ approved); per-pair outputs kept locally at
+=/var/home/aoz/data/a-s-omics-uncertainty/klone-out=, draws for the 27 genes of the flagged pairs
+at =.../flagged-draws=. Run: klone =ckpt=, stage 1 jobs 42117534 (measurement), 42118195 and 42125627 (790 genes);
+stage 2 jobs 42125708 and 42130416 (1,477 pairs). Tabulated locally by =../analyze-systematic.R=
+(=regional.csv=, =crossfield.csv=, =slices.csv=, =summary.org=). Definitions as in
+=../../DESIGN.org=: "looks different" = plug-in (published-field) ratio of regional averages
+>= T; "credible" = joint posterior 95% interval for the ratio excludes 1.
+
+* Checks
+
+- Reproduction: 778 of 790 genes match the published fit within Monte Carlo noise on the robust
+  check (=check2.csv=); 12 do not (Alox5, Artn, Cmklr1, Cspg4, Fgl1, Il1r2, Ly96, Mchr1, Nxph3,
+  Ocln, Pmch, Tlr1; sparse genes). They touch 17 of 1,477 pairs, which are flagged, not dropped;
+  every count below is also given without them in =summary.org= (changes are under 1%).
+  For those 17 pairs (221 instances), "looks different" was also recomputed from the refit's own
+  medians (=flagged-refit-plugin.csv=, AOZ option a, 2026-10-21): 214 of 221 calls agree with the
+  published-fit version; "looks different, not credible" is 29 with the refit plug-in vs 31 with
+  the published one; median |log| difference between the two plug-in ratios 0.015.
+- Pilot vs cluster, the 91 showcase instances (different seeds and machine): 90 of 91 credible
+  calls agree; interval endpoints differ by a median of 0.011 on the log scale. The one
+  disagreement (NID1-ITGB1, spinal-cord boxes) has a lower endpoint near 1 in both (0.98 vs 1.01).
+
+* Regional, same field: 1,477 pairs x 13 comparisons = 19,201 instances
+
+| T    | looks different | of which not credible | looks alike but credible | credible (any) |
+|------+-----------------+-----------------------+--------------------------+----------------|
+| 1.25 |          11,527 |          3,603 (31%)  |                      991 |          8,915 |
+| 1.5  |           7,719 |          1,536 (20%)  |                    2,732 |          8,915 |
+| 2    |           4,412 |            448 (10%)  |                    4,951 |          8,915 |
+
+- Naive comparators: Wilcoxon p < 0.05 in 17,320 of 19,201 (90%); decorrelated posterior credible
+  in 14,006 (73%); joint posterior credible in 8,915 (46%).
+- Of the 3,603 "looks different, not credible" at T = 1.25: Wilcoxon p < 0.05 in 3,346; the
+  decorrelated posterior calls 2,674 of them credible.
+- "Looks alike but credible" (T = 1.25), size per AOZ decision 6: posterior median ratio
+  (folded to >= 1) median 1.26, 10th-90th percentile 1.14 to 1.58, max 3.36.
+- By region comparison, the share of "looks different" that is not credible ranges from 0.91
+  (the two spinal-cord boxes, 225 bins each) to 0.10 (large anatomical regions such as lung vs
+  spinal cord). Small regions and same-tissue comparisons carry most of the unsupported readings.
+
+* Cross field (field pairs sharing a ligand or a receptor): 11,718 x 10 regions = 117,180
+
+| T    | looks different | of which not credible | looks alike but credible |
+|------+-----------------+-----------------------+--------------------------|
+| 1.25 |          69,723 |         27,167 (39%)  |                    8,970 |
+| 1.5  |          47,652 |         13,713 (29%)  |                   17,587 |
+| 2    |          27,139 |          4,973 (18%)  |                   29,360 |
+
+* Slices (1,477 pairs x 4 slices; positions summed)
+
+Positions that look different (|plug-in deviation from the slice average| >= log 1.25) vs in the
+joint 95% excursion set: cord-to-muscle 53,151 vs 3,201; heart-to-liver 115,995 vs 3,711; along the
+cord 131,763 vs 2,088; thymus-to-heart 104,899 vs 3,879. Pointwise P >= 0.95 is about 1.7 to 2.2
+times the joint count on each slice.
+
+* Limits
+
+- One tissue section, one platform; INLA's approximation to the joint posterior.
+- The 13 region comparisons and the 11,718 cross-field pairs share regions and genes, so counts
+  are not independent and are not rates over a population of tissues or pairs.
+- "Looks different" is a proxy for eyeballing (the regional-average ratio), set from five
+  rulings; hence the three thresholds.
+- The plug-in fields are biased upward against the posterior of the minimum, so part of the
+  plug-in/posterior gap is that bias.
+- Sizes for "looks alike but credible" are mostly near the threshold (median 1.26).

@@ -13,4 +13,4 @@ design-index.rds; plus =bin50-subregion-raw.rds=.
 Local test, 2026-10-21: A2m and Abca1 pass the reproduction check (sd z 1.05, 1.03); quantization
 error at most 0.0005 on the log scale; stage 2 about 5 s per pair.
 
-Measured on klone: (filled in after the measurement task)
+Measured on klone (2026-10-21): stage 1, 1 gene 2.47 GB / 5:20, 10 genes 4.1-4.7 GB / 16-23 min; stage 2, 50 pairs 2.26 GB / 8:25. Seven stage-1 tasks failed on a container-mount fault (squashfuse) and were rerun. Robust check: uq-check2.R; 12 genes flagged.
