@@ -1,0 +1,319 @@
+#+TITLE: Literature notes, batch 2 (Bayesian and Gaussian-process spatial transcriptomics methods)
+#+DATE: 2026-10-22
+#+STARTUP: overview
+
+Purpose: position our paper ("Spatial modeling of tissues for morphogenic field analysis", PLOS One; per-gene Poisson counts with a total-UMI offset and a Matern SPDE Gaussian random field fitted in R-INLA/inlabru; joint posterior draws used for regional averages, 1D transects with simultaneous bands, and whole-field excursion sets) against existing Bayesian and Gaussian-process spatial transcriptomics methods.
+
+Conventions in this file. "PDF p." means the page of the local PDF named in the text path (not necessarily the journal's printed page). Where a source was only available as an XML-derived text file without pages, quotes are located by section name. Every quote below was machine-checked against the local text file after whitespace normalization. "Not stated in what I read" means exactly that; it does not mean the paper does not do it.
+
+Local files all live under /var/home/aoz/data/a-s-omics-lit/ ; BibTeX for the eight papers is in batch2.bib in the same directory.
+
+Summary table (one row per paper; details under each heading):
+
+| Paper | Uncertainty produced | Used for comparing locations, regions, transects, fields? | Spatial correlation modeled? |
+|-------+----------------------+------------------------------------------------+------------------------------|
+| SHADE | Posterior draws of distance-interaction curves (point process, not an expression field); max-t simultaneous bands | Yes, for curves over a 1D distance axis; group difference band shown once (supplement figure) | Not a spatial random field; curve coefficients are the object |
+| BayesTME | Posterior samples of latent variables (cell counts, program memberships) from an empirical-Bayes Gibbs sampler | Per-gene/per-program selection with Bayesian FDR; no regional contrasts | Graph (lattice) smoothing priors |
+| BOOST-GP | MCMC posterior inclusion probability per gene (spatially variable or not) | Gene-level selection with Bayesian FDR; no map or region contrast | Stationary GP with squared-exponential kernel |
+| Velidi et al. 2026 | INLA marginal likelihoods (Bayes factors) per gene | Model comparison per gene (stationary vs non-stationary vs non-spatial) | Stationary vs non-stationary Matern (SPDE), R-INLA |
+| BayesSpace | MCMC for cluster labels and latent subspot expression; posterior summaries beyond clustering not stated in what I read | Downstream DE uses Wilcoxon on enhanced expression, unadjusted P | Potts Markov random field on labels |
+| MEFISTO | Variational posterior over latent factors (GP); uncertainty for interpolation | No comparisons of regions or fields | Squared-exponential GP over coordinates, on latent factors |
+| Smoother | None (MAP point estimates) | Wilcoxon on spots/proportions | Markov random field prior used as a penalty |
+| Splotch | Stan HMC posterior of region-level coefficients | Yes: Savage-Dickey Bayes factor on difference of two region coefficients, 1D | Region effect plus CAR local effect |
+
+* SHADE (Eliason, Peruzzi, Rao 2026)
+
+** Citation and what was read
+Eliason J, Peruzzi M, Rao A. SHADE: A multilevel Bayesian framework for modeling directional spatial interactions in tissue microenvironments. PLOS Computational Biology 22(2):e1013930, February 2026. doi:10.1371/journal.pcbi.1013930.
+
+Read: the published main text (16 PDF pages) and S1 Text in full (44 PDF pages): sections A (point-process background), B (logistic approximation), C (example curves), D (simultaneous bands, screening summaries, simulations, coverage and type I error, spatial confounding), E (colorectal cancer details including the CLR vs DII comparison, compartment adjustment, comparison with G-cross and functional PCA), F (priors), G (variability summaries). Figures were read through their captions and the text; I did not inspect the plotted images. The reference list was not checked.
+
+Local files: /var/home/aoz/data/a-s-omics-lit/shade/main.pdf, main.txt, s1.pdf, s1.txt (PLOS "printable" PDF and S1 Text PDF, downloaded 2026-10-22).
+
+** What is modeled and what uncertainty is produced
+- Data are cell centroids from multiplexed imaging (colorectal cancer cohort, about 200,000 cells, 35 patients, 4 images each; Schurch et al. 2020 data), not gene expression. The model is a multitype inhomogeneous Poisson process (point pattern) in which the log-intensity of a target cell type is a sum of distance-basis terms from each source cell type; the fit uses a logistic-regression approximation with dummy points (S1 Text section B).
+- The estimand is the "spatial interaction curve" (SIC), a function of distance s (microns) from a source cell, written as a basis expansion with P radial basis coefficients. Coefficients have a three-level hierarchy (image within patient within cohort) with Gaussian priors and half-normal hyperpriors on the three standard deviations: Half-Normal(xi_p, xi_p) for the cohort level (xi_p in {5, 3, 1} in the colorectal analysis), Half-Normal(1.5, 10) for patient, Half-Normal(1, 10) for image (S1 Text section F; the second argument is as printed there and I did not resolve whether it is a scale or a variance).
+- Inference: the main text says Stan with Hamiltonian Monte Carlo through cmdstanr; the timing experiments in S1 Text section D.8 used variational inference with 1,000 posterior draws. So the posterior in the timing study was a variational approximation; which engine produced each figure in the application is not separated in what I read.
+- Uncertainty: posterior draws of the coefficients give draws of each SIC curve. Pointwise intervals and "simultaneous 95% credible bands" are built from them (below).
+
+** How uncertainty is used for comparisons
+- Simultaneous band construction (S1 Text D.1): with posterior mean and posterior SD of the SIC on a grid of distances, standardize each posterior draw to Z_j(s) = (SIC_j(s) - mean(s)) / sd(s), take T_j = max over s of |Z_j(s)|, and use the (1 - alpha) empirical quantile c of T_j; the band is mean(s) +/- c sd(s). This is a max-t (supremum) band calibrated on the joint posterior draws, in the same family as the simultaneous bands and excursion sets we use, but on a 1D distance axis with a handful of basis coefficients (3 radial bases in the simulations), not on a spatial field with thousands of bins.
+- Significance: a curve is called significant over a range if the simultaneous band excludes zero there. Three screening summaries (peak magnitude, persistence probability over a prespecified interval, integrated strength over the region where the band excludes zero) are built on the same draws (D.2). The persistence score is a joint posterior probability that the whole curve over an interval has one sign, computed from draws.
+- Group comparison (the question asked): the main text (section 2.2) says "Differences between groups are then assessed by comparing the posterior distributions of these cohort-level parameters, as quantified through SICs (Eq 4) and their associated simultaneous credible bands." In the application (section 4.4, Fig 8) the stated criterion is overlap: "simultaneous 95% credible bands overlap at all distances for all cell type pairs." Overlap of two separately computed bands is a weaker and different criterion from a band on the difference. However S1 Text Fig U (PDF p. 36) does show a band on the difference: "The difference in SICs between the two patient groups, with simultaneous 95% credible bands." Neither the main text nor S1 Text, in what I read, describes how the difference band was computed (for example whether it is built from paired posterior draws of the two cohort curves). So: a simultaneous band on a group difference exists as a supplementary figure; the main-text inference rule is band overlap.
+- Multiplicity across cell-type pairs: not controlled by a formal adjustment; the paper proposes screening summaries and calls the application "strictly hypothesis-generating" (main section 4.4).
+
+** Spatial correlation and evidence about ignoring it
+- The model has no latent spatial random field over the tissue; the spatial structure enters through distance-to-source covariates, so "spatial correlation between bins" in our sense is not modeled. Correlation across distances within a curve is handled implicitly by using joint draws for the supremum.
+- Closest evidence on ignoring structure: (a) the non-hierarchical "Flat" model that treats images independently had type I error of 27 to 29% (median, nominal 5%) in the null simulations and coverage of 53 to 86% (S1 Text D.9); this concerns ignoring the image/patient hierarchy, not spatial correlation. (b) Unmodeled tissue compartments (Voronoi regions with multiplicative baseline intensities 0.8, 1.2, 1.5) inflated type I error to 11.7 to 17.1% and gave coverage of 43 to 52% when source and target densities were both high (D.10). (c) Even in the nominal-hierarchical case, the paper reports median coverage of 53 to 100% in the coverage simulations, which it attributes to shrinkage toward patient means (the metric compares shrunk image-level bands to unshrunk truth).
+- Simultaneous-band calibration against a known truth is therefore not clean in SHADE's own simulations; the authors present the method as suited to "exploratory hypothesis generation" with envelope tests preferred "for confirmatory studies requiring uniform error control" (S1 Text D.9.1).
+
+** Ligand-receptor or cell-communication content
+None. It models cell-type co-localization from imaging; "interaction" means spatial association between cell types, not signaling. Not a ligand-receptor method.
+
+** Relevance to our paper
+- Citable: SHADE is a recent (2026) published example of using joint posterior draws to build simultaneous (max-t) bands and to argue that pointwise intervals do not account for multiple comparisons, on a 1D curve. It supports the general logic of our transect analysis.
+- Limits a novelty claim: our claim that joint posterior uncertainty and simultaneous bands have not been used for spatial comparisons should be narrowed. SHADE uses simultaneous bands for distance curves in point-process models of imaging data, and it has a (supplementary) band on a between-group difference. What it does not do, in what I read: apply this to a gene-expression field, to regional averages, to 2D excursion sets, or to ligand-receptor fields; and it does not model between-bin spatial correlation of a rate field.
+- Also limits: its own simulations show simultaneous bands undercovering under misspecification (compartments), a cautionary precedent for how we phrase calibration claims.
+
+** Quotes (verbatim; location in parentheses)
+- "While pointwise credible intervals can quantify uncertainty at individual distances, they do not account for multiple comparisons across the distance domain" (S1 Text D.1, PDF p. 6)
+- "simultaneous credible bands provide a global probabilistic guarantee that the entire SIC lies within the band over its domain with high posterior probability" (S1 Text D.1, PDF p. 6)
+- "Differences between groups are then assessed by comparing the" (main text, section 2.2, PDF p. 6; the sentence continues across a hyphenated line break as "posterior distributions of these cohort-level parameters")
+- "simultaneous 95% credible bands overlap at all distances for all cell type pairs" (main text section 4.4, PDF p. 13)
+- "The difference in SICs between the two patient groups, with simultaneous 95% credible bands." (S1 Text Fig U caption, PDF p. 36)
+- "but severely undercovers (43–52% vs. nominal 95%)" (S1 Text D.10.1, PDF p. 22)
+
+* BayesTME (Zhang et al. 2023)
+
+** Citation and what was read
+Zhang H, Hunter MV, Chou J, Quinn JF, Zhou M, White RM, Tansey W. BayesTME: An end-to-end method for multiscale spatial transcriptional profiling of the tissue microenvironment. Cell Systems 14(7):605-619.e7, July 2023. doi:10.1016/j.cels.2023.06.003.
+
+Read: the full text of the author manuscript in PubMed Central (PMC10368078, retrieved as XML through NCBI efetch and converted to text): Summary, Introduction, all Results, Discussion, and all STAR Methods including the generative model equations (as printed in the XML), the empirical Bayes inference description, marker-gene and program selection. Not read: the supplementary figures (S1 to S7) and Key Resources table contents; the PDF figures were not viewed (captions only, and these are truncated in my text conversion). The bioRxiv preprint (10.1101/2022.07.08.499377, v1, 22 PDF pages) was downloaded and only searched for uncertainty, FDR and posterior statements; those passages agree with the published text, but I did not read it in full.
+
+Local files: /var/home/aoz/data/a-s-omics-lit/bayestme/pmc.xml, pmc.txt (published, no page numbers), preprint-v1.pdf, preprint-v1.txt.
+
+** What is modeled and what uncertainty is produced
+- Input: spot-by-gene UMI count matrix (Visium and similar), with spot coordinates defining a lattice or hexagonal neighbor graph. Output: spot bleeding correction, reference-free deconvolution into K cell types, community segmentation, and "spatial transcriptional programs" (STPs): groups of genes whose within-cell-type expression varies in space.
+- Likelihood: spot counts are sums over cell types of Poisson or negative binomial terms, with the rate scaling linearly in the number of cells of each type; within-type spatial variation enters through the negative binomial success probability (sigmoid of a program pattern times a gene loading plus an offset).
+- Spatial prior: graph-fused and graph-trend-filtering horseshoe-type priors on neighboring-spot differences (a heavy-tailed Bayesian variant of the graph-fused group lasso and of graph trend filtering). This is lattice-neighbor smoothing; it is not a Matern or Gaussian-process field with a range parameter, though the first-order trend-filtering penalty is described as equivalent to the graph Laplacian.
+- Inference: an empirical Bayes, staged Gibbs sampler (the paper states that full MCMC or HMC of the whole model was judged impractical). Bleeding is corrected first by an optimized monotone-basis model and then "the cleaned reads R are then treated as correct", so uncertainty about the bleed correction is not propagated. The deconvolution model gives T = 100 posterior samples (2000 burn-in, thinning 5). The STP model is then fit conditionally on each saved deconvolution sample (99 burn-in iterations, the 100th taken as the sample), a two-stage approximation justified by an expectation identity for Poisson versus negative binomial at p = 0.5.
+- Hyperparameters (number of cell types K, smoothness lambda) are selected by spatial cross-validation.
+
+** How uncertainty is used for comparisons
+- Marker genes: omega_kg = fraction of posterior samples in which gene g's expression in cell type k exceeds that in every other type; Bayesian FDR control by the step-down rule on (1 - omega), default FDR 5%. This is a posterior-probability ranking over genes, evaluated sample by sample (joint over the k-comparisons within a draw, marginal over genes).
+- Spatial programs: gene membership in a program and spot activity are retained when their posterior frequency is at least 0.95 (their alpha); programs are dropped if correlated with cell density (Pearson above 0.5) and Moran's I below 0.9 (stated filter in Methods). No comparison of mean expression between regions, transects or conditions with credible bands is described; no simultaneous bands or excursion sets in what I read.
+- Evidence of calibration: in one simulation (6 programs, 60 spatial genes) the average false discovery proportion was 14% against a 5% target, with a 95% confidence interval covering 5% (as the paper states), and true positive rate 94%.
+
+** Spatial correlation and evidence about ignoring it
+Spatial dependence is modeled by neighbor-graph priors. The paper reports that without bleed correction genes can falsely register as spatially varying in real data, and compares BayesTME against SpatialDE and SPARK (which, the paper says, detect only cell-type-proportion patterns in its simulation). It reports no experiment that removes between-spot correlation from a posterior and shows the consequence for comparisons.
+
+** Ligand-receptor or cell-communication content
+Not treated. The Discussion says "future versions of BayesTME will introduce an additional cell-type interaction term" in the success-rate formulation; the paper does not use ligand-receptor databases.
+
+** Relevance to our paper
+- Citable: BayesTME is an end-to-end Bayesian method with posterior sampling that uses posterior uncertainty for gene-level FDR-controlled selection; it supports the statement that existing Bayesian methods use posterior uncertainty mainly for selecting genes or programs, not for contrasting regions or fields.
+- Different model class: negative binomial with multi-cell-type deconvolution and lattice priors; it does not target single-gene rate fields at 26,000-bin resolution, and the lattice prior is not our SPDE Matern field.
+- Weakens nothing in a novelty claim about simultaneous inference on fields, as far as I read; the staged empirical-Bayes procedure also means its posterior is conditional on plug-in bleed correction.
+
+** Quotes (verbatim; section in parentheses)
+- "Through an efficient empirical Bayes inference procedure, BayesTME infers all of the latent variables in the generative model with full quantification of uncertainty." (Introduction, last paragraphs)
+- "BayesTME uses posterior uncertainty to select statistically significant marker genes with control of the Bayesian false discovery rate (FDR)" (STAR Methods, Selecting marker genes)
+- "The empirical Bayes approach merely plugs in point estimates for nuisance parameters while providing full Bayesian inference with uncertainty quantification for the latent variables of interest." (STAR Methods, Generative model)
+- "future versions of BayesTME will introduce an additional cell-type interaction term in the success rate formulation in our negative binomial model" (Discussion)
+
+* BOOST-GP (Li, Zhang, Xie, Xiao 2021)
+
+** Citation and what was read
+Li Q, Zhang M, Xie Y, Xiao G. Bayesian modeling of spatial molecular profiling data via Gaussian process. Bioinformatics 37(22):4129-4136, 2021. doi:10.1093/bioinformatics/btab455.
+
+Read: the arXiv preprint v1 (arXiv:2012.03326, submitted 6 December 2020, 34 PDF pages, listing the same title and authors) in full for Introduction, Model, Model Fitting (MCMC and posterior inference), Simulation Study, and Conclusion; the Real Data Analysis section was only skimmed for uncertainty-related content. The published journal version was not accessible (OUP returned HTTP 403; the PMC record PMC9502169 contains only the abstract). So the notes describe the preprint, which may differ from the published article. Supplementary data not read.
+
+Local files: /var/home/aoz/data/a-s-omics-lit/boostgp/arxiv-2012.03326.pdf, arxiv.txt, pmc.xml, pmc.txt (abstract only).
+
+** What is modeled and what uncertainty is produced
+- Per gene j and spot i, zero-inflated negative binomial counts with mean s_i * lambda_ij (s_i a size factor proportional to the spot's total reads across genes, constrained to sum to 1) and dispersion phi_j. The log of lambda_j has a mean from covariates plus a gene-specific zero-mean stationary Gaussian process (GP) with a squared-exponential kernel and a gene-specific length scale l_j; a binary indicator gamma_j says whether gene j is "spatially variable" (GP covariance) or not (white noise).
+- Inference: Metropolis-within-MCMC (random-walk Metropolis for dispersion and expression levels, add-delete moves for gamma and l); four chains of 2,000 iterations in the simulations. The GP mean and scale are integrated out analytically (giving multivariate t densities).
+- Uncertainty produced: a posterior inclusion probability (PPI) for each gene, a Bayesian FDR threshold on the PPIs (formula in section 3.2), and posterior draws of the normalized expression levels lambda_ij (the algorithm updates them; the paper's own emphasis is on gamma). A p-value from an approximate Bayes factor is also offered.
+
+** How uncertainty is used for comparisons
+Only gene-level classification (spatially variable or not) with Bayesian FDR or a PPI cutoff; the paper says "Our primary interest lies in the identification of SV genes". It does not use the posterior of lambda to compare locations, regions, transects, or fields, and no simultaneous bands or excursion sets appear in what I read. Multiplicity is handled across genes through the Bayesian FDR threshold; in the simulations the selection rule combined Benjamini-Hochberg-adjusted p-value below 0.05 and PPI above 0.5.
+
+** Spatial correlation and evidence about ignoring it
+Spatial correlation is the model's whole point (stationary GP, squared-exponential kernel). The paper compares against SpatialDE, SPARK, and Trendsceek (which use pre-specified length scales or permutation) rather than quantifying what ignoring correlation does to regional or field comparisons. In its simulations the text states that BOOST-GP "had very stable performance among all the four patterns" and that accuracy dropped under 30% forced extra zeros; I did not verify the table values.
+
+** Ligand-receptor or cell-communication content
+None.
+
+** Relevance to our paper
+- Citable as a Bayesian GP model for counts (negative binomial with excess zeros and a size-factor offset, which parallels our Poisson-with-UMI-offset) whose posterior is used for gene-level spatial-variability detection with Bayesian FDR.
+- Limits: the stationary GP with squared-exponential kernel is the same stationarity assumption we make with the Matern field; the Velidi et al. paper (below) is the more direct evidence on whether that matters.
+- Does not weaken a claim that joint posterior inference on regions, transects and excursion sets is new; it is not what this method does.
+
+** Quotes (verbatim; arXiv preprint v1, PDF page in parentheses)
+- "BOOST-GP directly models count data using a negative binomial distribution" (PDF p. 5)
+- "gene-specific zero-mean stationary Gaussian process (GP)" (PDF p. 9)
+- "Our primary interest lies in the identification of SV genes" (PDF p. 14)
+- "Alternatively, we can choose the threshold that controls for multiplicity (Newton et al. 2004), which guarantees the expected Bayesian false discovery rate (FDR) to be smaller than a number." (PDF p. 15)
+
+* Velidi, Wei, Nathoo 2026 (covariance nonstationarity)
+
+** Citation and what was read
+Velidi P, Wei Z, Nathoo FS. Covariance Nonstationarity is Evident in Spatial Transcriptomics Providing a New Categorization of Spatially Varying Genes. bioRxiv, doi:10.64898/2026.08.10.743911. The Crossref title has no "and" before "Providing"; the title in the task text differs slightly ("... and Provides a New Categorization ..." is the title of version 1).
+
+DOI check (2026-10-22): doi.org/10.64898/2026.08.10.743911 resolves (HTTP 302 redirects to biorxiv.org, then to .../content/10.64898/2026.08.10.743911v5, HTTP 200). Crossref lists it as posted 2026-08-14. Version 5 exists (and v1), so there are at least five versions. A preprint, not peer reviewed.
+
+Read: version 5 (posted 2026-10-16), 14 PDF pages, in full (main text, Methods, figure captions); version 1 (posted 2026-08-14), 17 PDF pages, only the title, abstract, and first page. Supplementary Information (media-1.pdf, 614 text lines, version 5) read for sections S1 to S2.7 (data, preprocessing, mesh, model definitions, the R-INLA code excerpts, Bayes factor definitions, simulation design); the supplementary tables and the enrichment tables (S3) were not read. Differences between versions: the version 1 abstract says 13 Visium datasets and a "Conclusions" sentence that stationarity is "not a benign technical simplification"; version 5 says 12 datasets and uses more cautious wording. I cite version 5 below; the claims may be revised again.
+
+Local files: /var/home/aoz/data/a-s-omics-lit/velidi2026/main-v5.pdf, v5.txt, main-v1.pdf, v1.txt, supp-media-1.pdf, supp.txt.
+
+** What is modeled and what uncertainty is produced
+- Engine: R-INLA with the SPDE (stochastic partial differential equation) representation of a Matern Gaussian field, as in our work. Per gene, the expression is a Gaussian-likelihood model on preprocessed values: log1p counts, rank-based inverse-normal transform, and removal of a quadratic spatial trend. So this is not a Poisson count model with an offset; it is a Gaussian model for normal scores of residuals.
+- Three models per gene: non-stationary Matern (log kappa varies linearly with scaled mesh coordinates, log tau constant; a very restricted non-stationarity: 4 parameters), stationary Matern, and no spatial effect. The quantity produced is the INLA marginal likelihood of each model, hence Bayes factors (BF_NS,S = non-stationary versus stationary, then stationary versus non-spatial). The output is a per-gene model classification, not posterior maps of rate fields.
+- Calibration: simulations from the fitted models in two datasets (Human Breast Cancer ILC and Human Ovarian Cancer), 100 replicates; at the threshold BF_10 > 1 they report average power 0.874 and empirical FDR 0.003 (ILC) and power 0.811 and FDR 0.081 (ovarian). Selection of null and alternative genes used the real-data BFs themselves, so the simulation is conditional on that classification.
+- Findings: 3% to 50% of genes favor non-stationarity across 12 Visium datasets (50% in ILC). The authors state that the sections are single tissue sections and that this "does not establish a population-level association".
+
+** How uncertainty is used for comparisons
+Only to compare models per gene (Bayes factors). There is no comparison of locations, regions, transects or fields, no simultaneous bands, no excursion sets, and no ligand-receptor content.
+
+** Spatial correlation and evidence about ignoring it
+This paper is evidence about the stationarity assumption in particular, not about ignoring correlation altogether. Its argument: if the true field is covariance non-stationary but a stationary model is fitted, "covariance misspecification is expected primarily to affect power rather than the nominal false-positive rate" for tests of spatial variability against a null with no spatial term; under the alternative the stationary fit "can only approximate the true spatial dependence", which can lead to missed genes or a mischaracterized spatial scale. It explicitly leaves the effect on downstream analyses open: "Future work will investigate how covariance misspecification affects downstream analyses." That is a stated gap, and it is relevant to our credible bands and excursion sets, which depend on the fitted covariance (range and variance).
+
+** Relevance to our paper
+- Same inference stack (R-INLA, SPDE Matern), so citing it supports using Matern/SPDE fields for expression data, and it is the closest published statement that stationary Matern may be inadequate for a sizeable share of genes (3% to 50% depending on the dataset, by their Bayes-factor criterion and their Gaussian-on-normal-scores model, Visium only).
+- Limits our claims: our model assumes a stationary Matern field with a single range and variance per gene; this paper reports that stationarity is disfavored by Bayes factors for a nontrivial fraction of genes in Visium data. Our credible bands and excursion sets are conditional on that assumption; we should state it as a limitation and not claim the bands are calibrated under non-stationarity. We have not tested this on Stereo-seq.
+- Caveats on using it: preprint, five versions; Gaussian model on rank-normalized, detrended values (the detrending itself removes smooth spatial variation); the non-stationarity form is a linear trend in log kappa; mesh and priors are default-style; no Stereo-seq data. Weaker than "stationary models are wrong"; the authors say "adequacy is gene- and dataset-specific".
+
+** Quotes (verbatim; version 5, PDF page)
+- "In contrast, we focus on hypothesis testing, particularly testing for spatially varying genes while accounting for non-stationary spatial covariance." (PDF p. 3)
+- "covariance misspecification is expected primarily to affect power rather than the nominal false-positive rate" (PDF p. 6)
+- "Future work will investigate how covariance misspecification affects downstream analyses." (PDF p. 5)
+- "the present analysis of individual tissue sections does not establish a population-level association" (PDF p. 5)
+- "Both models were fit with a Gaussian likelihood using R-INLA." (Supplementary Information S2.4, supplement PDF p. 5)
+
+* BayesSpace (Zhao et al. 2021)
+
+** Citation and what was read
+Zhao E, Stone MR, Ren X, Guenthoer J, Smythe KS, Pulliam T, Williams SR, Uytingco CR, Taylor SEB, Nghiem P, Bielas JH, Gottardo R. Spatial transcriptomics at subspot resolution with BayesSpace. Nature Biotechnology 39(11):1375-1384, 2021. doi:10.1038/s41587-021-00935-2.
+
+Read: the full text of the PMC author manuscript (PMC8763026, retrieved as XML and converted to text; no page numbers): abstract, Introduction, all Results, Discussion, Methods (preprocessing, clustering model, enhanced-resolution model, gene-expression mapping, simulations) and figure captions. Not read: the Supplementary Information and Supplementary Figures (including the MCMC algorithm details, which the main text defers to the Supplementary Information) and the bioRxiv preprint 10.1101/2020.09.04.283812 (not downloaded).
+
+Local files: /var/home/aoz/data/a-s-omics-lit/bayesspace/pmc.xml, pmc.txt.
+
+** What is modeled and what uncertainty is produced
+- Input is a low-dimensional representation (top 15 principal components of the top 2,000 highly variable genes of log-normalized data), not counts. Model: a Gaussian mixture of clusters with a t-distributed error (scale-mixture weights, fixed degrees of freedom 4), with a Potts Markov random field prior on cluster labels over the lattice neighbors; estimation by MCMC (Gibbs for means, precision, weights; Metropolis-Hastings for labels).
+- Enhancement: each spot is split into 6 (Visium) or 9 (ST) subspots whose latent PC values are additional MCMC variables, jittered subject to preserving the spot total. Subspot gene expression is then predicted by a per-gene regression (XGBoost by default, or linear) from PCs.
+- What uncertainty is produced: posterior sampling underlies the estimates, but the outputs described in the main text are point cluster assignments and point enhanced expression values. Posterior uncertainty of cluster labels or subspot values is not described as an output in what I read.
+
+** How uncertainty is used for comparisons
+None in the Bayesian sense. For downstream differential expression the Methods say "we used the two-sided Wilcoxon rank-sum test as implemented in Seurat to identify the top differentially expressed genes" on the enhanced-resolution values, and figure legends state "All reported P values are unadjusted values." The Wilcoxon test treats enhanced subspot values (which are model predictions, smoothed by the spatial prior and regressed from PCs) as independent observations. This is an instance of the practice our paper contrasts against (Wilcoxon tests treating bins as independent), appearing in a Nature Biotechnology paper; the paper does not discuss the dependence.
+
+** Spatial correlation and evidence about ignoring it
+Modeled through the Potts prior on labels; the data model is conditionally independent given labels except for a shared full precision matrix. No analysis of what ignoring correlation does to downstream tests.
+
+** Ligand-receptor or cell-communication content
+None.
+
+** Relevance to our paper
+- Citable: spatial clustering and resolution enhancement with an MRF prior and MCMC; downstream DE by Wilcoxon on model-smoothed values with unadjusted P (an example of naive reading of a spatial model's output). The Wilcoxon statement needs care in our wording: it is the Seurat Wilcoxon applied between clusters of enhanced values, which is not the same as our comparison of regional means; I would describe it as "standard practice" only with that qualification.
+- No weakening of a novelty claim about joint uncertainty for field comparisons.
+
+** Quotes (verbatim; section in parentheses)
+- "BayesSpace implements a fully Bayesian model with a Markov random field before encouraging spots of the same cluster to be close to one another." (Methods, Spatial clustering model; the word "before" is as printed, presumably meaning "prior")
+- "In our analyses, we used the two-sided Wilcoxon rank-sum test as implemented in Seurat to identify the top differentially expressed genes" (Methods, Mapping high-resolution PCs to high-resolution gene expression space)
+- "All reported P values are unadjusted values." (Figure 4 legend)
+- "The choice to model PCs rather than the full gene expression profile allows for a more tractable probabilistic model" (Methods, Preprocessing and dimension reduction)
+
+* MEFISTO (Velten et al. 2022)
+
+** Citation and what was read
+Velten B, Braunger JM, Argelaguet R, Arnol D, Wirbel J, Bredikhin D, Zeller G, Stegle O. Identifying temporal and spatial patterns of variation from multimodal data using MEFISTO. Nature Methods 19(2):179-186, 2022. doi:10.1038/s41592-021-01343-9.
+
+Read: the PMC author manuscript (PMC8828471, XML converted to text; no page numbers): Main text, Results (simulations, evo-devo atlas, microbiome, single-cell multi-omics, Visium mouse brain), Discussion, and the Methods sections on the model, inference, and spatial application (equations came through as LaTeX fragments and were only skimmed). Not read: Supplementary Information (including the inference derivations, "Supplementary Information Section 3") and Extended Data beyond captions.
+
+Local files: /var/home/aoz/data/a-s-omics-lit/mefisto/pmc.xml, pmc.txt.
+
+** What is modeled and what uncertainty is produced
+- Multi-view, multi-group factor analysis in which each latent factor is a Gaussian process over a continuous covariate (time or 2D coordinates), with covariance equal to a product of a low-rank group kernel and a squared-exponential kernel over the covariate. Observations are Gaussian after preprocessing (normalized or transformed values; the Discussion lists count noise models as future work).
+- Inference: variational inference with optimization of the evidence lower bound over GP hyperparameters; sparse GP approximations with inducing points (1,000 on a grid for the Visium example).
+- Uncertainty: the GP posterior over factors is available "as well as providing measures of uncertainty" for interpolation and extrapolation; the paper's plotted examples show posterior mean and variance of the latent process (Fig. 2d caption). No uncertainty is used to compare locations, regions or conditions.
+
+** How uncertainty is used for comparisons
+Not used for comparisons. For spatial data the paper applies it to one Visium anterior mouse brain section (2,696 spots, top 2,000 variable features) to find factors that match anatomical regions and marker genes, and reports a "smoothness" score per factor; gene-set enrichment on factor weights uses a parametric t-test with Benjamini-Hochberg correction in the evo-devo application. Nothing resembles a regional contrast with credible bands.
+
+** Spatial correlation and evidence about ignoring it
+Spatial correlation is modeled via the GP kernel on latent factors (stationary squared-exponential). Evidence about ignoring it is for imputation and factor recovery against a version without covariate (MOFA): MEFISTO gave better recovery and imputation in simulations, the gain being largest with missing data; I did not extract numbers.
+
+** Ligand-receptor or cell-communication content
+None.
+
+** Relevance to our paper
+- Citable as a GP-based latent factor method that accepts spatial coordinates and can quantify smoothness, with variational inference (so its uncertainty is mean-field-type and not suited to the joint inference we do; this is my inference from the method class, the paper does not discuss it).
+- Not a competitor for credible-band comparisons of rate fields; would be cited in a list of GP-based spatial methods. No effect on a novelty claim.
+
+** Quotes (verbatim; section in parentheses)
+- "MEFISTO makes use of variational inference combined with optimization of the evidence lower bound in terms of the hyperparameters of the Gaussian processes." (Methods, Inference)
+- "the Gaussian process framework enables interpolation or extrapolation of the latent factors to unseen samples, groups or views as well as providing measures of uncertainty" (Methods, Inference)
+- "MEFISTO provides an integrated measure of the smoothness of each pattern across space" (Results, Applications to multi-dimensional and spatial omics)
+- "We choose a low-rank covariance function for" (Methods, MEFISTO model; the sentence continues "kappa^G and a squared exponential covariance function for kappa^C" with symbols not rendered in the text file)
+
+* Smoother (Su et al. 2023)
+
+** Citation and what was read
+Su J, Reynier JB, Fu X, Zhong G, Jiang J, Escalante RS, Wang Y, Aparicio L, Izar B, Knowles DA, Rabadan R. Smoother: a unified and modular framework for incorporating structural dependency in spatial omics data. Genome Biology 24(1), December 2023 (Crossref gives no article number; add it from the journal page before citing). doi:10.1186/s13059-023-03138-x.
+
+Read: the full text in PMC (PMC10726548, XML converted to text; no page numbers): Background, Results, Discussion, Conclusion, and the Methods by section headings and targeted searches (the many equation fragments were not read line by line). Not read: Additional file 1 (supplementary figures) and Additional file 2 (Supplementary Notes, which hold the derivations).
+
+Local files: /var/home/aoz/data/a-s-omics-lit/smoother/pmc.xml, pmc.txt.
+
+** What is modeled and what uncertainty is produced
+- A spatial graph (nearest neighbors, optionally scaled by histology or transcriptomic similarity to encode domain boundaries) is turned into a multivariate normal prior covariance and into an equivalent sparse quadratic penalty added to non-spatial models (feature smoothing, resolution enhancement, deconvolution with NNLS, DWLS, SVR, log-normal regression, and PCA/scVI-based embeddings).
+- Estimation is penalized optimization: the Methods state that "optimizing the new objective is equivalent to finding the maximum a posteriori (MAP) estimator under the spatial prior". No posterior distribution is produced. In the text I read, the words "posterior" and "credible" do not appear in an uncertainty sense, and "uncertainty" appears only in the context of ambiguity thresholds for label transfer.
+
+** How uncertainty is used for comparisons
+None. For the colorectal Stereo-seq application, differential expression between groups of spots and colocalization were assessed with Wilcoxon tests ("Wilcoxon test, p <= 0.01" for DE genes; "Statistical significance is calculated by comparing the inferred proportions ... using the Wilcoxon test"), with no stated adjustment for spatial dependence or multiplicity in what I read. Fig 3 uses Spearman correlation with 95% confidence intervals for deconvolution accuracy against staining.
+
+** Spatial correlation and evidence about ignoring it
+Spatial dependence is the point of the method: a stationary-type neighbor-graph prior used as a penalty. Evidence: in simulations and real data, adding the spatial penalty improves deconvolution accuracy (Pearson correlation, average precision), and CARD is reported to underperform a non-spatial model in some scenarios. That is evidence about point-estimate accuracy, not about inference on differences.
+
+** Ligand-receptor or cell-communication content
+None in the paper; the Discussion mentions cell-cell communication as a possible extension ("such as trajectory inference and cell-cell communication").
+
+** Relevance to our paper
+- Citable as a spatial-smoothing/regularization framework with MAP estimates, and as a Stereo-seq user (one Stereo-seq colorectal slide). It illustrates the contrast: a regularized point estimate, then Wilcoxon-type testing between spot groups, with no joint uncertainty. Wording must stay careful: Smoother does not claim to quantify uncertainty, so it is a contrast in aim, not a flaw.
+- No effect on a novelty claim about joint posterior inference.
+
+** Quotes (verbatim; section in parentheses)
+- "It can be shown that optimizing the new objective is equivalent to finding the maximum a posteriori (MAP) estimator under the spatial prior" (Methods, Construction of spatial priors and losses)
+- "we decouple the prior belief on dependency from the likelihood of a non-spatial data-generating model" (Results, Overview of the Smoother framework)
+- "Statistical significance is calculated by comparing the inferred proportions of a given cell type at IgA-specific spots with proportions at IgG-specific spots using the Wilcoxon test" (Figure 4 legend)
+- "Grounded in Bayesian inference and penalized likelihood methods, Smoother imposes regularization at minimal computational burden" (Discussion)
+
+* Splotch (Aijo et al. bioRxiv 2019) and the ALS paper (Maniatis et al. 2019)
+
+** Citation and what was read
+Aijo T, et al. Splotch: Robust estimation of aligned spatial temporal gene expression data. bioRxiv, 2019. doi:10.1101/757096 (full author list not copied here). Maniatis S, Aijo T, Vickovic S, et al. Spatiotemporal dynamics of molecular pathology in amyotrophic lateral sclerosis. Science 364(6435):89-93, 2019. doi:10.1126/science.aav9776.
+
+Peer-reviewed Splotch: not found. Europe PMC lists only the preprint (PPR91141, same DOI); Crossref lists no published-version relation for 10.1101/757096. (This is a search result, not proof that none exists.)
+
+Science paper: the journal page and its supplementary file returned HTTP 403, and PubMed Central has no entry for it that I could find. I instead obtained the bioRxiv preprint of the ALS paper (10.1101/389270). Version 1 (posted 2018-08-09, 54 PDF pages) includes the main text, a Methods section describing the Splotch model and the comparison procedure, extended data legends, and an appended supplementary Splotch description (ending with Figure 4, the Savage-Dickey illustration, and equation 18). Versions 2 and 3 were also downloaded (v2 has the same extracted word count as v1; v3, 20 PDF pages, is a shorter text that mentions the GitHub code); I did not compare them in detail. I read the Methods passages on comparisons (lines 755 to 1000 and 1108 to 1130 of the v1 text) and the appended Savage-Dickey section, and searched the rest for multiplicity language; I did not read the biology sections. The published Science supplement (which may differ from the preprint) was NOT read.
+
+Splotch preprint (757096) v1, 39 PDF pages: downloaded this session and only searched for the comparison and multiplicity statements below. You told me it was read in full in an earlier pass; I did not re-read it here.
+
+Local files: /var/home/aoz/data/a-s-omics-lit/splotch/splotch-v1.pdf, splotch-v1.txt, maniatis-v1.pdf, maniatis-v1.txt, maniatis-v2.pdf, maniatis-v3.pdf, maniatis-v2.txt, maniatis-v3.txt.
+
+** What is modeled and what uncertainty is produced
+- Zero-inflated Poisson generalized linear model with a log link per gene; three components: a linear effect for time, genotype, sex, and anatomical annotation region (beta, one coefficient per region per condition; 11 anatomical regions in the spinal cord), a conditional autoregressive (CAR) spatial random effect (psi) for local spatial autocorrelation not explained by the regions, and a spot-level random effect (epsilon). Multiple tissue sections are modeled jointly. Implemented in Stan with Hamiltonian Monte Carlo (convergence by the Gelman-Rubin statistic is cited).
+- Uncertainty: posterior samples of region-level coefficients beta and of the rate lambda; maps in the paper are posterior means of lambda binned over areas.
+
+** How uncertainty is used for comparisons
+- Comparisons are between annotated regions or conditions, one pair at a time, in one dimension: define delta-beta = beta_1 - beta_2 ("in this study we only compare one-dimensional distributions"), estimate its posterior from the posterior samples, and compute the Savage-Dickey density ratio of the prior to posterior density at delta-beta = 0 (BF approximately p(delta-beta = 0 | prior) / p(delta-beta = 0 | data)), with the posterior density estimated by a Gaussian kernel density estimate and interpreted with Jeffreys' scale. Regional contrasts such as ventral horn versus all other regions use the same approach with a combined group.
+- This is a joint-draw-based contrast (the difference is computed draw by draw from the posterior of the two region coefficients), but of region-level parameters defined by manually drawn annotation, not of a continuous field; the posterior of beta does not come from a field model that treats between-spot dependence within a region apart from the CAR term.
+- Multiplicity: no correction on the Bayes factors is described in what I read (Benjamini-Hochberg with FDR below 0.1 appears only for Fisher exact tests of KEGG pathway enrichment). The mouse-versus-human consistency rule uses fixed thresholds on posterior means of delta-beta (above 0.2 in absolute value in each patient, and at least 0.5 in mouse).
+
+** Spatial correlation and evidence about ignoring it
+Spatial autocorrelation at two scales (annotation region and local CAR neighborhood) is modeled. In this session I only confirmed that the Splotch preprint describes "Spatial (region and local) autocorrelation" at two scales; whether and how it shows the benefit of each component was not re-checked. No experiment of ignoring correlation for downstream comparisons was found.
+
+** Ligand-receptor or cell-communication content
+None.
+
+** Relevance to our paper
+- Citable as an early Bayesian spatial transcriptomics model whose posterior difference between annotated regions is summarized by a Bayes factor; it is a precedent for using posterior draws of region-level quantities to contrast anatomical regions, so our claim of using posterior uncertainty for regional contrasts is not new in itself. What differs: Splotch's regions are fixed annotation categories entering as fixed effects (not areal averages of a continuous field), the summary is a Bayes factor at zero for a scalar difference, and no simultaneous inference over many comparisons or over a transect or field is described in what I read.
+- The Splotch regional contrast is a safe precedent to cite in a related-work sentence; we should not claim that uncertainty-based regional comparisons have no precedent.
+
+** Quotes (verbatim; local text files, PDF page or line in parentheses)
+- "Detection of differential expression between conditions and regions was done by quantitating element-wise differences in the estimated posterior distributions of the random variables" (Splotch preprint 757096 v1, Methods; text continues "using the Savage-Dickey density ratio as described previously"; the preprint's math symbols did not extract cleanly)
+- "(in this study we only compare one-dimensional distributions)" (Maniatis et al. bioRxiv v1, Methods, line 382 of the preprint's own line numbering)
+- "The Savage-Dickey density ratio approximates Bayes" (Maniatis et al. bioRxiv v1, line 390; continues "factors, and thus we can use Jeffreys' interpretation to assess obtained values")
+
+* Cross-cutting takeaways for positioning (understated)
+1. In what I read, none of the eight papers combines (a) a continuous Gaussian-field model of single-gene expression rates, (b) joint posterior draws used for simultaneous bands or excursion sets over regions, transects, or fields, and (c) ligand-receptor products. This is a statement about these eight papers, not a literature-wide claim.
+2. Closest precedents: SHADE (simultaneous max-t bands from joint posterior draws, and a supplementary band on a group difference, but for distance curves in a point-process model of imaging data) and Splotch (Savage-Dickey Bayes factors on posterior differences of region coefficients, scalar and one at a time). A novelty sentence should name these.
+3. Closest evidence about the stationarity assumption we share: Velidi et al. (preprint, version 5), reporting Bayes-factor evidence against stationary Matern in 3% to 50% of genes depending on the Visium dataset, with downstream effects stated to be future work.
+4. Evidence about the cost of ignoring correlation: none of these papers measures what ignoring between-bin correlation does to regional or field comparisons. SHADE shows miscalibration when image/patient structure is ignored (not spatial correlation) and when compartments are ignored. So our own comparison (posterior with correlation removed) is not duplicated by anything I read.
+5. Naive-comparison practice: BayesSpace (Wilcoxon on enhanced values, unadjusted P) and Smoother (Wilcoxon on spot groups) illustrate the Wilcoxon-style testing we contrast against; neither paper claims the test is valid under spatial dependence, and neither discusses it.
+
+* Not accessed or only partly accessed
+- BOOST-GP published version: OUP PDF and article page returned HTTP 403; PMC copy has abstract only. Notes use arXiv v1.
+- Science (Maniatis 2019) article and supplement: HTTP 403 at science.org; no PMC entry found. Notes use the bioRxiv preprint version 1.
+- BayesSpace and Smoother supplements, MEFISTO supplement, BayesTME supplementary figures: not obtained or not read.
+- bioRxiv sometimes rate-limited (HTTP 429) on first attempts; Velidi, BayesTME preprint, and Maniatis downloads succeeded later with a browser-style user agent.
