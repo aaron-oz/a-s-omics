@@ -55,9 +55,9 @@
 \newenvironment{rev}{\begin{leftbar}\itshape\small}{\end{leftbar}}
 
 \title{\vspace{-1.5em}Response to Reviewers}
-\author{Spatial Modeling of Tissues for Morphogenic Field Analysis\\
-\small PLOS ONE, PONE-D-26-04349 \quad (Osgood-Zimmerman \& Raredon)}
-\date{Draft of 2026-07-27 \quad$\vert$\quad Revision deadline: 2026-08-07}
+\author{PLOS ONE, PONE-D-26-04349 \quad (Osgood-Zimmerman \& Raredon)\\
+\small Originally submitted as ``Spatial Modeling of Tissues for Morphogenic Field Analysis''}
+\date{Draft of 2026-10-23 \quad$\vert$\quad Revision deadline: December 2026}
 
 \begin{document}
 \maketitle
@@ -88,31 +88,97 @@ submitting, set \texttt{\textbackslash draftmodefalse} and confirm no marker rem
 \noindent Thank you for the careful and constructive reviews. We are grateful for the
 time invested, and we think the manuscript is substantially better for the revision.
 
-Reviewer 2 asked whether the framework identifies biologically meaningful spatial
-structure beyond smoothing, increased feature dimensionality, or clustering. We regarded
-this as the central question of the review, and we have addressed it directly with two new
-controls (Section R2.8): a coordinate shuffle with full model refitting, and a concordance
-test against the independent anatomical annotations published with the source dataset. The
-coordinate-shuffle control is the more informative of the two, and it is unambiguous:
-refitting the identical pipeline on spatially permuted data collapses the emergent domains
-entirely. We also ran the ligand-receptor pair-shuffling control the reviewer suggested. It
-found no effect of the pairing on the coherence of the domains, and we report it in full,
-together with the limit it places on our conclusions.
+We should say at the outset that the revision goes further than point-by-point repair. Working
+through the reviewers' comments on positioning (R1.1, R2.10), on controls and baselines (R2.8)
+and on the reach of our claims (R2.11) led us to a clearer statement of what the framework
+offers that existing methods do not. What it offers is a posterior distribution over every gene
+field and, from it, over every ligand-receptor interaction field. The revised manuscript makes the
+use of that posterior its central result: it asks whether differences that are visible on maps of
+the interaction fields are supported by the data, for averages over regions, along transects and
+over whole fields, and it sets each answer beside the readings commonly made without a posterior.
+To do this we refitted every gene with the published model to obtain joint posterior draws,
+which the original analysis had not stored. The regions, transects and examples were fixed before
+any posterior comparison was computed. On the section studied, many differences that look clear
+on the maps are not supported once the uncertainty, and in particular its spatial correlation, is
+accounted for. The analyses that the original submission centered on, the tissue domains and the
+controls that the reviewers asked for, are retained in a shorter section, with their full text
+in a supporting appendix.
+
+Reviewer 2 asked whether the framework identifies biologically meaningful spatial structure
+beyond smoothing, increased feature dimensionality, or clustering. We have addressed that
+question directly with three controls (Section R2.8): a coordinate shuffle with full model
+refitting, which collapses the domains; a concordance test against the independent anatomical
+annotation published with the source dataset; and the ligand-receptor pair-shuffling control
+the reviewer suggested, which found no effect of the pairing on domain coherence and which we
+report in full, together with the limit it places on our conclusions. The reframed analysis
+also answers the reviewer's request for a baseline: every comparison is now set against the
+plug-in reading, a test that treats locations as independent, and the posterior with its
+spatial correlation removed.
 
 We have also moderated the generalizability and biological-interpretation language
 throughout, clarified the statistical model and its implementation, and added a
 supplementary table mapping every mathematical object in the manuscript to the code that
 implements it.
 
-Reviewer comments are reproduced verbatim in italics, followed by our response. Changes
-are marked in the accompanying \emph{Revised Manuscript with Track Changes}. One caveat
-about that file: the markup covers the prose but not the interiors of displayed equations,
-so the revised model specification in the Materials and methods does not appear visually
-flagged even though it changed. We describe that change in words under R2.1 below.
+Reviewer comments are reproduced verbatim in italics, followed by our response. Because the
+changes are extensive, a word-level comparison is hard to read; we suggest reading the clean
+revised manuscript together with the revision summary that follows this letter, which lists
+what moved, what is new and what was removed. The required marked-up manuscript is also
+provided. One caveat about that file: the markup covers the prose but not the interiors of
+displayed equations, so the revised model specification in the Materials and methods does not
+appear visually flagged even though it changed. We describe that change in words under R2.1
+below.
 
 \medskip
 \noindent Sincerely,\\
 Aaron Osgood-Zimmerman and Micha Sam Brickman Raredon
+
+\vspace{1em}
+\hrule
+
+\section*{Summary of the revision}
+
+\noindent This summary is meant to be read with the clean revised manuscript. Figure and section
+references are to the revised manuscript unless stated otherwise.
+
+\paragraph{Title, abstract and Introduction.} The title and abstract are rewritten around the
+central question. The Introduction keeps its three opening subsections, shortened, and adds a
+final subsection, ``Reading interaction fields under uncertainty'', which states the question,
+the related work, and what the paper does.
+
+\paragraph{Materials and methods.} The model specification is as revised for R2.1 to R2.4. A new
+subsection, ``Uncertainty-aware comparison of interaction fields'', describes: the joint posterior
+draws obtained by refitting every gene with the published specification, and the check that the
+refits reproduce the published fits (778 of 790 genes within Monte Carlo error; the 12 that do
+not, all sparsely detected, enter 17 of 1,477 pairs, which are flagged and reported both ways);
+the posterior of an interaction field; the fixed boxes, published anatomical regions and
+transects, chosen before any comparison; the quantities compared; the joint inference (excursion
+sets and simultaneous bands); the three readings we compare against; and how the examples were
+selected.
+
+\paragraph{Results.} Reordered. After the model comparison (Figs 3 and 4, Table 1, essentially
+unchanged), a new comparison of the plug-in interaction fields with their posteriors (Fig 5) motivates the new sections: region comparisons (new Fig 6 and Table 2), transects
+(new Fig 7) and whole fields (new Fig 8). The tissue-domain analysis follows in a shorter section
+(Fig 9, formerly Fig 6), with the three controls condensed to one paragraph.
+
+\paragraph{Moved to Supporting Information.} The comparison of convolution operators (formerly
+Fig 5, now S15 Fig) and the full text of the operator comparison and of the three controls (new S16
+Appendix, moved verbatim apart from cross-references).
+
+\paragraph{New Supporting Information.} S11 Fig (the fixed regions and transects, and the five
+examples on which the ``looks different'' threshold was set), S12 Fig (all example region
+comparisons), S13 Table (reproduction of the published fits, and every count with and without the
+flagged pairs), S14 File (per-pair results).
+
+\paragraph{Discussion.} New opening paragraphs on what the uncertainty adds, why treating
+locations as independent fails here, and the limits of the joint statements. ``Relationship to
+existing methods'' adds the closest precedents for each part of the new analysis and restates our
+contribution more narrowly. The paragraph that said uncertainty was not propagated is replaced:
+it is now propagated for the comparisons, but not through the clustering.
+
+\paragraph{Removed.} The claim, in the original Introduction, that the results show domain
+architecture can be derived from ligand-receptor patterns alone, which the pair-shuffling control
+does not support in that form.
 
 \vspace{1em}
 \hrule
@@ -127,22 +193,19 @@ the whole revision is \texttt{REVISION-SUMMARY-2026-10-08.org}.
 \subsection*{A. Needs Sam}
 
 \begin{enumerate}[leftmargin=*]
-\item \textbf{Graphical abstract (R1.5).} Draft at \texttt{figures-regenerated/graphical-abstract.png}.
-\item \textbf{Figs 1 and 2} are still the original hand-made images. Check that their text is at
-least 8 pt when printed 7.5 in wide (PLOS requires 8 to 12 pt, Arial, Times or Symbol).
-\item \textbf{Fig 6, bottom two rows}: the eight 3D surfaces are reused from the original figure,
-and their color-bar tick labels are illegibly small. Re-render from \texttt{Sup8} if wanted.
+\item \textbf{Title}, to be agreed at the end (placeholder in \texttt{paper-plos.tex}).
+\item \textbf{Graphical abstract (R1.5)}: the 2026-10-08 draft shows the domains, which are no
+longer the central result; to be redone for the uncertainty message.
+\item \textbf{Fig 1} redraw to include the uncertainty step; \textbf{Figs 1 and 2} text below
+8 pt at print size (rough pixel measurement 2026-10-23).
+\item \textbf{Biology read} of the example comparisons.
 \end{enumerate}
 
 \subsection*{B. Author sign-off on substantive text}
 
 \begin{enumerate}[leftmargin=*, resume]
-\item The narrowed contribution statement and the CytoSignal concession (Discussion,
-``Relationship to existing methods'').
-\item The scope statement (Abstract; Discussion, ``All models are wrong'' paragraph).
-\item Control C reported in full, with its Discussion paragraph framing it as a limitation.
-\item The plug-in versus posterior result (new Results subsection, S11 Fig, Abstract sentence).
-\item Figs 5 and 6 reorganized (R1.3 response now says so).
+\item The reframing as a whole (letter opening, revision summary, R1.1, R2.8, R2.10).
+\item New Methods subsection, new Results sections, Discussion opening, contribution statement.
 \end{enumerate}
 
 \subsection*{C. Mechanics, immediately before upload}
@@ -150,13 +213,14 @@ and their color-bar tick labels are illegibly small. Re-render from \texttt{Sup8
 \begin{enumerate}[leftmargin=*, resume]
 \item Set \texttt{\textbackslash draftmodefalse} here and confirm
 \texttt{python3 check-response-letter.py} reports no markers.
-\item In \texttt{paper-plos.tex} set \texttt{\textbackslash embedfigsfalse}, so only captions
-remain, and upload \texttt{submission-figures/Fig1.tif} to \texttt{Fig6.tif}
-(\texttt{bash export-submission-figures.sh}).
-\item Upload S9 Table, S10 Fig and S11 Fig.
-\item Build the manuscript, the track-changes version (\texttt{latexdiff --math-markup=off}
-against tag \texttt{rev1-baseline}) and this letter, following \texttt{README-build.md}.
-\item Finalize the cover letter: draft at \texttt{cover-letter-draft.org}, which includes the funding statement confirmed under JR-2.
+\item In \texttt{paper-plos.tex} set \texttt{\textbackslash embedfigsfalse} and upload
+\texttt{submission-figures/Fig1.tif} to \texttt{Fig9.tif} (\texttt{bash export-submission-figures.sh}).
+\item Upload S9 Table, S10 to S12 Fig, S13 Table, S14 File, S15 Fig, S16 Appendix
+(\texttt{supporting-information/}).
+\item Build the manuscript, the required marked-up version (\texttt{latexdiff --math-markup=off}
+against tag \texttt{rev1-baseline}, uploaded as ``Revised Article with Changes Highlighted'') and
+this letter, following \texttt{README-build.md}.
+\item Finalize the cover letter (\texttt{cover-letter-draft.org}).
 \end{enumerate}
 
 \fi
@@ -183,7 +247,7 @@ R1.1  & Comparative analysis vs existing methods & Done \\
 R1.2  & Tissue sample and methods detail & Done \\
 R1.3  & Figures too small, reorganize & Done \\
 R1.4  & Small-scale disease proof of concept & Done \\
-R1.5  & Better graphical abstract & Incomplete, draft awaits Raredon \\
+R1.5  & Better graphical abstract & Incomplete, to be redone for the new message \\
 \midrule
 R2.1  & Define model parameters and priors at first use & Done \\
 R2.2  & Notation-to-code supplementary table & Done \\
@@ -262,9 +326,13 @@ Please upload a copy of Supporting Information Figure/Table/etc.\ ``Supplemental
 Materials'' which you refer to in your text on page 19.
 \end{rev}
 
-\noindent We have added two genuine Supporting Information files. The S9 Table gives the
-notation-to-code mapping requested in R2.2, and the S10 Fig summarizes the two new controls
-requested in R2.8. Both are uploaded with this revision. We have also confirmed that
+\noindent We have added genuine Supporting Information files, all uploaded with this revision.
+S9 Table gives the notation-to-code mapping requested in R2.2, and S10 Fig summarizes the controls
+requested in R2.8. The reframed analysis adds S11 Fig (the fixed regions and transects, and the
+examples on which our threshold for a visible difference was set), S12 Fig (all example region
+comparisons), S13 Table (reproduction of the published fits by our refits), S14 File (per-pair
+results, about 7 MB), S15 Fig (the comparison of convolution operators, formerly Fig 5) and S16
+Appendix (the operator comparison and the controls in full). We have also confirmed that
 every S-number cited in the text now matches its intended item; S1 and S9 had no citation in
 the original text, and the S3 through S8 pointers were reassigned, because the original
 manuscript cited ``Supplement 3/4/5'' under a numbering that did not correspond to the S1--S8
@@ -299,7 +367,8 @@ Variance Component Analysis, and SpatialDM) and judged all of them relevant. Eac
 cited and discussed in a new positioning subsection; see our response to R2.10. We have
 additionally cited CytoSignal (Liu et al., \emph{Nature Genetics}, 2026), concurrent work
 that was not available at the time of our original submission and that analyzes the same
-source dataset.
+source dataset, and the work on uncertainty and spatial correlation that the reframed analysis
+rests on or is closest to (see R2.10).
 
 \section{Academic editor}
 
@@ -326,32 +395,45 @@ Recommend the authors to perform a comparative analysis with other existing tech
 for spatial modelling techniques as verifications.
 \end{rev}
 
-\noindent We have added comparison and validation along three axes, described in full in
-our response to Reviewer 2's comment R2.8.
+\noindent We have added comparison and validation along four axes. The first is new to this
+revision and is now the central result; the other three are described in full in our response to
+Reviewer 2's comment R2.8.
 
-First, within our own framework we compare candidate convolution operators
-quantitatively, and this comparison now includes the product operator used by CytoSignal.
+First, every comparison the revised manuscript makes between regions, along transects or over
+whole fields is set beside the ways the same question is commonly answered without our
+posterior: reading the point-estimate map, a Wilcoxon test that treats each location as an
+independent observation, and our own posterior with the correlation between locations removed.
+Across 19,201 comparisons between pairs of regions (1,477 ligand-receptor pairs, 13 fixed region
+comparisons each), the Wilcoxon test finds a difference in 90\%, the posterior with its spatial
+correlation removed in 73\%, and the joint posterior in 46\% (Table 2). Of the comparisons that
+look different on the maps by a factor of at least 1.25, 31\% are not supported by the posterior.
+These counts come from one tissue section and share regions and genes, so they are not rates, but
+they show concretely where the framework changes a conclusion that a simpler reading would draw.
+
+Second, within our own framework we compare candidate convolution operators
+quantitatively, and this comparison includes the product operator used by CytoSignal.
 On this dataset, and in a single clustering run, the common-minimum operator we adopt gave
-more clusters and more spatially coherent domains than the product operator.
+more clusters and more spatially coherent domains than the product operator. This comparison is
+now S15 Fig.
 
-Second, we compare the emergent domains against an external reference that we did not
+Third, we compare the emergent domains against an external reference that we did not
 produce: the anatomical annotations published with the source dataset by Chen et al.
 (2022). This is a comparison to an independently derived, expression-based segmentation
 of the same tissue section.
 
-Third, we added a spatial permutation test with full model refitting, which is the
+Fourth, we added a spatial permutation test with full model refitting, which is the
 standard validation device in this literature.
 
 We want to be straightforward about what we have not done. We have not run a full
 method-versus-method benchmark against SpatialDE, BOOST-GP, SVCA, SpatialDM, or
 CytoSignal. Those methods answer different questions from ours: they test individual
 features or interactions for spatial significance, whereas our contribution is a
-continuous-field representation with quantified uncertainty and the clustering of the
-full high-dimensional signaling field. There is no shared target quantity on which a
-head-to-head accuracy comparison would be meaningful without first defining a benchmark
-task, which we regard as its own piece of work. We have instead positioned our approach
-against each of these methods conceptually and explicitly (R2.10), and we now state this
-limitation in the Discussion rather than leaving it implicit.
+posterior over continuous fields and its use to judge whether apparent differences are
+supported. There is no shared target quantity on which a head-to-head accuracy comparison would
+be meaningful without first defining a benchmark task, which we regard as its own piece of work.
+We have instead positioned our approach against each of these methods, and against the closest
+precedents for the new analysis, explicitly (R2.10), and we state this limitation in the
+Discussion rather than leaving it implicit.
 
 \subsection{R1.2. Detail on the tissue sample and methods} \status{DONE}
 
@@ -384,20 +466,26 @@ The data presented in the figure is on the small side of the spectrum, recommend
 authors to reorganise them.
 \end{rev}
 
-\noindent We have rebuilt Figures 3 to 6 from scripts at the full PLOS page width, with all
-text set at 8 point or larger at printed size; in the original submission some labels were
-drawn large and then reduced, so that they printed at about 3 to 4 point. Figures 3 and 4 have
-also been corrected for the aspect-ratio distortion noted by Reviewer 2 (R2.6), and Figures 5
-and 6 for the same defect, which the reviewer did not flag but which was present there too.
+\noindent We have rebuilt Figures 3 to 6 of the original submission from scripts at the full
+PLOS page width, with all text set at 8 point or larger at printed size; in the original
+submission some labels were drawn large and then reduced, so that they printed at about 3 to 4
+point. Figures 3 and 4 have also been corrected for the aspect-ratio distortion noted by Reviewer 2
+(R2.6), and the original Figures 5 and 6 for the same defect, which the reviewer did not flag but
+which was present there too. The four new figures of the revised manuscript (Figs 5 to 8) were
+built at their printed size with the same standard.
+
+Figure numbers have changed with the reframing. The original Figure 5, the comparison of
+convolution operators, is now S15 Fig, and the original Figure 6, the tissue domains, is Fig 9.
 
 For Figures 3 and 4 we kept the panel arrangement; their difficulty was size rather than
-ordering. Figures 5 and 6 we have reorganized, because at the page-height limit their original
-arrangement could not be made legible. Figure 5 now shows each pair's ligand and receptor
-fields once, in a row of their own, followed by one row per convolution operator, so the
-operators can be compared by reading down a column. Figure 6 now places the five feature depths
-in columns rather than rows, and replaces the five repeated summary panels with a single row of
-summary curves that marks the five depths shown; that row also carries the new random-subset
-control described in our response to R2.8 and under ``Additional corrections''.
+ordering. The original Figures 5 and 6 we reorganized, because at the page-height limit their
+original arrangement could not be made legible. The operator comparison (now S15 Fig) shows each
+pair's ligand and receptor fields once, in a row of their own, followed by one row per
+convolution operator, so the operators can be compared by reading down a column. The domain
+figure (now Fig 9) places the five feature depths in columns rather than rows, and replaces the
+five repeated summary panels with a single row of summary curves that marks the five depths
+shown; that row also carries the random-subset control described under ``Additional
+corrections''.
 
 \subsection{R1.4. Small-scale disease proof of concept} \status{DONE}
 
@@ -434,15 +522,13 @@ Minor comment: The graphical abstract submitted did not do the work justice, con
 better images rather than copy-pasting from the data section.
 \end{rev}
 
-\noindent We agree, and we have replaced the graphical abstract with one designed for the
-purpose rather than copied from the figures. It is drawn directly from the data and shows, in
-one panel each, the tissue domains, the two controls that bear on whether they are real
-(the coordinate shuffle and the agreement with published anatomy), and the domains at four
-feature depths.
+\noindent We agree, and we will replace the graphical abstract with one designed for the
+purpose rather than copied from the figures, drawn directly from the data and showing the
+central result of the revised manuscript.
 
-\incomplete{Draft at \texttt{figures-regenerated/graphical-abstract.png}, made by
-\texttt{graphical-abstract.R}; revised 2026-10-08 (pair-shuffle panel dropped, counts given
-as pairs, bottom row from one experiment). Raredon to review before submission.}
+\incomplete{The 2026-10-08 draft (\texttt{figures-regenerated/graphical-abstract.png}) shows the
+tissue domains, which are no longer the central result; to be redone for the uncertainty message
+and reviewed by Raredon before submission.}
 
 \section{Reviewer 2}
 
@@ -676,7 +762,8 @@ required.
 We have corrected this at source rather than only in the affected figures: all 151 occurrences
 across the pipeline scripts now use \texttt{asp = 1}, so any figure regenerated from this
 point is correct. Figures 3 and 4 have been regenerated from a script at the correct aspect
-ratio. Figures 5 and 6 had a separate, unflagged version of the same defect: their spatial
+ratio. The original Figures 5 and 6 (now S15 Fig and Fig 9) had a separate, unflagged version of
+the same defect: their spatial
 panels were drawn by a plotting routine that stretches each panel to fill the space given to
 it. We have corrected those as well, fixing the aspect ratio to the true 200 by 130 bin
 geometry, and rebuilt both figures from scripts. All four scripts are in the repository at
@@ -690,7 +777,8 @@ rows and columns, and a more explicit connection between the visual evidence and
 conclusions drawn.
 \end{rev}
 
-\noindent We have rewritten both captions to be self-contained: each now defines every
+\noindent With the reframing, the original Figure 5 is now S15 Fig and the original Figure 6 is
+Fig 9; the captions travel with them. We have rewritten both captions to be self-contained: each now defines every
 abbreviation used in the panel, states what the rows and columns represent, and says
 explicitly what the reader should take from the figure and how it supports the claim made
 in the text.
@@ -726,12 +814,23 @@ whether the method identifies biologically meaningful spatial structure beyond s
 increased feature dimensionality, or clustering.
 \end{rev}
 
-\noindent We judged this to be the most important comment in the review, and we have addressed it with
-two new controls, chosen from the reviewer's menu: a spatial permutation test and a
-comparison with previously annotated tissue regions. Both are reported in a new subsection
-of the Results, and the code and summary outputs are in the
-public repository. We have also run the third control the reviewer suggests, ligand-receptor
-pair shuffling, and report it below and in the same Results section.
+\noindent We judged this to be the most important comment in the review, and we have addressed it in
+two ways.
+
+The first concerns the reviewer's request for a baseline against which the framework can be
+evaluated. In the revised manuscript every comparison of interaction fields, between regions,
+along transects and over whole fields, is set beside three baselines: the plug-in map read
+directly, a Wilcoxon test that treats each location as an independent observation, and our own
+posterior with the correlation between locations removed (Methods; Results, Table 2). This shows
+where the framework changes a conclusion, and it separates the effect of ignoring spatial
+correlation from the effect of ignoring uncertainty altogether: across 19,201 region comparisons
+the three find differences in 90\%, 73\% and 46\% of cases for the Wilcoxon test, the
+decorrelated posterior and the joint posterior respectively.
+
+The second concerns the tissue domains, and is the controls from the reviewer's menu: a spatial
+permutation test with full model refitting, a comparison with previously annotated tissue regions,
+and ligand-receptor pair shuffling. They are summarized in the Results section on the domains and
+given in full in the new S16 Appendix; the code and summary outputs are in the public repository.
 
 Throughout, spatial coherence of the resulting domain map is quantified with the
 entropy-based local indicator of spatial association (ELSA) computed on the categorical domain
@@ -821,7 +920,7 @@ clustering implementation described below in a configuration that did not reprod
 between runs, and the difference between the true pairing and the shuffled null was smaller
 than the run-to-run spread. We have since rerun it, in that implementation with a single
 thread and a fixed seed, which makes it exactly reproducible, and separately in Seurat, the
-implementation behind Figures 5 and 6.
+implementation behind the original Figures 5 and 6 (now S15 Fig and Fig 9).
 
 The true pairing did not produce more spatially coherent domains than shuffled pairings. In
 Seurat, with 19 shuffled sets, ELSA at radius 50 was 0.124 for the true pairing against a
@@ -843,8 +942,8 @@ directly, is that the common-minimum operator on raw counts passes little of thi
 information on to the clustering: for 42.6\% of pairs the same partner is the smaller one at
 more than 95\% of locations, so the interaction field is largely that partner's field.
 
-We have reported this control in a new Results subsection, and added a paragraph to the
-Discussion stating the limit it places on our conclusions: the domains reflect the collection
+We have reported this control in the Results section on the domains and in S16 Appendix, and
+added a paragraph to the Discussion stating the limit it places on our conclusions: the domains reflect the collection
 of fitted ligand and receptor fields, not the specific pairings. We think this is the most
 useful thing the control tells a reader, and we would rather state it than leave the
 reviewer to infer it.
@@ -852,7 +951,7 @@ reviewer to infer it.
 \subsubsection*{Reproducibility of the clustering, and which implementation was used where}
 
 Two implementations of the clustering step appear in this work, and we have made explicit in
-the manuscript which was used where and how reproducible each is. Figures 5 and 6 were clustered with Seurat. Control A, and one arm of Control C,
+the manuscript which was used where and how reproducible each is. The original Figures 5 and 6 (now S15 Fig and Fig 9) were clustered with Seurat. Control A, and one arm of Control C,
 were clustered with a faster implementation of the same two steps (an RcppHNSW
 nearest-neighbor graph followed by Louvain clustering in igraph), because Control A needed
 the clustering repeated for every permuted dataset. The two give ELSA values on different
@@ -935,6 +1034,16 @@ the archived per-feature score files; we do not claim that a fresh refit under a
 INLA version would reproduce it to the last digit, and we say so in the documentation rather
 than leaving a reader to discover it.
 
+The new analysis is documented to the same standard, in \texttt{code-spatial-smoothing/uncertainty/}
+of the repository. It contains the design that fixed the regions, transects, thresholds and
+examples before any comparison was computed, with a dated log of every later addition; the
+row-by-row comparison of our refits with the published fitting procedure; the scripts for the
+local pilot, for the refits and per-pair computations on the computing cluster (with the measured
+memory and run time of each stage), and for the tabulation; and the scripts that draw Figs 5 to 8
+and build S11 to S14. The posterior draws are large (about 41 GB for all genes) and are not
+stored, but every quantity in the manuscript is computed from per-pair summaries that are (S14
+File), and the draws can be regenerated from the tracked scripts.
+
 \subsection{R2.10. Scientific positioning relative to existing work} \status{DONE}
 
 \begin{rev}
@@ -968,8 +1077,9 @@ intrinsic, environmental, cell-cell interaction, and noise components and tests 
 interaction component is nonzero, which is a variance-partitioning aim rather than a
 field-estimation one, and it was developed for imaging-based data. SpatialDM (Li et al.,
 \emph{Nature Communications}, 2023) tests ligand-receptor pairs for spatial co-expression
-using a bivariate extension of Moran's $I$, globally and per spot, with significance from an
-analytically derived null; it targets significance of individual interactions where we
+using a bivariate extension of Moran's $I$, globally and per spot, with significance from a
+permutation null or an analytically derived one; the analytical null assumes that each gene is
+spatially randomly distributed. It targets significance of individual interactions where we
 target a continuous inferred field per interaction with quantified uncertainty.
 
 We should correct one thing we had wrong in our own preparation, since it affects how we
@@ -986,36 +1096,45 @@ resolution using a score with a spatial-permutation null, and validates against 
 proximity-ligation ground truth. We do not claim novelty for spatially resolved
 ligand-receptor mapping in light of that work, and we have removed language that implied it.
 
+Reading these methods closely also clarified where our contribution lies, and it led to the
+reframing described at the start of this letter. None of the four methods the reviewer names,
+nor CytoSignal, uses a posterior over continuous fields to judge whether a difference visible on
+a map is supported by the data. We therefore read the closest precedents for that question in
+full and now discuss them as well: Splotch (\"Aij\"o et al., 2019), a Bayesian count model that
+compares anatomical regions one pair at a time through region coefficients; the excursion sets of
+Bolin and Lindgren (2015, 2018), applied with the same INLA and SPDE machinery to functional brain
+imaging by Mejia et al.\ (2020); SHADE (Eliason et al., 2026), which builds simultaneous credible
+bands from joint posterior draws for interaction curves between cell types; SpaceBF (Seal and
+Neelon, 2026), which places pointwise credible intervals on ligand-receptor co-expression; and
+simulation studies reporting that tests treating locations as independent overstate evidence
+under spatial correlation (Vasconcelos et al., 2026; Seal and Neelon, 2026).
+
 Stating our contribution precisely, and more narrowly than the original submission did: we
-contribute a generative Bayesian geostatistical treatment of spatialomics data that yields a
-posterior distribution rather than a point estimate for every feature field, an argument for
-modeling raw counts as absolute binding density rather than normalized expression, a
-comparison of convolution operators in which, on this dataset, the common minimum gave more
-clusters and more coherent domains than the product operator conventionally used, and the
-finding that clustering the full collection of inferred interaction fields produces tissue
-domains that correspond to anatomy (though, as Control C shows, not domains that depend on the
-specific ligand-receptor pairings). The combination of a Gaussian process with a Bayesian count likelihood is not
-itself new, and we now say so.
+contribute a generative Bayesian geostatistical treatment of raw spatialomics counts that yields a
+posterior for every gene field and, through joint posterior draws, for every ligand-receptor
+interaction field; the use of those posteriors, with joint inference, to ask whether differences
+visible on interaction-field maps are supported, for regional averages, along transects and over
+whole fields, with the regions and examples fixed in advance; and the finding that clustering the
+full collection of inferred interaction fields produces tissue domains that correspond to anatomy
+(though, as the pair-shuffling control shows, not domains that depend on the specific
+ligand-receptor pairings). None of the ingredients is new on its own; the combination, applied to
+ligand-receptor interaction fields, is what we offer, and we now say so.
 
 We have also corrected an overstatement of our own that this comparison brought into focus.
-Earlier drafts described the uncertainty as propagated through to the interaction fields. It
-is not: the convolution and every stage downstream of it operate on posterior medians, so the
-interaction fields we present are point estimates and the domain results carry no propagated
-uncertainty. The posteriors exist and the operators are ordinary functions of the two input
-fields, so this is a computation the framework allows rather than precludes. We have now
-taken the first step of it. Because the ligand and receptor fields are fitted separately,
-their posteriors are independent, and the posterior of each interaction field follows from
-the two stored marginal posteriors without refitting. A new Results subsection and S11 Fig
-compare it with the plug-in fields we used. Relative to the posterior median of the
-interaction, the plug-in field is never lower, and is higher by more than 25\% at 22\% of
-pair-bin combinations, most where neither partner is clearly the limiting one; relative to
-the posterior mean it is lower in most bins, because the posteriors are right-skewed. In
-either case the spatial pattern changes little (median correlation over bins 0.988 with the
-posterior median and 0.967 with the posterior mean). Carrying the posterior through the
-clustering itself remains undone, and the Discussion says so.
+Earlier drafts described the uncertainty as propagated through to the interaction fields. In the
+original analysis it was not: the convolution and every stage downstream of it operated on
+posterior medians, so the interaction fields were point estimates. The revised analysis does
+propagate it, for the comparisons. We refitted every gene with the published model to obtain joint
+posterior draws, checked that the refits reproduce the published fits, and formed the posterior of
+each interaction field draw by draw. The revised manuscript also reports how the plug-in fields
+differ from their posteriors (Fig 5): relative to the posterior median of the interaction, the
+plug-in field is never lower, and is higher by more than 25\% at 22\% of pair-bin combinations,
+most where neither partner is clearly the limiting one, while the spatial pattern changes little
+(median correlation over bins 0.988). Carrying the posterior through the clustering itself remains
+undone, and the Discussion says so.
 
 All of this now appears in a new Discussion subsection, ``Relationship to existing
-methods,'' and all five works are cited. That subsection also states plainly that we have
+methods,'' and all of these works are cited. That subsection also states plainly that we have
 not run a head-to-head benchmark against any of them, and why: there is no shared target
 quantity on which an accuracy comparison would be meaningful without first defining a
 benchmark task and a ground truth, which we regard as a separate piece of work. We would
@@ -1131,7 +1250,7 @@ use it consistently. Specific replacements include: a claim that the model outpu
 ``directly estimate local ligand-receptor binding density'' now says they estimate a proxy
 for it; ``the maximum possible number of local binding events'' is now an upper bound
 implied by the estimated levels under a stated assumption; ``individual ligand-receptor
-binding density field'' in the Figure 6 discussion is now ``individual inferred
+binding density field'' in the discussion of the domain figure (now Fig 9) is now ``individual inferred
 ligand-receptor interaction fields''; and the invitation to readers to ``observe the true
 scale and structure of extracellular communication in mammalian tissues'' now invites them
 to explore the scale and structure of the inferred fields. We also removed several
@@ -1150,7 +1269,7 @@ numbers changed.
 \noindent In preparing this revision we audited the feature and interaction counts reported
 in the original manuscript against the analysis outputs, and found errors that we have
 corrected throughout. We report them here because they change numbers and statements that
-appear in the text, in Table 1, and in Figures 5 and 6.
+appear in the text, in Table 1, and in the original Figures 5 and 6 (now S15 Fig and Fig 9).
 
 First, the attrition from the curated feature list was not described. The list contains 918
 ligand or receptor genes. Three (\emph{a}, \emph{Calcb}, \emph{Cckar}) were excluded before
@@ -1178,7 +1297,7 @@ property of the minimum operator rather than an error, and we now state it in th
 alongside the count of interactions. Separately, 1481 was never the right figure
 for the 918-gene list either: 1493 FANTOM5 pairs have both partners among the 918 curated
 genes. We have corrected the count wherever it appears, including the upper limit of the
-feature-depth sweep in Figure 6.
+feature-depth sweep in the domain figure (now Fig 9).
 
 We do not expect this to affect the results materially, but we have not measured it directly.
 The duplication gives four of the 1477 interactions twice their intended weight in a clustering
@@ -1191,10 +1310,10 @@ than isolating the duplication. The manuscript now discloses the duplication in 
 and methods.
 
 Both corrections have been applied to every occurrence in the manuscript text, in the
-Table 1 caption, and in the Figure 6 caption, and to the panel labels inside the Figure 6
-image, which previously read ``1481 Features''.
+Table 1 caption, and in the domain figure caption, and to the panel labels inside the domain
+figure image, which previously read ``1481 Features''.
 
-Re-deriving the feature-depth experiment (Figure 6) from its saved outputs also showed that
+Re-deriving the feature-depth experiment (now Fig 9) from its saved outputs also showed that
 three statements about it were wrong, and we have corrected them.
 
 The caption said that domains become more numerous as features are added. They become fewer:
@@ -1215,11 +1334,20 @@ features. The rise and fall of coherence in the published curve does not appear 
 subsets, which suggests it reflects the order of admission rather than the number of
 features. Both results are now in the Results.
 
-Finally, the Figure 5 caption and text said that the common minimum gave the most clusters at
+Finally, the operator-comparison caption (now S15 Fig) and text said that the common minimum gave the most clusters at
 the lowest spatial entropy of the operators tested. It gave the most clusters, but the
 geometric mean had slightly lower spatial entropy (ELSA 0.047 against 0.050 at radius 100), a
 difference within run-to-run variation. The text now says so, and no longer ranks those two
 operators on coherence.
+
+One further finding is disclosed for completeness. To obtain the joint posterior draws used in the
+revised analysis we refitted all 790 genes needed by the ligand-receptor pairs with the published
+specification, using current versions of the fitting software, since the versions used for the
+published fits were not recorded. For 778 genes the refits reproduce the published per-location
+posterior medians and interval widths within Monte Carlo error. For 12 sparsely detected genes they
+do not, and we could not establish why. Those genes enter 17 of the 1,477 pairs; we flag these pairs
+rather than exclude them, and every count in the revised manuscript is also reported without them,
+changing none by more than about 1\% (S13 Table).
 
 
 \end{document}

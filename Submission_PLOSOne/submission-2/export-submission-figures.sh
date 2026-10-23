@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Export the six main figures as PLOS-compliant TIFFs into submission-figures/.
+# Export the nine main figures as PLOS-compliant TIFFs into submission-figures/.
 # PLOS One (checked 2026-10-08, journals.plos.org/plosone/s/figures): TIFF or EPS; at most
 # 7.5 x 8.75 in; 300-600 dpi; at most 10 MB; text 8-12 pt in Arial, Times or Symbol.
 # Each figure is fitted inside 7.5 x 8.75 in at 600 dpi, then dropped to 400 dpi if the
@@ -12,10 +12,15 @@ declare -A SRC=(
   [Fig2]="plos-port/img/Data Parameters.png"
   [Fig3]="figures-regenerated/Fig3-composite.png"
   [Fig4]="figures-regenerated/Fig4-composite.png"
-  [Fig5]="figures-regenerated/Fig5-composite-transposed.png"
-  [Fig6]="figures-regenerated/Fig6-composite.png"
+  [Fig5]="figures-regenerated/fig-plugin-main.png"
+  [Fig6]="figures-regenerated/fig-regions-main.png"
+  [Fig7]="figures-regenerated/fig-transects-main.png"
+  [Fig8]="figures-regenerated/fig-wholefield-main.png"
+  [Fig9]="figures-regenerated/Fig6-composite.png"
 )
-for f in Fig1 Fig2 Fig3 Fig4 Fig5 Fig6; do
+# 2026-10-23: renumbered for the uncertainty reframing. The former Fig 5 (operator comparison)
+# is now S15 Fig in supporting-information/; the former Fig 6 (domains) is Fig 9.
+for f in Fig1 Fig2 Fig3 Fig4 Fig5 Fig6 Fig7 Fig8 Fig9; do
   # never upscale: an image drawn at a lower resolution gets that resolution, so it still
   # prints at its intended size (Figs 3-4 are drawn 7.5 in wide at 400 dpi)
   read pw ph < <(magick identify -format "%w %h\n" "${SRC[$f]}")

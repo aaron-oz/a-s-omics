@@ -1,5 +1,5 @@
 #+TITLE: Cover letter for the revision: DRAFT for AOZ and MSBR
-#+DATE: 2026-10-08
+#+DATE: 2026-10-23 (revised for the uncertainty reframing; first drafted 2026-10-08)
 
 Drafted 2026-10-08 so the submission is not blocked on it. Two things to settle before it goes:
 
@@ -7,6 +7,8 @@ Drafted 2026-10-08 so the submission is not blocked on it. Two things to settle 
    draft is written for both authors, with MSBR as corresponding author as before.
 2. The submission date, and whether to thank the editor for one extension or two (the
    repository records the 2026-08-21 extension; the December one was granted later).
+3. The title: a placeholder is used below, to be agreed with Sam at the end. The letter names
+   the original title as well, so the editor can match the submission.
 
 The funding text below is the existing Funding Statement, copied unchanged from the round-1
 decision letter (=submission-1/reviewer-comments-round-1.txt=, line 53). It was also the text
@@ -17,30 +19,49 @@ changed.
 
 Dear Dr. D'Acquisto,
 
-Please find attached our revised manuscript, "Spatial Modeling of Tissues for Morphogenic Field
-Analysis" (PONE-D-26-04349), together with a point-by-point response to the reviewers and a
-version of the manuscript with changes marked. We thank you and the reviewers for a careful
-review, and you for the extensions that made a thorough revision possible.
+Please find attached our revised manuscript, PONE-D-26-04349, originally submitted as "Spatial
+Modeling of Tissues for Morphogenic Field Analysis" and now titled "Uncertainty-aware comparison
+of ligand-receptor interaction fields estimated from spatial transcriptomics", together with a
+point-by-point response to the reviewers, a summary of the revision, and the marked-up manuscript.
+We thank you and the reviewers for a careful review, and you for the extensions that made a
+thorough revision possible.
+
+We want to be clear at the outset that the revision reframes the paper. Working through the
+reviewers' comments on positioning, on controls and baselines, and on the reach of our claims, we
+concluded that what our framework offers beyond existing methods is a posterior distribution over
+every gene field and every ligand-receptor interaction field, and that the paper should be about
+using it. The revised manuscript asks whether differences visible on maps of these fields are
+supported by the data, for averages over regions, along transects and over whole fields, and sets
+each answer beside the readings commonly made without a posterior. On the tissue section studied,
+many differences that look clear on the maps are not supported once the uncertainty, and in
+particular its spatial correlation, is accounted for. The tissue-domain analysis of the original
+submission is retained in a shorter section, with the controls the reviewers requested. Because the
+changes are extensive, the revision summary and the clean manuscript will be easier to read than
+the marked-up copy, which we provide as required.
 
 The response letter addresses every comment from the journal, the academic editor and both
 reviewers. In summary:
 
-- At Reviewer 2's request we added controls. Refitting the whole pipeline on spatially permuted
-  data collapses the tissue domains; the domains agree well above chance with the anatomical
-  annotation published independently for the same section; and, in the third control the
-  reviewer suggested, shuffling which receptor is paired with which ligand does not make the
-  domains less coherent. We report that last result in full, together with the limit it places
-  on our conclusions.
+- At Reviewer 2's request we added baselines and controls. Every comparison of interaction fields
+  is now set against the point-estimate map, a test that treats locations as independent, and our
+  posterior with its spatial correlation removed. For the tissue domains, refitting the whole
+  pipeline on spatially permuted data collapses them; they agree well above chance with the
+  anatomical annotation published independently for the same section; and shuffling which receptor
+  is paired with which ligand does not make them less coherent, a result we report in full with the
+  limit it places on our conclusions.
+- We positioned the work against the methods the reviewers named and against the closest
+  precedents for the new analysis, read in full, and narrowed our contribution statement to the
+  combination we offer.
 - We rewrote the model specification, added a supplementary table mapping every mathematical
-  symbol to the code that implements it, documented the analysis repository for reproduction,
-  and rebuilt the figures from scripts at the journal's page size.
+  symbol to the code that implements it, documented the analysis repository for reproduction, and
+  built the figures from scripts at the journal's page size.
 - In re-deriving our results from the archived outputs we found and corrected several errors of
-  our own, including two feature counts, the direction of one figure caption, and two claims
-  in the Results that our saved data did not support. These are listed under "Additional
-  corrections" in the response letter.
-- We have narrowed the paper's claims to match the evidence: the method is demonstrated on one
-  field of view, and the inferred fields estimate the potential for signaling rather than
-  measuring it.
+  our own, including two feature counts, the direction of one figure caption, and two claims in the
+  Results that our saved data did not support. These are listed under "Additional corrections" in
+  the response letter.
+- We have narrowed the paper's claims to match the evidence: the analysis uses one field of view of
+  one section, and the inferred fields estimate the potential for signaling rather than measuring
+  it.
 
 Funding Statement, unchanged in content; it now appears only in the Funding Statement and no
 longer in the manuscript text:

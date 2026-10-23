@@ -31,5 +31,5 @@ pC <- ggplot(H, aes(r)) + geom_histogram(binwidth = 0.005, fill = "#4A6A93", col
   labs(title = "C  pattern, per pair", x = "Pearson correlation over bins", y = "pairs") +
   th + theme(strip.background = element_blank(), strip.text = element_text(size = TXT, hjust = 0))
 fig <- pA + pB + pC + plot_layout(widths = c(1.25, 1, 0.9))
-ggsave(file.path(fdir, "S11_Fig_plugin-bias.png"), fig, width = 7.5, height = 2.8, dpi = 600, bg = "white")
+ggsave(file.path(fdir, "fig-plugin-main.png"), fig, width = 7.5, height = 2.8, dpi = 600, bg = "white")
 cat("median of per-bin p90 bias:", round(median(B$bins$p90_relbias), 3), " max:", round(max(B$bins$p90_relbias), 3), "\n")

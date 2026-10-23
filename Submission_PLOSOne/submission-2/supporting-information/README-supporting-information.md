@@ -1,5 +1,14 @@
 # Supporting Information: what exists, what can be uploaded, what cannot
 
+**Update 2026-10-23 (uncertainty reframing).** Staged for upload: `S9_Table.pdf`, `S10_Fig.png`
+(controls), `S11_Fig.png` (frozen regions, transects and threshold examples), `S12_Fig.png` (all
+example region comparisons and the cross-field comparison), `S13_Table.pdf` (reproduction of the
+published fits; built from `S13_Table.tex`, which `code-spatial-smoothing/uncertainty/klone/make-S13-S14.R`
+generates), `S14_File.zip` (per-pair results, about 7 MB; contents in `S14_File/README.txt`),
+`S15_Fig.png` (the convolution-operator comparison, formerly main-text Fig 5) and `S16_Appendix.pdf`
+(the operator comparison and the domain controls in full, from `../plos-port/S16-controls-appendix.tex`).
+The former `S11_Fig.png` (plug-in fields against their posteriors) is now main-text Fig 5.
+
 **Update 2026-10-08.** Three items are staged here for upload: `S9_Table.pdf`,
 `S10_Fig.png` (controls; from `../figures-regenerated/make-controls-figure.R`) and
 `S11_Fig.png` (plug-in interaction fields against their posteriors; from
