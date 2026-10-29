@@ -194,10 +194,11 @@ the whole revision is \texttt{REVISION-SUMMARY-2026-10-08.org}.
 
 \begin{enumerate}[leftmargin=*]
 \item \textbf{Title}, to be agreed at the end (placeholder in \texttt{paper-plos.tex}).
-\item \textbf{Graphical abstract (R1.5)}: the 2026-10-08 draft shows the domains, which are no
-longer the central result; to be redone for the uncertainty message.
-\item \textbf{Fig 1} redraw to include the uncertainty step; \textbf{Figs 1 and 2} text below
-8 pt at print size (rough pixel measurement 2026-10-23).
+\item \textbf{Graphical abstract (R1.5)}: redrawn for the uncertainty message
+(\texttt{figures-regenerated/graphical-abstract-uq.png}); Sam to review.
+\item \textbf{Figs 1 and 2}: redrawn in code 2026-10-23 (\texttt{fig1-schematic.R},
+\texttt{fig2-data-parameters.R}), Fig 1 with the uncertainty step, both with all text at 8 pt or
+larger; Sam to review against his originals.
 \item \textbf{Biology read} of the example comparisons.
 \end{enumerate}
 
@@ -472,7 +473,9 @@ submission some labels were drawn large and then reduced, so that they printed a
 point. Figures 3 and 4 have also been corrected for the aspect-ratio distortion noted by Reviewer 2
 (R2.6), and the original Figures 5 and 6 for the same defect, which the reviewer did not flag but
 which was present there too. The four new figures of the revised manuscript (Figs 5 to 8) were
-built at their printed size with the same standard.
+built at their printed size with the same standard, and Figures 1 and 2, which were hand-made
+images with some text below the journal's minimum, have been redrawn from scripts in the same
+way; Figure 1 now also shows the uncertainty step on which the revised manuscript rests.
 
 Figure numbers have changed with the reframing. The original Figure 5, the comparison of
 convolution operators, is now S15 Fig, and the original Figure 6, the tissue domains, is Fig 9.
@@ -522,13 +525,16 @@ Minor comment: The graphical abstract submitted did not do the work justice, con
 better images rather than copy-pasting from the data section.
 \end{rev}
 
-\noindent We agree, and we will replace the graphical abstract with one designed for the
-purpose rather than copied from the figures, drawn directly from the data and showing the
-central result of the revised manuscript.
+\noindent We agree, and we have replaced the graphical abstract with one designed for the
+purpose rather than copied from the figures. It is drawn directly from the data and shows the
+central result of the revised manuscript: one ligand-receptor field, drawn at random from our
+pre-specified examples, that looks 1.5 times higher in one region of the heart than in another; the
+same comparison read from the map, by a test that treats locations as independent, and by the
+joint posterior, which does not support the difference; and the share of all 19,201 region
+comparisons that each reading calls different.
 
-\incomplete{The 2026-10-08 draft (\texttt{figures-regenerated/graphical-abstract.png}) shows the
-tissue domains, which are no longer the central result; to be redone for the uncertainty message
-and reviewed by Raredon before submission.}
+\incomplete{Draft at \texttt{figures-regenerated/graphical-abstract-uq.png}, made by
+\texttt{graphical-abstract-uq.R} (2026-10-23). Raredon to review before submission.}
 
 \section{Reviewer 2}
 

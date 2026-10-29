@@ -8,8 +8,8 @@
 set -euo pipefail
 out=submission-figures; mkdir -p "$out"
 declare -A SRC=(
-  [Fig1]="plos-port/img/Project Schematic.png"
-  [Fig2]="plos-port/img/Data Parameters.png"
+  [Fig1]="figures-regenerated/fig1-schematic.png"   # redrawn in code 2026-10-23 (fig1-schematic.R)
+  [Fig2]="figures-regenerated/fig2-data-parameters.png"   # redrawn in code 2026-10-23 (fig2-data-parameters.R)
   [Fig3]="figures-regenerated/Fig3-composite.png"
   [Fig4]="figures-regenerated/Fig4-composite.png"
   [Fig5]="figures-regenerated/fig-plugin-main.png"

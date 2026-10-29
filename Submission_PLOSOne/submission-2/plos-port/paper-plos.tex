@@ -105,8 +105,8 @@ ligand-receptor interaction fields estimated from spatial transcriptomics are us
 
 \begin{figure}[!ht]
     \centering
-    \figimg[width=1\linewidth]{img/Project Schematic.png}
-    \caption{{\bf Project schematic.} The purple arrows represent true tissue processing and activity. The blurred regions represent coarse estimates captured by spatialomics or created by spatial modeling.}
+    \figimg[width=1\linewidth]{../figures-regenerated/fig1-schematic.png}
+    \caption{{\bf Project schematic.} Purple arrows represent tissue processes: cell states give rise to ligand and receptor (L/R) transcripts and proteins, ligand-receptor binding, and communication between cells, which in turn changes cell states. The shaded regions mark what is measured by spatialomics data collection (orange) and what is estimated by spatial modeling (teal). Stacked outlines mark high-dimensional quantities, one layer per gene or ligand-receptor pair. The bell-shaped glyphs mark estimated quantities that carry a posterior distribution; the joint posterior of the estimated ligand-receptor fields is what allows the comparisons of this paper, which ask whether apparent differences between regions, along transects or over whole fields are credible. All quantities downstream of the transcript counts are model-derived proxies, not measurements.}
     \label{fig:proj_schema}
 \end{figure}
 
@@ -218,8 +218,8 @@ To assess the impact of our modeling choices, we desired a way of quantifying th
 
 \begin{figure}[!ht]
     \centering
-    \figimg[width=1\linewidth]{img/Data Parameters.png}
-        \caption{{\bf Data parameters.} The 1\textsuperscript{st} columns shows total counts within the selected field of view from \cite{Chen2022}. The 2\textsuperscript{nd} column shows ligand information, and the 3\textsuperscript{rd} column shows receptor information. For latter two columns, the 1\textsuperscript{st} row is total ligand or receptor counts, the 2\textsuperscript{nd} row is total ligand or receptor features, and the 3\textsuperscript{rd} row is fraction of the total counts that are ligand or receptor counts.}
+    \figimg[width=1\linewidth]{../figures-regenerated/fig2-data-parameters.png}
+        \caption{{\bf Data parameters.} (A) Total counts (unique molecular identifiers) per bin over the whole section E16.5\_E1S3 from \cite{Chen2022}, at bin 50; the dashed box is the field of view analyzed. Bins with fewer than 1,000 counts, which lie off the tissue, are left blank. (B) Total counts within the field of view. (C, D) Counts of the ligand and receptor genes, summed per bin, on a common color scale. (E, F) Number of ligand and receptor genes detected per bin. (G, H) Share of each bin's total counts that come from ligand and receptor genes. Ligands and receptors are the FANTOM5 ligands (422) and receptors (479) among the 912 modeled genes; a gene that is both is counted in both. Color scales are clipped at the 0.5th and 99.5th percentiles.}
     \label{fig:data_param}
 \end{figure}
 
