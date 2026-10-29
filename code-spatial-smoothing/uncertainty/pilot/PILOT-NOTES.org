@@ -59,7 +59,8 @@ Design: =../DESIGN.org= (frozen 2026-10-16, commit 86b34b0). Fidelity and reprod
 - The plug-in ratio uses the published fields (min of posterior medians), which are biased upward
   against the posterior of the minimum (the 2026-10-08 result); part of the gap between "x" and
   the posterior median in fig-P1 is that bias, not uncertainty.
-- D = 1,000 draws not yet checked for Monte Carlo stability of the interval endpoints.
+- D = 1,000 draws: Monte Carlo stability checked 2026-10-29 (draws-stability.R, below); adequate for the
+  regional intervals. Not yet checked for the whole-field excursion sets.
 
 * Decorrelated-posterior comparator (shuffle-test.R; added to DESIGN.org before running)
 
@@ -124,3 +125,27 @@ positive component is 0.24 to 0.40 across all bins), and the statement still req
 in the set simultaneously. This is a verdict on this variant (u = 0, k = 25, per-bin indicator),
 not on cluster-level inference in general: a version that makes a statement about the cluster
 itself, or uses a higher u, could behave differently and has not been run.
+
+* Monte Carlo stability of D = 1,000 (draws-stability.R; written 2026-10-21, run 2026-10-29)
+
+The 91 showcase regional contrasts, 95% interval endpoints recomputed on draws 1-500 and 501-1000
+separately. Half-versus-half endpoint difference on the log scale: median 0.025, 95th percentile
+0.109, maximum 0.268; relative to the interval width, median 0.045 and maximum 0.226. One of 91
+credible calls flips between halves. Each half carries sqrt(2) times the full-D error, so the
+full-D Monte Carlo error of an endpoint is roughly half these numbers. Verdict: D = 1,000 is
+adequate for the regional intervals.
+
+* Monte Carlo stability of the whole-field excursion sets (wholefield-stability.R, 2026-10-29)
+
+Joint sets of the three Fig 8 comparisons recomputed on draws 1-500 and 501-1000 separately
+(results-wholefield-stability.csv; sizes: full / half 1 / half 2 / in both halves):
+CALM1-KCNQ3 vs CALM1-PDE1A, bins 198 / 234 / 256 / 133, blocks 63 / 67 / 64 / 53;
+Cd44, bins 8,825 / 9,392 / 9,417 / 8,787, blocks 716 / 717 / 720 / 710;
+PKM-CD44, bins 2,084 / 2,492 / 2,648 / 2,020, blocks 348 / 359 / 352 / 330.
+Half-draw bin-level sets are 15 to 30% larger than the full-draw set for the two sparser
+comparisons (a 500-draw joint probability is estimated more coarsely, and the greedy set grows
+further) and 6% larger for Cd44; block-level sets differ by under 7%. The full-draw sets are
+almost entirely contained in each half-draw set (156 and 165 of 198; 8,792 and 8,802 of 8,825;
+2,037 and 2,053 of 2,084). Verdict: bin-level set SIZES for sparse fields carry Monte Carlo error
+of order 10 to 20% at D = 1,000 (half the half-vs-full gap); their location is stable. Stated in
+the manuscript's Methods.

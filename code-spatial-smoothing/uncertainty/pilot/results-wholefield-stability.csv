@@ -1,0 +1,7 @@
+comparison,level,n,full,half1,half2,both_halves,half1_in_full,half2_in_full
+CALM1-KCNQ3 vs CALM1-PDE1A,bin,26000,198,234,256,133,156,165
+CALM1-KCNQ3 vs CALM1-PDE1A,blk,1040,63,67,64,53,58,57
+Cd44 vs its tissue average,bin,26000,8825,9392,9417,8787,8792,8802
+Cd44 vs its tissue average,blk,1040,716,717,720,710,712,714
+PKM-CD44 vs its tissue average,bin,26000,2084,2492,2648,2020,2037,2053
+PKM-CD44 vs its tissue average,blk,1040,348,359,352,330,338,340

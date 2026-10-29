@@ -402,11 +402,13 @@ Reviewer 2's comment R2.8.
 
 First, every comparison the revised manuscript makes between regions, along transects or over
 whole fields is set beside the ways the same question is commonly answered without our
-posterior: reading the point-estimate map, a Wilcoxon test that treats each location as an
-independent observation, and our own posterior with the correlation between locations removed.
-Across 19,201 comparisons between pairs of regions (1,477 ligand-receptor pairs, 13 fixed region
-comparisons each), the Wilcoxon test finds a difference in 90\%, the posterior with its spatial
-correlation removed in 73\%, and the joint posterior in 46\% (Table 2). Of the comparisons that
+posterior: reading the point-estimate map, a Wilcoxon test on the smoothed map values that treats
+each location as an independent observation, and our own posterior with the correlation between
+locations removed. Across 19,201 comparisons between pairs of regions (1,477 ligand-receptor
+pairs, 13 fixed region comparisons each), the Wilcoxon test finds a difference in 90\%, the
+posterior with its spatial correlation removed in 73\%, and the joint posterior in 46\% (Tables 2
+and 3); the same rank test on the observed per-bin scores, which are zero at nearly every bin,
+finds one in 38\%, so the 90\% figure is a property of testing smoothed values as independent. Of the comparisons that
 look different on the maps by a factor of at least 1.25, 31\% are not supported by the posterior.
 These counts come from one tissue section and share regions and genes, so they are not rates, but
 they show concretely where the framework changes a conclusion that a simpler reading would draw.
@@ -529,8 +531,8 @@ better images rather than copy-pasting from the data section.
 purpose rather than copied from the figures. It is drawn directly from the data and shows the
 central result of the revised manuscript: one ligand-receptor field, drawn at random from our
 pre-specified examples, that looks 1.5 times higher in one region of the heart than in another; the
-same comparison read from the map, by a test that treats locations as independent, and by the
-joint posterior, which does not support the difference; and the share of all 19,201 region
+same comparison read from the map, by a test on the map values that treats locations as
+independent, and by the joint posterior, which does not support the difference; and the share of all 19,201 region
 comparisons that each reading calls different.
 
 \incomplete{Draft at \texttt{figures-regenerated/graphical-abstract-uq.png}, made by
@@ -826,8 +828,9 @@ two ways.
 The first concerns the reviewer's request for a baseline against which the framework can be
 evaluated. In the revised manuscript every comparison of interaction fields, between regions,
 along transects and over whole fields, is set beside three baselines: the plug-in map read
-directly, a Wilcoxon test that treats each location as an independent observation, and our own
-posterior with the correlation between locations removed (Methods; Results, Table 2). This shows
+directly, a Wilcoxon test on the smoothed map values that treats each location as an independent
+observation, and our own posterior with the correlation between locations removed (Methods;
+Results, Tables 2 and 3). This shows
 where the framework changes a conclusion, and it separates the effect of ignoring spatial
 correlation from the effect of ignoring uncertainty altogether: across 19,201 region comparisons
 the three find differences in 90\%, 73\% and 46\% of cases for the Wilcoxon test, the

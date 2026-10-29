@@ -238,6 +238,12 @@ per-spot credible intervals for ligand-receptor co-expression).
 
 * Change log
 
+- 2026-10-29: added, AFTER the results above were known (a comparator, not a selection among
+  results): a Wilcoxon rank-sum test on the observed per-bin score min(y_L, y_R)/N for the 13
+  regional comparisons (klone/raw-wilcoxon.R), to check whether the 90% rejection rate of the
+  plug-in-map Wilcoxon is a property of rank tests on these data or of testing smoothed values.
+  Also ran the D = 1,000 stability check written 2026-10-21 (pilot/draws-stability.R). Results
+  in klone/results/RESULTS.org and pilot/PILOT-NOTES.org; review in REVIEW-2026-10-29.org.
 - 2026-10-14: draft written.
 - 2026-10-22: cluster inference stopped (AOZ): the u = 0, k = 25 variant added nothing over the
   bin-level joint sets (pilot/PILOT-NOTES.org); fMRI-style cluster-level inference noted as future work.

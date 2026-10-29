@@ -1,0 +1,219 @@
+#+TITLE: Review of the uncertainty pivot: design, implementation, interpretation, presentation
+#+DATE: 2026-10-29
+#+AUTHOR: Claude (Fable 5.1) for Aaron Osgood-Zimmerman
+
+Scope: the work on branch =uncertainty-pivot= through commit ee715d5 (design =DESIGN.org=,
+pilot =pilot/=, cluster run =klone/=, manuscript
+=Submission_PLOSOne/submission-2/plos-port/paper-plos.tex=, main figures
+=paper-figs/make-main-figs.R=). Every claim below was checked by reading the code or the data,
+or by running the check named, unless marked "not checked". Two new checks were run on
+2026-10-29 and are described in section 2; their scripts and outputs are in the repository.
+
+Summary verdict. The design is sound and was fixed before results were seen; the implementation
+does what the design says; the main numbers reproduce. The interpretation is mostly careful,
+with one comparator whose framing was wrong in a way that matters for the headline (section 3,
+item 1) and several places where precision of wording should be tightened. The presentation
+needed a map of the regions, a color key, and a cleaner table; those were fixed today. The
+remaining items are a plan (section 5), not blockers for Sam's review.
+
+* 1. What was checked and found sound
+
+- Design frozen before any posterior comparison (=DESIGN.org=, 2026-10-16), additions logged with
+  dates before being run (2026-10-21). Regions chosen from the annotation and total counts only
+  (=design/design-maps.R= draws no gene field). Showcase pairs drawn with a fixed seed from a
+  prespecified rule, or chosen for the original Fig 5 long before. This is the right practice
+  and the manuscript says so.
+- Fidelity of the refits to the published fits (=pilot/FIDELITY.org=): every row SAME or argued
+  harmless; the reproduction check passes for all 17 pilot genes and 778 of 790 systematic genes.
+  The first cluster check (=uq-stage1.R=, a z-statistic treating bins as independent) was wrong
+  for the reason its replacement states (Monte Carlo error is shared across bins); the replacement
+  (=uq-check2.R=) uses median log shift and median interval-width ratio with thresholds set from
+  seed-to-seed spread on 7 genes. That is a soft flag, applied as a flag (17 pairs kept and
+  reported both ways, changes about 1% or less). Acceptable.
+- Interaction-field posterior: =M^(d)(s) = min(lambda_L^(d)(s), lambda_R^(d)(s))= per bin and
+  draw (=compare-lib.R::sig_draws=, =uq-stage2.R=). Regional averages and the tissue mean are
+  computed within each draw (correct: the average of a minimum is not the minimum of averages).
+  Shape normalization divides by the within-draw tissue mean (=uq-stage2.R= stores =tissue_mean=
+  per draw; =analyze-systematic.R= divides region means by it draw by draw). Rate scale: the
+  published count-scale field divided by =total.count= (checked: =Rpub <- sweep(Mpub, 2,
+  tc$total.count, "/")=, bin order asserted equal).
+- Decorrelated comparator: =Md <- t(apply(M, 1, sample))= permutes each bin's 1,000 draws
+  independently (seeded per pair). Marginals preserved exactly, between-bin correlation removed.
+  Correct.
+- Joint inference: =excursions::excursions.mc= at u = 0, alpha = 0.05, each direction; pointwise
+  calls at the same one-sided level so the joint set is a subset; =simconf.mc= for the band.
+  Matches the manuscript's description.
+- int16 storage of log draws at resolution 0.001: the cluster check recomputes the reproduction
+  statistics from the quantized draws, so the quantization is inside the check. Fine.
+- Pilot versus cluster (different seeds, machines, and INLA installations): 90 of 91 credible
+  calls agree; the one disagreement sits at an endpoint of 0.98 versus 1.01. Verified in
+  =RESULTS.org= (not recomputed today).
+- Tabulation (=analyze-systematic.R=): counts in Table 2 of the manuscript match
+  =klone/results/summary.org= (11,527; 3,603; 991; 17,320; 14,006; 8,915). Checked by reading.
+
+* 2. New checks run today (2026-10-29)
+
+** 2a. Monte Carlo stability of D = 1,000 draws (=pilot/draws-stability.R=, written 2026-10-21, never run until today)
+
+For the 91 showcase regional contrasts, the 95% interval endpoints were recomputed on draws
+1-500 and 501-1000 separately. Half-versus-half endpoint difference on the log scale: median
+0.025, 95th percentile 0.109, maximum 0.268; relative to the interval width, median 0.045
+(4.5% of the width), maximum 0.226. One of 91 credible calls flips between halves. Since each
+half carries sqrt(2) times the full-D error, the full-D Monte Carlo error of an endpoint is
+roughly half these numbers. D = 1,000 is adequate for the regional intervals; this is now
+recorded in =pilot/PILOT-NOTES.org= and in the manuscript's Methods.
+
+** 2b. A rank test on the observed data rather than on the smoothed map (=klone/raw-wilcoxon.R=, new)
+
+The manuscript's "bins as independent observations" comparator is a Wilcoxon rank-sum test on
+the plug-in (smoothed, fitted) field values of the bins in two regions. I asked what the same
+test gives on the observed per-bin score, min(y_L, y_R)/N, with no model at all. Result over
+the same 19,201 instances: the observed score is zero at a median of 99.8% of bins in a region
+(90th percentile of the nonzero share 4.4%; in the 225-bin boxes the median nonzero share is 0).
+The test is undefined (both regions all zero) in 3,086 instances, rejects at 0.05 in 7,300
+(38%), and rejects in only 483 of the 3,603 "looks different, not credible" instances. It agrees
+with the joint posterior on 5,821 of the 8,915 credible instances. So the 90% rejection rate of
+the manuscript's Wilcoxon comparator is a property of testing SMOOTHED values as if independent
+(which is what is done when a kernel-smoothed or imputed map is tested spot by spot), not of
+rank tests on these data in general; on the raw per-bin scores the test is weak, not
+anticonservative. The manuscript now says this (Methods, Results, Discussion, Table 2) and the
+comparator is named "Wilcoxon test on the plug-in map, bins independent" throughout.
+
+This comparator was added after the other results were known; it is a comparator, not a
+selection among results, and the date is logged in =DESIGN.org=.
+
+** 2c. Monte Carlo stability of the whole-field excursion sets (=pilot/wholefield-stability.R=, new)
+
+The joint sets of the three Fig 8 comparisons were recomputed on draws 1-500 and 501-1000.
+Bin-level half-draw sets are 15 to 30% larger than the full-draw set for the two sparser
+comparisons (CALM1-KCNQ3 vs CALM1-PDE1A: 198 full, 234 and 256 on the halves; PKM-CD44: 2,084,
+2,492 and 2,648) and 6% larger for Cd44 (8,825; 9,392 and 9,417); block-level sets differ by
+under 7%. The full set is almost entirely inside each half set. So the SIZE of a bin-level set
+for a sparse field carries Monte Carlo error of order 10 to 20% at D = 1,000, while its location
+is stable; block-level sets are stable in both. The manuscript's Methods now say so, and the
+whole-field counts in the Results are described as approximate to that order.
+
+* 3. Issues found, ranked, with what was done
+
+1. (Fixed in text today) The Wilcoxon comparator was described as "treating locations as
+   independent" without saying it is applied to the smoothed map. The abstract's sentence "a
+   rank test treating locations as independent finds a difference in 90% of comparisons" would
+   be read as a statement about naive analysis of the data; section 2b shows it is a statement
+   about testing smoothed outputs. The 90% figure stands, with its construct named.
+2. (Fixed in text today) "Ignoring the correlation accounts for most of the gap": the gap between
+   the Wilcoxon test (90%) and the joint posterior (46%) is 44 points; removing correlation alone
+   moves the posterior from 46% to 73%, 27 of the 44 points. "Most" is accurate; the arithmetic
+   is now given, with the caveat that the two are different statistics.
+3. (Fixed in text today) "With 1,000 draws, that fraction is resolved to 0.001" states the
+   granularity of a Monte Carlo estimate, not its precision. The standard error of an estimated
+   joint probability near 0.95 from 1,000 draws is about sqrt(0.95 x 0.05 / 1000) = 0.007, and
+   the stability check in 2a is the better statement.
+4. (Fixed in text today) Levels: the regional "credible" call is two-sided (95% equal-tailed
+   interval excludes 1); the pointwise bin and position calls are one-sided (posterior probability
+   of exceeding 0 at least 0.95), chosen so that the joint set is a subset; the transect band is
+   two-sided 95%. All correct in the code, but the manuscript did not say the pointwise calls are
+   one-sided. It does now.
+5. (Not fixed; plan item P1) The plug-in bias section (Fig 5) is computed from lognormal
+   approximations to the stored marginal posteriors, because it predates the joint draws. The
+   joint draws now exist for 17 pilot genes locally and could verify the approximation on the
+   seven showcase pairs. Cheap; not done today.
+6. (Not fixed; plan item P2) No prior sensitivity analysis. The penalized-complexity priors
+   (P(range < 500 chip units) = 0.95, P(sigma > 0.1) = 0.05) are informative, the posterior ranges
+   for the example genes are 2 to 9 bins, and the width of a regional contrast interval for a
+   sparse gene depends on both. The Discussion names the stationarity assumption but not the
+   priors.
+7. (Done today, see 2c) Monte Carlo stability of the whole-field excursion sets.
+8. (Not fixed; plan item P4) The threshold for "looks different" rests on one author's rulings
+   on five maps. The sensitivity rows at 1.5 and 2 cover this, and a second rater (Sam) could rule
+   on the same five panels (S11 Fig B) at near-zero cost.
+9. (Acceptable as is) Twelve refits differ from the published fits for an unknown reason; flagged,
+   not dropped, and the counts move by about 1% or less. The manuscript says so.
+10. (Acceptable as is) The 19,201 comparisons share regions and pairs and are not a sample from
+    any population; the manuscript says so in Results, Table 2 and Discussion, and the counts are
+    presented as descriptions of one section.
+11. (Acceptable as is) The model is one stationary Matern field per gene; sharp anatomical
+    boundaries are a known misspecification. Discussed with the Velidi et al. citation.
+12. (Acceptable as is) "Not credible" means the 95% interval includes 1, not that the regions are
+    the same. The manuscript uses "not supported" and "does not establish"; I removed the few
+    places where the wording slid toward "no difference".
+
+* 4. Presentation: what was changed today
+
+- Fig 6 (region comparisons): gained panel A, a map of the five boxes, the five annotated
+  tissues and the four transects, so a reader can see what is compared without opening S11 Fig;
+  the four forest panels now share one ratio axis (0.15 to 8, log scale), so the width of an
+  interval means the same thing in every panel and Cd44's precision is visible as such rather
+  than being stretched to fill its panel.
+- Fig 7 (transect): gained an inset locating the heart-to-liver transect on the annotation.
+- Fig 8 (whole fields): gained a color bar for the plug-in log ratio and a key for the
+  above/below calls (the key existed in the script but was never drawn).
+- Table 2: the two stacked tables are now two tables (Table 2, plug-in reading against the
+  posterior at three thresholds; Table 3, comparisons called different by each reading, with
+  the raw-data Wilcoxon row added).
+- Fig 5 (plug-in bias): unchanged. Its panel A (a per-bin 90th percentile map) is hard to read;
+  a candidate replacement is a single histogram of the overstatement with the 10% and 25%
+  marks, but the figure's role is small now and I left it.
+
+* 5. Plan for the unresolved items (for the next agent; each item is self-contained)
+
+** P1. Verify the lognormal approximation behind Fig 5 against joint draws (about 15 minutes)
+
+Inputs: pilot draws at =/var/home/aoz/data/a-s-omics-uncertainty/draws/<Gene>-lambda-draws.rds=
+(17 genes; =compare-lib.R::load_draws=), the stored per-bin medians and intervals used by the
+Fig 5 code (find the script via =grep -rl lognormal Submission_PLOSOne/submission-2= and
+=code-spatial-smoothing/=), and the seven showcase pairs. For each pair and bin compute the
+posterior median of M from the draws (=apply(sig_draws(pair, cache), 1, median)=) and the
+lognormal-approximation median used in Fig 5. Report: median and 90th percentile over bins of
+|log(draw median) - log(approximation median)|, per pair; and the per-pair Pearson correlation
+between the two over bins. Done when these numbers are in =pilot/PILOT-NOTES.org= and one
+sentence in the manuscript's plug-in section states them. If the 90th percentile exceeds 0.1
+on the log scale for any pair, say so in the manuscript and flag the Fig 5 percentages as
+approximate; do not silently replace them.
+
+** P2. Prior sensitivity of the regional contrasts (about 1 to 2 hours on the workstation, no cluster)
+
+Refit the 17 pilot genes (=pilot/refit-draws.R=; same mesh, likelihood, offset; change only the
+=prior.range= and =prior.sigma= arguments of =inla.spde2.pcmatern=) under three alternatives,
+one at a time: (a) range prior halved, P(range < 250) = 0.95; (b) range prior doubled,
+P(range < 1000) = 0.95; (c) sigma prior relaxed, P(sigma > 1) = 0.05. Write draws to a sibling
+directory (=.../draws-prior-a/= etc.), then run the 91 showcase regional contrasts with
+=compare-lib.R= under each. Report, per alternative: number of the 91 credible calls that
+change; median ratio of interval widths (alternative over baseline, log scale); the largest
+change in a posterior median ratio. Threshold fixed now: if more than 9 of 91 calls (10%) change
+under any alternative, the manuscript's Discussion must say the regional conclusions are
+prior-sensitive and name the direction; otherwise one sentence reporting the numbers suffices.
+Log the plan in =DESIGN.org= before running. Do not run this on klone; it is 51 single-core
+fits of about one minute each.
+
+** P3. Done 2026-10-29 (section 2c). A follow-up, if wanted: rerun the three Fig 8 comparisons
+with D = 4,000 draws (refit not needed if the pilot draws are regenerated with n.samples = 4000;
+about 4 minutes per gene for the five genes) and report whether the bin-level set sizes move by
+more than the 10 to 20% estimated here.
+
+** P4. Second rater for the "looks different" threshold (Sam; 10 minutes of his time)
+
+Send Sam =design/threshold-examples.png= (five maps, the same panels as S11 Fig B) without the
+ratios and without AOZ's rulings, and ask for "same / probably different / definitely different"
+on level only, as AOZ did. Record his rulings in =DESIGN.org= beside AOZ's. If his boundary
+falls between 1.25 and 1.5, the existing sensitivity rows cover it and the manuscript gains one
+sentence; if he calls the 1.16 panel different, add T = 1.1 as a fourth row of Table 2 (the
+tabulation script takes a vector =TS=).
+
+** P5. (Optional, larger) Cluster-level inference done faithfully
+
+The u = 0, k = 25 variant was correctly judged uninformative. A faithful version would make a
+statement about a connected region as a whole (for example, the posterior probability that the
+regional average of a connected component exceeds 0, with components defined on the posterior
+median map and the double-dipping acknowledged, or with a threshold u well above 0). This is
+future work and the manuscript says so; not needed for the revision.
+
+* 6. Writing: what was changed and why (details in the session report)
+
+The new sections were written in a clipped register (short declarative sentences, numbers
+stacked without connective tissue), while the legacy sections are expansive. The revised
+text moves the new sections toward AOZ's register as seen in his dissertation: complete
+sentences that state the question before the number, the number with its denominator and
+period, and the limitation in the same paragraph; roadmap sentences at the start of the
+Methods and Results subsections; one term per concept ("interaction field", "plug-in map",
+"joint posterior", "credible"). Legacy text was left largely as written except for terminology,
+the removal of double-hyphen dashes used as em-dashes, and transitions into the new material.
