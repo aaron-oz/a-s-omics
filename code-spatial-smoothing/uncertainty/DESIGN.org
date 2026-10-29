@@ -238,6 +238,17 @@ per-spot credible intervals for ligand-receptor co-expression).
 
 * Change log
 
+- 2026-10-29 (logged before running; AOZ approved the plan in REVIEW-2026-10-29.org, item P2):
+  prior sensitivity of the regional contrasts. The 13 genes of the seven showcase pairs plus Cd44
+  are refitted (pilot/refit-draws-prior.R, identical to refit-draws.R except the PC prior) under
+  (a) P(range < 250) = 0.95, (b) P(range < 1000) = 0.95, (c) P(sigma > 1) = 0.05, one change at
+  a time, D = 1,000 draws each; the 91 showcase regional contrasts are recomputed under each.
+  Decision rule fixed now: if more than 9 of 91 credible calls change under any alternative, the
+  manuscript's Discussion states that the regional conclusions are prior-sensitive and names the
+  direction; otherwise one sentence reports the numbers. Also P1: the lognormal approximation
+  behind Fig 5 is checked against the pilot joint draws for the seven showcase pairs.
+  Outcome (same day): (a) 0 and (b) 0 calls changed, (c) 2 of 91; one sentence added. P1:
+  approximation within draw noise; Fig 5 percentages marked approximate. pilot/PILOT-NOTES.org.
 - 2026-10-29: added, AFTER the results above were known (a comparator, not a selection among
   results): a Wilcoxon rank-sum test on the observed per-bin score min(y_L, y_R)/N for the 13
   regional comparisons (klone/raw-wilcoxon.R), to check whether the 90% rejection rate of the

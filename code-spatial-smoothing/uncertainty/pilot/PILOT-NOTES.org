@@ -149,3 +149,40 @@ almost entirely contained in each half-draw set (156 and 165 of 198; 8,792 and 8
 2,037 and 2,053 of 2,084). Verdict: bin-level set SIZES for sparse fields carry Monte Carlo error
 of order 10 to 20% at D = 1,000 (half the half-vs-full gap); their location is stable. Stated in
 the manuscript's Methods.
+
+* Lognormal approximation behind the plug-in-bias section, checked against joint draws (lognormal-check.R, 2026-10-29)
+
+Seven showcase pairs, all 26,000 bins, rate scale (results-lognormal-check.csv). Per-bin
+|log(draw median of M) - log(lognormal-approximation median of M)|: median 0.020 to 0.062 by pair,
+90th percentile 0.054 to 0.152, maximum 0.19 to 0.41; Pearson correlation over bins 0.997 to 0.999.
+For comparison, the Monte Carlo error of a per-bin median from 1,000 draws with log-scale posterior
+sd about 1 is roughly 1.25 / sqrt(1000) = 0.04, so most of the disagreement is within draw noise.
+The gross overstatement is reproduced (median plug-in over median of M: WNT4-FZD6 59% from draws vs
+61% approx; RSPO1-LGR6 66% vs 66%; VEGFA-KDR 24% vs 23%). The share of bins with overstatement above
+10% is sensitive where the overstatement is near zero (CALR-ITGA2B 9.3% from draws vs 0.2% approx;
+DHH-PTCH1 17% vs 1.8%), part of which is draw noise pushing small values over the cutoff. Verdict:
+the approximation is adequate for the plug-in section's purpose; its tail percentages are
+approximate to a few points, and the manuscript now says so.
+
+* Prior sensitivity of the regional contrasts (refit-draws-prior.R, prior-sensitivity.R, 2026-10-29; DESIGN.org change log)
+
+The 13 genes of the seven showcase pairs (plus Cd44) refitted with D = 1,000 under, one change at
+a time: (a) P(range < 250) = 0.95; (b) P(range < 1000) = 0.95; (c) P(sigma > 1) = 0.05. Draws in
+/var/home/aoz/data/a-s-omics-uncertainty/draws-prior-{a,b,c}/. Results
+(results-prior-sensitivity.csv), 91 regional contrasts each:
+- (a) and (b): 0 of 91 credible calls change; median interval width ratio to baseline 1.002 and
+  1.004 (range 0.92 to 1.21); posterior ranges and sigmas unchanged to three figures (the data
+  dominate the range prior for these genes).
+- (c): 2 of 91 calls change, both from credible to not credible, both with an endpoint already
+  near 1 at baseline: CALR-ITGA2B heart box 1 vs liver box (0.46, interval 0.23 to 0.90 -> 0.49,
+  0.25 to 1.01) and RSPO1-LGR6 heart vs thymus (1.68, 1.07 to 2.68 -> 1.60, 1.00 to 2.77). Median
+  width ratio 0.99 (range 0.67 to 1.15); largest shift of a posterior median ratio 0.21 on the log
+  scale; fitted sigma up by a median factor of 1.08 and range down by 0.94 (Fzd6 most: sigma 2.24 ->
+  3.07, range 93 -> 62 chip units).
+- Decision rule (fixed before running): more than 9 of 91 changes would have required a
+  prior-sensitivity statement in the Discussion; 2 changes, of the order of the 1 flip seen between
+  halves of the baseline draws, requires one reporting sentence, now in the Discussion.
+- Caveat: INLA printed "iterative process seems to diverge, 'vb.correction' is aborted" for several
+  of the prior-(a) fits (the fit then proceeds without the variational-Bayes correction). Whether
+  the baseline pilot refits printed the same was not recorded; the reproduction check in
+  FIDELITY.org passed for them. Not pursued.

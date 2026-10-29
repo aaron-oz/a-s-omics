@@ -93,6 +93,26 @@ for a sparse field carries Monte Carlo error of order 10 to 20% at D = 1,000, wh
 is stable; block-level sets are stable in both. The manuscript's Methods now say so, and the
 whole-field counts in the Results are described as approximate to that order.
 
+** 2d. Lognormal approximation behind Fig 5 checked against joint draws (=pilot/lognormal-check.R=, item P1, done)
+
+Seven showcase pairs, 26,000 bins each. The approximate and draw-based posterior medians of M
+differ by a median of 0.02 to 0.06 on the log scale per pair (90th percentile 0.05 to 0.15,
+maximum 0.19 to 0.41; Pearson at least 0.997), comparable to the Monte Carlo error of a
+per-bin median from 1,000 draws (about 0.04 at log-sd 1). The gross overstatements agree (59 vs
+61%, 66 vs 66%, 24 vs 23%); the share of bins above 10% overstatement disagrees for pairs where
+the overstatement is near zero (9.3 vs 0.2%, 17 vs 1.8%). The 90th percentile exceeds 0.1 for
+four of seven pairs, so per the prespecified rule the manuscript now states that the Fig 5
+percentages are approximate to a few points; they were not replaced.
+
+** 2e. Prior sensitivity of the regional contrasts (item P2, done; =pilot/refit-draws-prior.R=, =pilot/prior-sensitivity.R=)
+
+Range prior halved or doubled: 0 of 91 credible calls change, median interval width ratio 1.00.
+Sigma prior relaxed tenfold (P(sigma > 1) = 0.05): 2 of 91 change, both credible to not
+credible with a baseline endpoint already near 1 (CALR-ITGA2B heart box 1 vs liver box, upper
+endpoint 0.90 -> 1.01; RSPO1-LGR6 heart vs thymus, lower endpoint 1.07 -> 1.00); median width
+ratio 0.99 (range 0.67 to 1.15). Below the prespecified 9-of-91 threshold; one sentence added
+to the Discussion. Details in =pilot/PILOT-NOTES.org=.
+
 * 3. Issues found, ranked, with what was done
 
 1. (Fixed in text today) The Wilcoxon comparator was described as "treating locations as
@@ -113,15 +133,10 @@ whole-field counts in the Results are described as approximate to that order.
    of exceeding 0 at least 0.95), chosen so that the joint set is a subset; the transect band is
    two-sided 95%. All correct in the code, but the manuscript did not say the pointwise calls are
    one-sided. It does now.
-5. (Not fixed; plan item P1) The plug-in bias section (Fig 5) is computed from lognormal
-   approximations to the stored marginal posteriors, because it predates the joint draws. The
-   joint draws now exist for 17 pilot genes locally and could verify the approximation on the
-   seven showcase pairs. Cheap; not done today.
-6. (Not fixed; plan item P2) No prior sensitivity analysis. The penalized-complexity priors
-   (P(range < 500 chip units) = 0.95, P(sigma > 0.1) = 0.05) are informative, the posterior ranges
-   for the example genes are 2 to 9 bins, and the width of a regional contrast interval for a
-   sparse gene depends on both. The Discussion names the stationarity assumption but not the
-   priors.
+5. (Done, see 2d) The plug-in bias section (Fig 5) rests on lognormal approximations; checked
+   against joint draws for the seven showcase pairs and found adequate to within draw noise.
+6. (Done, see 2e) Prior sensitivity: not sensitive on the 91 example contrasts; Discussion
+   now reports the check.
 7. (Done today, see 2c) Monte Carlo stability of the whole-field excursion sets.
 8. (Not fixed; plan item P4) The threshold for "looks different" rests on one author's rulings
    on five maps. The sensitivity rows at 1.5 and 2 cover this, and a second rater (Sam) could rule
@@ -170,7 +185,7 @@ sentence in the manuscript's plug-in section states them. If the 90th percentile
 on the log scale for any pair, say so in the manuscript and flag the Fig 5 percentages as
 approximate; do not silently replace them.
 
-** P2. Prior sensitivity of the regional contrasts (about 1 to 2 hours on the workstation, no cluster)
+** P2. Done 2026-10-29 (section 2e). The plan as executed follows, for the record.
 
 Refit the 17 pilot genes (=pilot/refit-draws.R=; same mesh, likelihood, offset; change only the
 =prior.range= and =prior.sigma= arguments of =inla.spde2.pcmatern=) under three alternatives,
