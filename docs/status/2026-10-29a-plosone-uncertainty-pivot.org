@@ -1,0 +1,77 @@
+#+TITLE: Status: PLOS One revision, uncertainty reframing (2026-10-29)
+#+DATE: 2026-10-29
+
+* Read this first
+- This line of work is the round-1 revision of PLOS ONE manuscript PONE-D-26-04349 by Aaron Osgood-Zimmerman (AOZ) and Micha Sam Brickman Raredon (Sam), originally "Spatial Modeling of Tissues for Morphogenic Field Analysis". Revision deadline: December 2026 (exact date not recorded). On 2026-10-14 AOZ and Sam reframed the paper: its central result is now whether differences visible on maps of ligand-receptor interaction fields are supported by the joint posterior of a Bayesian spatial model (regions, transects, whole fields), compared against reading the map, Wilcoxon tests treating locations as independent, and the posterior with spatial correlation removed. The analysis, the rewritten manuscript, all nine figures, the Supporting Information (SI) and both letters are drafted and committed on branch =uncertainty-pivot= (not merged to main). The single most important next action: wait for Sam's review (AOZ is meeting him); meanwhile build the marked-up manuscript that PLOS requires.
+- Previous status doc: none in docs/status/; the previous handoff is =Submission_PLOSOne/submission-2/HANDOFF-2026-10-14.org= (on main).
+- Session ended with: /handoff. Session notes: no auto-compaction; the session ran 2026-10-14 to 2026-10-29.
+
+* What this session accomplished
+All paths are relative to the repo root =/var/home/aoz/Dropbox/genetics/a-s-omics= (a git repo inside Dropbox; there is no ~/code clone). All verified by running or reading unless marked "reported".
+- Frozen design: =code-spatial-smoothing/uncertainty/DESIGN.org= fixes the regions (five 15 x 15-bin boxes, five MOSTA anatomical regions, 13 region comparisons), four transects, the showcase pairs (three drawn at random with a fixed seed, plus the four pairs of the original Fig 5, plus Cd44 and PKM-CD44), and the "looks different" threshold T = 1.25 (ratio of regional averages on the published map; 1.5 and 2 as pre-set checks). Every later addition is logged in its change log with a date, before it was run.
+- Literature: novelty check (=uncertainty/novelty-uncertainty.org=), notes on four close precedents (=uncertainty/precedent-notes.org=), and full-text reads of 24 papers in three batches (=uncertainty/lit/LIT-NOTES-batch{1,2,3}.org=; texts in =/var/home/aoz/data/a-s-omics-lit/=). Reading was by sub-agents (reported); every quote the manuscript uses was checked against the saved text by the orchestrator (verified).
+- Local pilot (=code-spatial-smoothing/uncertainty/pilot/=): 17 genes refitted with 1,000 joint posterior draws each; fidelity table =pilot/FIDELITY.org=; showcase comparisons; a decorrelated comparator (each bin's draws permuted independently); 5 x 5-bin block excursion sets; a posterior-draw cluster-inference variant (u = 0, k = 25 bins) that added nothing and was stopped. Notes: =pilot/PILOT-NOTES.org=.
+- Systematic run on the UW Hyak klone cluster (=code-spatial-smoothing/uncertainty/klone/=, results =klone/results/RESULTS.org=): all 790 genes refitted, all 1,477 ligand-receptor pairs. 778 of 790 genes reproduce the published fits within Monte Carlo error; 12 sparse genes do not (cause not established), touching 17 pairs, which are flagged and reported both ways (changes about 1% or less). Of 19,201 region comparisons, 11,527 look different at T = 1.25 and 3,603 of those are not credible; Wilcoxon calls 90%, decorrelated posterior 73%, joint posterior 46%.
+- Manuscript =Submission_PLOSOne/submission-2/plos-port/paper-plos.tex=: new Methods subsection "Uncertainty-aware comparison of interaction fields"; Results reordered (Fig 5 plug-in vs posterior, Fig 6 and Table 2 regions, Fig 7 transects, Fig 8 whole fields, Fig 9 domains with condensed controls); Introduction and Discussion rewritten; new abstract; placeholder title "Uncertainty-aware comparison of ligand-receptor interaction fields estimated from spatial transcriptomics"; old Fig 5 moved to S15 Fig; full controls text to =plos-port/S16-controls-appendix.tex=; new bibliography =plos-port/references-uq.bib=. Builds with 0 errors (39 pages).
+- Figures: all nine scripted at 8 pt or larger; Fig 1 (=figures-regenerated/fig1-schematic.R=) redrawn with an uncertainty step; Fig 2 (=figures-regenerated/fig2-data-parameters.R=) rebuilt from data; new graphical abstract =figures-regenerated/graphical-abstract-uq.R=. =export-submission-figures.sh= writes Fig1.tif to Fig9.tif (all under 10 MB).
+- SI staged in =Submission_PLOSOne/submission-2/supporting-information/=: S9 Table, S10 to S12 Fig, S13 Table (built by =klone/make-S13-S14.R=), S14 File (zip, about 7 MB), S15 Fig, S16 Appendix.
+- Letters: =response-to-reviewers.tex= (opening explains the reframing; new revision summary; every affected response updated; the 24 reviewer quotes verified byte-identical; =python3 check-response-letter.py= passes with only the graphical-abstract item open) and =cover-letter-draft.org=.
+- Commits on uncertainty-pivot this session, all pushed: da69373 through ee715d5 (latest: 12cae1f figures, ee715d5 build docs).
+
+* Decisions made, and why
+- Reframing around uncertainty (AOZ and Sam, 2026-10-14). Domains kept as a shorter section with Fig 6 (now Fig 9) in the main text; note that moving it to SI would focus the paper further (AOZ).
+- "Looks different" threshold T = 1.25 from AOZ's rulings on five example maps (level only), with 1.5 and 2 as checks (AOZ).
+- Showcase: random rule plus the four original Fig 5 pairs; Sam approved them with no additions (2026-10-21).
+- Cross-field comparisons use shape normalization (each field divided by its own tissue average within each draw); comparisons on the rate scale (AOZ, 2026-10-14).
+- Flagged genes: keep, flag, report with and without, plus refit-based plug-in for those pairs (AOZ option a).
+- Coherent structure: regional averages plus 5 x 5-block excursion sets; fMRI-style cluster-level inference is future work (AOZ, after the u = 0 variant added nothing).
+- Terminology: "interaction field" everywhere, including the title (AOZ).
+- Title: new title, wording to settle with Sam at the end (AOZ).
+- Reviewers get a clean copy plus revision summary; the latexdiff marked-up copy is still produced because PLOS lists it as required (AOZ preference plus PLOS rule).
+- Fig 1, Fig 2 and graphical abstract redrawn by the agent rather than waiting for Sam (AOZ).
+- Merge uncertainty-pivot to main only after Sam reviews (AOZ, 2026-10-29). klone scratch outputs left in place for now (AOZ, 2026-10-29).
+
+* Tried and ruled out
+- Posterior-draw cluster inference, variant u = 0 (threshold), k = 25 bins (minimum component), per-bin indicator joint set: added nothing over bin-level excursion sets, because at u = 0 above-zero bins percolate and the size condition rarely binds (=pilot/PILOT-NOTES.org=). Only this variant was tested; a cluster-level statement with a higher threshold was not.
+- Disabling INLA's variational-Bayes correction does not explain why the 12 flagged genes' refits differ from the published fits (=klone/diagnose-check-vb.R=).
+
+* Current state
+** Git
+- Repo /var/home/aoz/Dropbox/genetics/a-s-omics, branch =uncertainty-pivot=, pushed to origin through ee715d5, 16 commits ahead of main, NOT merged (AOZ: merge after Sam's review). Pre-check conflicts with =git merge-tree --write-tree origin/main origin/uncertainty-pivot= before merging; merge with --no-ff.
+- main carries only this status doc and STATUS.org from this session.
+- Untracked files left on purpose: =REVISION-SUMMARY-2026-10-08.tex/.pdf= (AOZ's), build PDFs.
+** Running or scheduled
+- Nothing running. klone scratch =/gscratch/csde/azimmer/uq-out= (1.6 GB of per-pair outputs) remains by AOZ's choice; a local copy is at =/var/home/aoz/data/a-s-omics-uncertainty/klone-out=. Check with =ssh hyak 'du -sh /gscratch/csde/azimmer/uq-out'= after AOZ logs in.
+- Local data outside the repo (needed to rebuild figures and tables): =/var/home/aoz/data/a-s-omics-uncertainty= (6.1 GB) and =/var/home/aoz/data/a-s-omics-lit= (297 MB).
+** Flagged before shutdown but not done
+- None outstanding.
+** Permissions Aaron granted this session
+- Commit and push to uncertainty-pivot at each agreed breakpoint; klone submissions under the frugality rules. These do not carry over.
+
+* Todos for the next agent
+1. Build the marked-up manuscript PLOS requires ("Revised Article with Changes Highlighted"): =latexdiff --math-markup=off= against tag =rev1-baseline=, exactly as in =Submission_PLOSOne/submission-2/README-build.md= section 2; confirm it compiles. Expect a large diff; the letter already points reviewers to the clean copy and revision summary. Done when the PDF builds with 0 errors.
+2. When AOZ relays Sam's review: apply the title choice (placeholder in paper-plos.tex has a "TITLE PENDING" comment; candidates in =REWRITE-OUTLINE-2026-10-22.org=; the cover letter and response-letter author block also name it), any edits to the redrawn Fig 1, Fig 2 or graphical abstract, and then remove the \incomplete marker under the graphical-abstract item (R1.5) in =response-to-reviewers.tex= and set its status to DONE in both the item and the status table. Run =python3 check-response-letter.py=.
+3. Pre-upload: =\embedfigsfalse= in paper-plos.tex, =\draftmodefalse= in the letter, rebuild everything, =bash export-submission-figures.sh=, finalize =cover-letter-draft.org= (who signs; which extensions to thank).
+4. After AOZ approves: merge uncertainty-pivot to main (--no-ff, message "Merge uncertainty-pivot: uncertainty reframing of the PLOS One revision").
+- Traps: the repo is in Dropbox (no ~/code clone); git ops run there. Never edit reviewer quotes (the \begin{rev} blocks). The S16 Appendix is a separate .tex; S13 is generated. Keep "interaction field" as the only term.
+
+* Todos for Aaron
+1. Sam's review: title, the three redrawn images (Fig 1 =figures-regenerated/fig1-schematic.png=, Fig 2 =fig2-data-parameters.png=, graphical abstract =graphical-abstract-uq.png=), and a biology read of the example comparisons. Blocks final submission only.
+2. Sign off on the reframed text (letter opening, revision summary, new Methods and Results, Discussion). Blocks submission.
+3. Optional, verifies two quotes: obtain the typeset Bolin & Lindgren 2015 (JRSS-B, doi 10.1111/rssb.12055) and the final Mejia et al. 2020 with supplement (JASA, doi 10.1080/01621459.2019.1611582). Does not block submission.
+4. Later: delete klone scratch outputs (needs your login, then the agent can run it):
+#+begin_src bash
+ssh hyak
+#+end_src
+
+* Documentation updated this session
+- =Submission_PLOSOne/submission-2/README-build.md= and =REWRITE-OUTLINE-2026-10-22.org= (on uncertainty-pivot, ee715d5): nine-figure and S9-S16 build.
+- Project memory (outside the repo): =plosone-revision-status.md= (points here), =csde-klone-cluster.md= (batch-size memory lesson; transient container-mount failures).
+
+* Key files
+- =Submission_PLOSOne/submission-2/plos-port/paper-plos.tex=: the manuscript (branch uncertainty-pivot).
+- =Submission_PLOSOne/submission-2/response-to-reviewers.tex=, =cover-letter-draft.org=: the letters.
+- =Submission_PLOSOne/submission-2/README-build.md=: how to build everything.
+- =code-spatial-smoothing/uncertainty/DESIGN.org=: frozen design and change log.
+- =code-spatial-smoothing/uncertainty/klone/results/RESULTS.org=: systematic results.
+- =Submission_PLOSOne/submission-2/REWRITE-OUTLINE-2026-10-22.org=: outline, asks of Sam, title candidates.
