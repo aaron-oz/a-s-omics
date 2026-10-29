@@ -172,7 +172,14 @@ on 2026-10-08).
 6. Agreement with the reframing: uncertainty as the central result, domains shortened, Fig 5 to
    the Supporting Information.
 
-* TODO list (remaining work)
+* Progress as of 2026-10-29
+Done on branch uncertainty-pivot (through commit 12cae1f): Methods, Results, Figs 1 to 9, Table 2,
+Introduction, Discussion, abstract, SI S11 to S16, response and cover letters, nine TIFFs, Figs 1
+and 2 redrawn in code, new graphical abstract. Remaining: Sam's review (title, redrawn Figs 1 and 2,
+graphical abstract, biology read); the marked-up manuscript (latexdiff); final build and upload;
+merge to main after Sam. See docs/status/STATUS.org on main.
+
+* TODO list (remaining work, as written 2026-10-22)
 
 Manuscript (=plos-port/paper-plos.tex=, on =uncertainty-pivot=):
 1. Methods: new subsections (joint draws and reproduction check; posterior of a signaling field;
