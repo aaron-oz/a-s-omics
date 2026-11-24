@@ -20,6 +20,7 @@ def is_prose(l):
 def words(l):
     return re.sub(r"\\[a-zA-Z]+\*?|[{}$~\[\]]", " ", l).split()
 def esc(s):
+    s = re.sub(r"\\([%&_#])", r"\1", s)   # a snippet may already hold an escaped character; do not escape it twice
     for a, b in (("%", "\\%"), ("&", "\\&"), ("_", "\\_"), ("#", "\\#"), ("^", "")): s = s.replace(a, b)
     return s
 

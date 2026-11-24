@@ -122,6 +122,8 @@ distrobox enter bittensor-ubuntu -- bash -c "latexdiff --math-markup=off --disab
 #     Same steps with ../make-claude-edits-copy.py; it reads $CHANGE_TMP/old2.tex (the file as Aaron
 #     last saved it, for example `git show HEAD:.../paper-plos-voice.tex`) and $CHANGE_TMP/new2.tex
 #     (the file now), writes oldstar2/newstar2, and expects latexdiff output in diffstar2.tex.
+#     Set the environment variable CHANGE_NOTE (for both the python and the latexdiff/pdflatex step) to a
+#     phrase saying which two states are compared; it is printed in the box at the top of the copy.
 ```
 
 `--disable-citation-markup` is required: without it the underline package breaks on `\cite`. Both

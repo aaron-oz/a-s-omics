@@ -1,7 +1,8 @@
 ## Fig 1, project schematic, redrawn in code (2026-10-23) from the original hand-made image
 ## (plos-port/img/Project Schematic.png) with the same layout, plus the uncertainty step:
-## a posterior-density glyph on each estimated quantity and a "Credible differences" box fed by
-## the joint posterior. 7.5 in wide; no text below 8 pt. Liberation Sans.
+## a posterior-density glyph on each quantity with a computed posterior (mRNA density, which the
+## model estimates, and binding density, computed from the draws; not protein, an assumed proxy;
+## AOZ ruling 2026-11-24) and a "Credible differences" box fed by the joint posterior. 7.5 in wide; no text below 8 pt. Liberation Sans.
 ## Run: distrobox enter emacs-r -- Rscript fig1-schematic.R
 suppressMessages({library(ggplot2); library(ragg)})
 FONT <- "Liberation Sans"; PUR <- "#8E00E6"; RED <- "#E8262B"; ORA <- "#F2921D"; TEA <- "#0B7E98"
@@ -14,7 +15,7 @@ B <- rbind(blob(6.9, 4.2, 3.1, 1.4, ORA, amax = 0.016), blob(5.0, 1.75, 4.6, 1.8
 boxes <- data.frame(
   lab = c("Cell states\nin tissues", "L/R mRNA\ndensity", "L/R protein\ndensity", "L-R binding\ndensity", "Cell-to-cell\ncommunication"),
   x = c(5.0, 8.3, 6.8, 3.2, 1.7), y = c(5.7, 3.95, 1.75, 1.75, 3.95),
-  est = c(FALSE, TRUE, TRUE, TRUE, FALSE), hd = c(FALSE, TRUE, TRUE, TRUE, TRUE))
+  est = c(FALSE, TRUE, FALSE, TRUE, FALSE), hd = c(FALSE, TRUE, TRUE, TRUE, TRUE))
 W <- 1.75; H <- 0.95
 stack <- do.call(rbind, lapply(which(boxes$hd), function(i) do.call(rbind, lapply(4:1, function(k)
   data.frame(xmin = boxes$x[i] - W/2 + 0.05 * k, xmax = boxes$x[i] + W/2 + 0.05 * k,

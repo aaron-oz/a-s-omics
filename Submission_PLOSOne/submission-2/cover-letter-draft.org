@@ -44,7 +44,7 @@ The response letter addresses every comment from the journal, the academic edito
 reviewers. In summary:
 
 - At Reviewer 2's request we added baselines and controls. Every comparison of interaction fields
-  is now set against the point-estimate map, a test that treats locations as independent, and our
+  is now set against the plug-in map, a test that treats locations as independent, and our
   posterior with its spatial correlation removed. For the tissue domains, refitting the whole
   pipeline on spatially permuted data collapses them; they agree well above chance with the
   anatomical annotation published independently for the same section; and shuffling which receptor

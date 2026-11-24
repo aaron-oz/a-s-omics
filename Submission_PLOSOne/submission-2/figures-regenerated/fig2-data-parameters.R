@@ -35,8 +35,8 @@ pW <- ggplot(W, aes(bx, by, fill = pmin(n, quantile(n, 0.995)))) + geom_raster()
   th + labs(title = "A  Total counts, whole section")
 pF <- mp(d, "total.count", "B  Total counts, field of view", "cividis", q(d$total.count))
 lc <- range(q(c(d$cnt.L, d$cnt.R))); lf <- range(q(c(d$nfeat.L, d$nfeat.R))); lr <- range(q(c(d$fL, d$fR)))
-right <- (mp(d, "cnt.L", "C  Ligand counts", "inferno", lc) | mp(d, "cnt.R", "D  Receptor counts", "inferno", lc)) /
-  (mp(d, "nfeat.L", "E  Ligand genes detected", "viridis", lf) | mp(d, "nfeat.R", "F  Receptor genes detected", "viridis", lf)) /
+right <- (mp(d, "nfeat.L", "C  Unique ligand genes detected", "viridis", lf) | mp(d, "nfeat.R", "D  Unique receptor genes detected", "viridis", lf)) /
+  (mp(d, "cnt.L", "E  Ligand counts", "inferno", lc) | mp(d, "cnt.R", "F  Receptor counts", "inferno", lc)) /
   (mp(d, "fL", "G  Ligand share of counts", "mako", lr) | mp(d, "fR", "H  Receptor share of counts", "mako", lr))
 g <- (pW / pF) | right
 agg_png("fig2-data-parameters.png", width = 7.5, height = 5.6, units = "in", res = 600); print(g + plot_layout(widths = c(1, 2))); invisible(dev.off())
