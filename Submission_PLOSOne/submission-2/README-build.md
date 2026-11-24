@@ -88,12 +88,12 @@ are not diff markup.
 
 ## 2c. Working draft and reading aids (2026-11)
 
-**The working manuscript during Aaron's read-through is `plos-port/paper-plos-voice.tex`, not
-`paper-plos.tex`.** It is the voice-revised draft with the verification fixes; Aaron edits it in
+**The working manuscript is `plos-port/paper-plos-2026-11-24.tex` (named `paper-plos-voice.tex` until
+2026-11-24, when it was renamed with the date it was sent to Sam), not `paper-plos.tex`.** It is the voice-revised draft with the verification fixes; Aaron edits it in
 Emacs. When his edit is finished it is folded back into `paper-plos.tex` (copy it over, then set
 the two switches below for the upload).
 
-Two switches near the top of `paper-plos-voice.tex`:
+Two switches near the top of `paper-plos-2026-11-24.tex`:
 
 - `\plosmarginfalse` (current) gives 1 in margins for proofreading. Set `\plosmargintrue` for the
   upload: it restores the PLOS template layout (2.75 in left margin, 5.25 in text column).
@@ -107,11 +107,12 @@ from `plos-port/`:
 cd <repo>/Submission_PLOSOne/submission-2/plos-port
 export CHANGE_TMP=~/.cache/a-s-omics-change-copy; mkdir -p $CHANGE_TMP
 
-# (a) paper-plos-changes.pdf: the original submission (tag rev1-baseline) against the current draft,
+# (a) paper-plos-changes.pdf (the copy sent to Sam was renamed paper-plos-2026-11-24-edits-from-sub-1.tex/.pdf
+#     after the 'post' step and before pdflatex; set CHANGE_SRC to the manuscript file name for the header note): the original submission (tag rev1-baseline) against the current draft,
 #     paragraph by paragraph. Unchanged paragraphs are collapsed, light edits are marked word by
 #     word, rewritten and new paragraphs are shown whole (new in blue, the original in red).
 git show rev1-baseline:Submission_PLOSOne/submission-2/plos-port/paper-plos.tex > $CHANGE_TMP/old.tex
-sed 's/\\newif\\ifembedfigs\\embedfigstrue/\\newif\\ifembedfigs\\embedfigsfalse/' paper-plos-voice.tex > $CHANGE_TMP/new.tex
+sed 's/\\newif\\ifembedfigs\\embedfigstrue/\\newif\\ifembedfigs\\embedfigsfalse/' paper-plos-2026-11-24.tex > $CHANGE_TMP/new.tex
 python3 ../make-change-copy.py pre
 distrobox enter bittensor-ubuntu -- bash -c "latexdiff --math-markup=off --disable-citation-markup \
   $CHANGE_TMP/oldstar.tex $CHANGE_TMP/newstar.tex > $CHANGE_TMP/diffstar.tex && python3 ../make-change-copy.py post && \

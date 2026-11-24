@@ -167,7 +167,7 @@ else:   # post: fix up latexdiff output
 \newcommand{\SAMEPAR}[2]{\small\color{gray}[Unchanged paragraph, #1 words: ``#2 \dots'']\par}
 """
     note = r"""
-\begin{center}\fbox{\parbox{0.94\linewidth}{\small\textbf{How to read this copy.} It compares the original PLOS ONE submission (git tag \texttt{rev1-baseline}) with the current working manuscript (\texttt{paper-plos-voice.tex}, snapshot of 2026-11-23), paragraph by paragraph.
+\begin{center}\fbox{\parbox{0.94\linewidth}{\small\textbf{How to read this copy.} It compares the original PLOS ONE submission (git tag \texttt{rev1-baseline}) with the current working manuscript (\texttt{""" + os.environ.get("CHANGE_SRC", "the working manuscript file").replace("_", "\\_") + r"""}), paragraph by paragraph.
 \textcolor{gray}{Gray one-liners} are paragraphs that did not change.
 A paragraph in black with \textcolor{blue}{blue underlined} and \textcolor{red}{red struck-through} words is an edit of an original paragraph: black plus red is the original sentence, black plus blue is the current one.
 A paragraph entirely in \textcolor{blue}{blue} is new, or was rewritten so heavily that marking single words would be unreadable; where it replaced an original paragraph, that original is printed whole in \textcolor{red}{red} just before it.
