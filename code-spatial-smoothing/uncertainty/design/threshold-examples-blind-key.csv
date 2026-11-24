@@ -1,0 +1,6 @@
+blind,original,pair,r1,r2,ratio
+A,D,NID1-ITGB1,anat-lung,anat-thymus,2.94
+B,B,CALM1-FAS,anat-heart,anat-thymus,1.99
+C,C,EGF-CAV1,anat-heart,anat-lung,1.27
+D,E,NRTN-GFRA1,box-cord-1,box-cord-2,1.49
+E,A,CNTN2-CNTN1,box-heart-1,box-heart-2,1.16

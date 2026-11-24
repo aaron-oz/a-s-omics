@@ -7,8 +7,8 @@ Drafted 2026-10-08 so the submission is not blocked on it. Two things to settle 
    draft is written for both authors, with MSBR as corresponding author as before.
 2. The submission date, and whether to thank the editor for one extension or two (the
    repository records the 2026-08-21 extension; the December one was granted later).
-3. The title: a placeholder is used below, to be agreed with Sam at the end. The letter names
-   the original title as well, so the editor can match the submission.
+3. The title: AOZ chose the one used below on 2026-11-23; Sam still has to confirm it. The letter
+   names the original title as well, so the editor can match the submission.
 
 The funding text below is the existing Funding Statement, copied unchanged from the round-1
 decision letter (=submission-1/reviewer-comments-round-1.txt=, line 53). It was also the text
@@ -20,8 +20,9 @@ changed.
 Dear Dr. D'Acquisto,
 
 Please find attached our revised manuscript, PONE-D-26-04349, originally submitted as "Spatial
-Modeling of Tissues for Morphogenic Field Analysis" and now titled "Uncertainty-aware comparison
-of ligand-receptor interaction fields estimated from spatial transcriptomics", together with a
+Modeling of Tissues for Morphogenic Field Analysis" and now titled "Assessing differences on
+maps of ligand-receptor interaction under uncertainty with spatial Bayesian hierarchical models",
+together with a
 point-by-point response to the reviewers, a summary of the revision, and the marked-up manuscript.
 We thank you and the reviewers for a careful review, and you for the extensions that made a
 thorough revision possible.
@@ -78,4 +79,4 @@ Thank you for your consideration.
 
 Sincerely,
 
-Micha Sam Brickman Raredon and Aaron Osgood-Zimmerman
+Micha Sam Brickman Raredon (Yale School of Medicine) and Aaron Osgood-Zimmerman (Chief Scientist, OZ Labs, State College, PA)

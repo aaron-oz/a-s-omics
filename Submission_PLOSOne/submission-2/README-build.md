@@ -86,6 +86,48 @@ Note that the colored boxes around citation numbers, equation numbers, and page 
 `hyperref` link decorations from the PLOS template. They appear in the clean build too and
 are not diff markup.
 
+## 2c. Working draft and reading aids (2026-11)
+
+**The working manuscript during Aaron's read-through is `plos-port/paper-plos-voice.tex`, not
+`paper-plos.tex`.** It is the voice-revised draft with the verification fixes; Aaron edits it in
+Emacs. When his edit is finished it is folded back into `paper-plos.tex` (copy it over, then set
+the two switches below for the upload).
+
+Two switches near the top of `paper-plos-voice.tex`:
+
+- `\plosmarginfalse` (current) gives 1 in margins for proofreading. Set `\plosmargintrue` for the
+  upload: it restores the PLOS template layout (2.75 in left margin, 5.25 in text column).
+- `\embedfigstrue` embeds figures; set `\embedfigsfalse` for the upload, as before.
+
+Two reading aids, both generated and not tracked. Each needs a scratch directory, given by the
+environment variable `CHANGE_TMP` (default `~/.cache/a-s-omics-change-copy`), and each is built
+from `plos-port/`:
+
+```bash
+cd <repo>/Submission_PLOSOne/submission-2/plos-port
+export CHANGE_TMP=~/.cache/a-s-omics-change-copy; mkdir -p $CHANGE_TMP
+
+# (a) paper-plos-changes.pdf: the original submission (tag rev1-baseline) against the current draft,
+#     paragraph by paragraph. Unchanged paragraphs are collapsed, light edits are marked word by
+#     word, rewritten and new paragraphs are shown whole (new in blue, the original in red).
+git show rev1-baseline:Submission_PLOSOne/submission-2/plos-port/paper-plos.tex > $CHANGE_TMP/old.tex
+sed 's/\\newif\\ifembedfigs\\embedfigstrue/\\newif\\ifembedfigs\\embedfigsfalse/' paper-plos-voice.tex > $CHANGE_TMP/new.tex
+python3 ../make-change-copy.py pre
+distrobox enter bittensor-ubuntu -- bash -c "latexdiff --math-markup=off --disable-citation-markup \
+  $CHANGE_TMP/oldstar.tex $CHANGE_TMP/newstar.tex > $CHANGE_TMP/diffstar.tex && python3 ../make-change-copy.py post && \
+  pdflatex -interaction=batchmode paper-plos-changes.tex; bibtex paper-plos-changes; \
+  pdflatex -interaction=batchmode paper-plos-changes.tex; pdflatex -interaction=batchmode paper-plos-changes.tex"
+
+# (b) paper-plos-voice-claude-edits.pdf: only what an agent changed since Aaron's last saved edit.
+#     Same steps with ../make-claude-edits-copy.py; it reads $CHANGE_TMP/old2.tex (the file as Aaron
+#     last saved it, for example `git show HEAD:.../paper-plos-voice.tex`) and $CHANGE_TMP/new2.tex
+#     (the file now), writes oldstar2/newstar2, and expects latexdiff output in diffstar2.tex.
+```
+
+`--disable-citation-markup` is required: without it the underline package breaks on `\cite`. Both
+scripts skip equations, tables and figure images. These copies are reading aids for the authors;
+the copy PLOS requires is still the plain `latexdiff` build of section 2, made from the final text.
+
 ## 2b. S9 Table (Supporting Information)
 
 `plos-port/S9-notation-to-code.tex` is a standalone landscape document mapping each
