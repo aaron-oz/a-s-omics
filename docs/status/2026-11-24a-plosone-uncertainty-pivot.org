@@ -1,0 +1,100 @@
+#+TITLE: Status: PLOS One revision, uncertainty reframing (2026-11-24)
+#+DATE: 2026-11-24
+
+* Read this first
+- This line of work is the round-1 revision of PLOS ONE manuscript PONE-D-26-04349 by Aaron Osgood-Zimmerman (AOZ) and Micha Sam Brickman Raredon (Sam). On 2026-10-14 the paper was reframed: its central result is whether differences seen on point-estimate maps of ligand-receptor interaction fields are supported by the joint posterior of a Bayesian spatial model. This session (2026-10-29 to 2026-11-24) reviewed that work, added checks, rewrote the prose in AOZ's voice, had it verified by independent agents, and supported the start of AOZ's own read-through edit.
+- The working manuscript is NOT =paper-plos.tex=. It is =Submission_PLOSOne/submission-2/plos-port/paper-plos-voice.tex= on branch =uncertainty-pivot=, which AOZ edits in Emacs. He has read and edited from the abstract through the Methods subsubsection "Inference". Everything after that (from "The readings we compare against" on) has had an agent editing pass that he has not yet reviewed.
+- The single most important next action: do the six edits AOZ logged on 2026-11-24 (first todo below), then keep supporting his read-through.
+- Previous status doc: =docs/status/2026-10-29a-plosone-uncertainty-pivot.org=.
+- Session ended with: /handoff. Session notes: no auto-compaction; the context window was 78% full when the handoff started.
+
+* What this session accomplished
+All paths are relative to the repo root =/var/home/aoz/Dropbox/genetics/a-s-omics= (a git repo inside Dropbox; there is no ~/code clone, git operations run there). Verified by running or reading unless marked "reported".
+- Review of the uncertainty pivot: =code-spatial-smoothing/uncertainty/REVIEW-2026-10-29.org= (design, code, interpretation, presentation; sections 2a to 2e give the new checks). Commits 7714579 and 4c83b78 on =uncertainty-pivot=.
+- New checks, each with a script and a results file under =code-spatial-smoothing/uncertainty/=:
+  - Rank test on the observed per-bin score min(y_L, y_R)/N (=klone/raw-wilcoxon.R=, =klone/results/regional-rawwilcox.csv=): the score is zero at a median of 99.8% of bins; the test rejects in 7,300 of 19,201 region comparisons (38%), against 17,320 (90%) for the same test on the smoothed map. The manuscript now names the construct ("on the smoothed map values") and reports both.
+  - Stability of 1,000 posterior draws for the 91 example regional intervals (=pilot/draws-stability.R=): half-versus-half endpoint difference median 0.025 on the log scale, 1 of 91 credible calls flips.
+  - Stability of whole-field excursion sets (=pilot/wholefield-stability.R=, =pilot/results-wholefield-stability.csv=): bin-level sets 6% to 29% larger on half the draws; for the sparse cross-field comparison only 79% and 83% of the full set lies inside each half set.
+  - Prior sensitivity on the 91 example contrasts (=pilot/refit-draws-prior.R=, =pilot/prior-sensitivity.R=, =pilot/results-prior-sensitivity.csv=): range prior halved or doubled, 0 calls change; sigma prior relaxed tenfold, 2 of 91 change.
+  - Lognormal approximation behind the plug-in-bias section against joint draws (=pilot/lognormal-check.R=, =pilot/results-lognormal-check.csv=): median absolute log difference 0.02 to 0.06 per pair.
+- Figures (script =code-spatial-smoothing/uncertainty/paper-figs/make-main-figs.R=): Fig 6 has a map of the fixed regions and transects and one shared ratio axis; Fig 7 has an inset locating the transect; Fig 8 has a color bar and key. Fig 1 (=Submission_PLOSOne/submission-2/figures-regenerated/fig1-schematic.R=) was redrawn on 2026-11-23 and 2026-11-24: no text inside the image, shorter self-loop, "Credible differences" box centered with a right-angle arrow, condensed vertically.
+- Two independent verification passes by sub-agents (one Opus, one Sonnet; reported, then each mismatch rechecked by the orchestrator against the files): about 100 numbers and 30 claims. Six mismatches corrected in the draft (whole-field stability wording, flagged-pair effect on cross-field counts, correlation ranges "2 to 7 bins, about 9 for Cd44", the scope of "fixed before any posterior comparison", the Vasconcelos et al. description, "83% and 91%" in place of "about nine in ten").
+- The no-prior-work claim was tested against full texts by two further agents (reported): nothing contradicts it. SpaceBF is the closest partial precedent. B-HGME (IEEE TCBB 2026, doi 10.1109/tcbbio.2026.3660060) could not be read; AOZ accepted it as not a spatial-mapping method.
+- INLAomics (Arnroth and Vickovic, bioRxiv 10.1101/2025.05.02.651831) read by the orchestrator (text at =/var/home/aoz/data/a-s-omics-lit/inlaomics/=) and added to "Relationship to existing methods" as the closest precedent for how the count model is fitted. CONCISE and SOAAR (two 2026 preprints) cited in the Discussion.
+- Title chosen by AOZ on 2026-11-23, Sam to confirm: "Assessing differences on maps of ligand-receptor interaction under uncertainty with spatial Bayesian hierarchical models". Applied in =paper-plos-voice.tex=, =paper-plos.tex=, =cover-letter-draft.org= and =response-to-reviewers.tex=.
+- AOZ's affiliation changed to "OZ Labs, State College, PA, USA", email aaron@ozlabs.tech, in the three manuscript files; cover-letter signature gives "Chief Scientist, OZ Labs".
+- Reading aids (generated, not tracked; how to build them is in =Submission_PLOSOne/submission-2/README-build.md= section 2c): =plos-port/paper-plos-changes.pdf= (original submission against the draft, paragraph level; last built from the draft as of the evening of 2026-11-23, so it predates the 2026-11-24 edits) and =plos-port/paper-plos-voice-claude-edits.pdf= (only the agent's changes since AOZ's last save on 2026-11-23).
+- Work-in-progress commit 7982d59 on =uncertainty-pivot=, pushed.
+- Outside this repo: the =aaron-voice= skill (=~/code/llm-prompts/skills/aaron-voice/SKILL.md=, rules 1 to 38, built from AOZ's dissertation, emails and his edits to this manuscript) and the vendored third-party =ghost= skill, both merged to main there; two rules added to the global instructions (=~/code/config-system-files/claude-global/CLAUDE.md=): AOZ's current affiliation, and "when you edit a document, say exactly where".
+
+* Decisions made, and why
+- Wilcoxon comparator is named for what it tests (the smoothed map) and the raw-score result is reported beside it (agent, after the raw test showed 38%; AOZ has not objected but has not yet reviewed that Methods paragraph).
+- Title as above (AOZ, 2026-11-23). "on maps" kept over "in" or "between" (AOZ accepted the agent's reasoning).
+- Affiliation OZ Labs (AOZ). The job title is kept out of the author block (agent, on the understanding that journals list institution and place; the PLOS rule was not looked up).
+- Cite CONCISE and SOAAR; add "to our knowledge" to the Discussion sentence "none of these combines ..."; leave out GP-GHS (AOZ, 2026-11-23).
+- "Demonstrating" is not used for implications of a number; use "indicating" or "meaning" (AOZ). A position on practice is stated once and never as praise of our own method (AOZ).
+- The abstract sentence on tissue domains, removed by the agent on 2026-11-23, is to be restored (AOZ, 2026-11-24).
+- The paper must use one name for the point-estimate map. AOZ leans to "point-estimate map", defined at first use with a note that statisticians often call it a plug-in map; to be settled with the next agent.
+- Commit the work in progress on =uncertainty-pivot= (AOZ, 2026-11-24). Merge to main still waits for Sam (AOZ, 2026-10-29).
+- Editing reports must locate every change by section, source line, PDF page and opening words, and come with a marked-up copy of the agent's own pass (AOZ, 2026-11-24; now in the global instructions).
+
+* Tried and ruled out
+- A manuscript variant written under the =ghost= skill combined with =aaron-voice= (=plos-port/paper-plos-voice-ghost.tex=, 14 paragraphs rewritten, 2026-11-12): livelier but closer to staccato than AOZ's register. Kept only as a reference; six of its ideas were adapted into =aaron-voice= as provisional rules 22 to 27, of which rule 25 (omit connectives where the relation is obvious) was dropped on 2026-11-23 because AOZ's edits added connectives.
+- A word-level latexdiff of the original submission against the draft: correct but unreadable, because most paragraphs were rewritten and shared words were interleaved. Replaced by the paragraph-level change copy.
+
+* Current state
+** Git
+- Repo =/var/home/aoz/Dropbox/genetics/a-s-omics=, branch =uncertainty-pivot=, pushed to origin, NOT merged to main (AOZ: merge after Sam's review). Pre-check with =git merge-tree --write-tree origin/main origin/uncertainty-pivot= before merging; merge with --no-ff.
+- Latest commits on the branch: 7982d59 (work in progress, 2026-11-24: "WIP: voice draft mid-review ..."), 4c83b78 (prior sensitivity and lognormal checks), 7714579 (review, raw-data rank test, figures, prose).
+- Untracked on purpose: AOZ's =REVISION-SUMMARY-2026-10-08.tex/.pdf=, built PDFs, the generated reading aids (now in .gitignore).
+- =~/code/llm-prompts= and =~/code/config-system-files=: main, pushed, clean except an unrelated =claude-global/settings.json= change that is not this session's.
+- Org files (=~/Dropbox/org=, git dir =~/code/org.git=): the checklist under "a-s-omics: proofread current draft, edit, and send to Sam" in =oz-labs.org= is current as of 2026-11-23; local commits only, as is normal for that repo.
+** Running or scheduled
+- Nothing.
+- Data outside the repo, kept: =/var/home/aoz/data/a-s-omics-uncertainty/= (pilot draws, prior-variant draws in =draws-prior-{a,b,c}/=, per-pair cluster outputs), =/var/home/aoz/data/a-s-omics-lit/= (paper texts, now including =inlaomics/=). klone scratch =/gscratch/csde/azimmer/uq-out= (1.6 GB) is still there by AOZ's earlier choice.
+** Flagged before shutdown but not done
+- None. The work-in-progress commit was made.
+** Permissions Aaron granted this session
+- Commit and push to =uncertainty-pivot= at agreed points; run two sub-agents in parallel for the verification passes; commit, push and merge the skill and global-instruction changes. These do not carry over.
+
+* Todos for the next agent
+1. Do the six edits AOZ logged on 2026-11-24, in =plos-port/paper-plos-voice.tex= unless stated. Check first that his Emacs buffer has no unsaved changes (=distrobox enter emacs-r -- emacsclient --eval '(buffer-modified-p (get-file-buffer "<absolute path>"))'=), edit on disk, then revert the buffer. Report every change with section, line, PDF page and opening words.
+   a. Fig 1 (=figures-regenerated/fig1-schematic.R=), the bell-curve glyphs. AOZ asked: "should mRNA density have a bell curve glyph? it's in data collection and it's something we could estimate but we don't. we settled for the protein density proxy data and estimate that." Discuss before changing: the fitted model is a Poisson model of transcript (mRNA) counts, so the estimated quantity with a posterior is the mRNA rate field; protein density is assumed proportional to it and is not separately estimated. On that reading the glyph on mRNA is the estimated one and the glyph on protein is the proxy. Put this to AOZ with the two options (glyph on mRNA only; or glyphs as now with the caption saying which quantities are modeled and which are proxies) and let him rule.
+   b. Fig 2 (=figures-regenerated/fig2-data-parameters.R=, caption at the line starting "\caption{{\bf Data parameters.}"): in panels E and F say "unique" in place of "different" in the caption, and in the panel titles if easy ("E  Unique ligand genes detected"). Reorder the rows so the current E/F pair sits directly under A/B and the current C/D and G/H pairs are adjacent; re-letter panels and caption to match.
+   c. Fig 2 caption: remove the sentence "Panels G and H show whether the ligand and receptor transcripts simply follow sequencing depth or make up a varying share of it, which is the reason the models use the total count as an offset." AOZ does not think it belongs in a caption; propose a sentence for the text only if it carries a non-obvious point.
+   d. Abstract: restore a sentence on the tissue domains (removed 2026-11-23). The removed text was: "Clustering the same fields yields tissue domains that are more spatially coherent than those obtained under a spatial permutation null and that agree with an independent anatomical annotation well above chance." AOZ had asked what it was trying to convey, so rewrite it plainly rather than pasting it back.
+   e. One name for the point-estimate map. Lay out pros and cons of "point-estimate map" (plain, AOZ's leaning) against "plug-in map" (the statistical term, used 39 times, and the Results section "The interaction fields are plug-in estimates, and differ from their posterior summaries" is built on it), get his ruling, then use only that name. Whichever is chosen, define it at first use and note there that statisticians often call it a plug-in map. Check the response letter and figure captions for the other name.
+   f. Rebuild (=pdflatex=, =bibtex=, =pdflatex= twice in the =bittensor-ubuntu= distrobox), regenerate both reading aids (README-build.md section 2c), and commit.
+2. Support the rest of AOZ's read-through, from "The readings we compare against" to the end. Apply his bracketed comments when he says so; distill his edits into =~/code/llm-prompts/skills/aaron-voice/SKILL.md= (rules 23, 24 and 26 are still untested) and commit there.
+3. Recompute the interval-symmetry numbers in the Results section on plug-in estimates ("median ratio of upper to lower half-width 0.995, with 90% of bins between 0.85 and 1.12, in a random sample of 60 features", and "median log-scale standard deviation 1.03"). The 60-feature sample was never recorded. Do it over all 790 genes from the stored per-gene prediction objects (=data-outputs/mouse-embryo-raw/2025-04-10/prediction-objects/<Gene>-pred-poi.rds=, element =expect=), with a committed script and a saved results file, then update the sentence. Two verifiers got about 0.998, 0.88 to 1.12 and 1.01 on their own samples (reported).
+4. When AOZ's edit is done: copy =paper-plos-voice.tex= over =paper-plos.tex=, set =\plosmargintrue= and =\embedfigsfalse= for the upload build, run =python3 check-response-letter.py= in =Submission_PLOSOne/submission-2=, update the response letter for anything the edit changed (Tables 2 and 3, section order in the Introduction, the Inference subsection), and commit.
+5. Build the marked-up copy PLOS requires (README-build.md section 2; add =--disable-citation-markup=, without which the build fails on =\cite= inside underlines).
+6. After AOZ and Sam approve: merge =uncertainty-pivot= to main with --no-ff.
+- Traps: never edit reviewer quotes (the =\begin{rev}= blocks). The repo is in Dropbox. =paper-plos-voice-ghost.tex= is stale and should not be edited. =paper-plos-changes.pdf= is a snapshot and goes stale with every edit. The org checklist is edited only through =~/code/llm-prompts/skills/gtd/gtd= and only when the Emacs buffer for =oz-labs.org= is saved.
+
+* Todos for Aaron
+1. Finish the read-through of =plos-port/paper-plos-voice.tex=. You have done the abstract through the Methods subsubsection "Inference". Blocks folding the draft back and everything after it.
+2. Rule on the Fig 1 glyph question (todo 1a above): the model estimates the mRNA rate fields and treats protein as a proportional proxy, so the glyph arguably belongs on mRNA, not protein. Options: glyph on mRNA only; or keep the glyphs and say in the caption which quantities are modeled. Recommendation: glyph on mRNA and on L-R binding density (which is computed from the posterior draws), none on protein. Blocks only Fig 1.
+3. Choose the one name for the point-estimate map (todo 1e). Blocks a consistent draft, not your read-through.
+4. Decide whether to add an AI-use disclosure. PLOS asks authors to disclose AI tool use and the manuscript has none. Blocks submission only.
+5. Confirm the affiliation convention: the author block lists OZ Labs alone; journals often want the affiliation where the work was done (Bucknell) with a current-address note. Blocks submission only.
+6. For Sam: confirm the title; decide the tissue-domain (ELSA) material (keep in the main text, move to the Supporting Information, or cut for a second paper; the agent recommends the Supporting Information); rule on the five blind threshold maps (image =code-spatial-smoothing/uncertainty/design/threshold-examples-blind.png=, also at =~/Desktop/=; email draft via =copy-draft sam-threshold-ask=); review Fig 1, Fig 2 and the graphical abstract; give a biology read of the example comparisons.
+7. Record which inlabru version the cluster refits used. The earlier manuscript text named 2.13.0 and 2.14.1; only 2.13.0 is recorded in a file (=pilot/FIDELITY.org=). AOZ's current text no longer states versions, so this matters only if they are restored.
+8. Optional, from the previous status doc: obtain the typeset Bolin and Lindgren 2015 and Mejia et al. 2020 to verify two quotes; later, delete the klone scratch outputs.
+
+* Documentation updated this session
+- =Submission_PLOSOne/submission-2/README-build.md= section 2c: the working draft, the margin and figure switches, and how to build the two reading aids (work-in-progress commit on =uncertainty-pivot=).
+- =code-spatial-smoothing/uncertainty/REVIEW-2026-10-29.org=, =DESIGN.org= change log, =pilot/PILOT-NOTES.org=, =klone/results/RESULTS.org= (7714579, 4c83b78).
+- =~/code/llm-prompts=: =skills/aaron-voice/SKILL.md=, =skills/ghost/=, =CLAUDE.md= (merges a456545, 57e2806, 6e379f0 and earlier).
+- =~/code/config-system-files/claude-global/CLAUDE.md= (704eadb affiliation, d716382 editing-location rule).
+- Project memory (outside the repo): =aaron-writing-voice.md=, =aaron-affiliation.md=, =plosone-revision-status.md=.
+
+* Key files
+- =Submission_PLOSOne/submission-2/plos-port/paper-plos-voice.tex=: the working manuscript.
+- =Submission_PLOSOne/submission-2/plos-port/paper-plos.tex=: the old committed text, to be replaced by the working manuscript.
+- =Submission_PLOSOne/submission-2/README-build.md=: how to build everything, including the reading aids.
+- =Submission_PLOSOne/submission-2/response-to-reviewers.tex=, =cover-letter-draft.org=: the letters.
+- =code-spatial-smoothing/uncertainty/REVIEW-2026-10-29.org=: the review and what each check found.
+- =code-spatial-smoothing/uncertainty/DESIGN.org=: the fixed design and its dated change log.
+- =~/code/llm-prompts/skills/aaron-voice/SKILL.md=: the voice guide to follow for any prose in this paper.
+- =~/Dropbox/org/oz-labs.org=, task "a-s-omics: proofread current draft, edit, and send to Sam": AOZ's checklist.
