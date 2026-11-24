@@ -6,6 +6,10 @@
 ## 2026-10-29 (AOZ review): region figure gains a map of the frozen regions and transects and a
 ## common ratio axis across its panels; transect figure gains an inset locating the transect;
 ## whole-field figure gains its color key and a color bar for the plug-in log ratio.
+## 2026-11-24 (AOZ read-through): region figure has the map on the left with its legend and the key
+## to panel B beneath, the four interval panels two by two on the right, and abbreviated region
+## names; transect figure shows the plug-in maps around the transect above the profiles, on the
+## same horizontal axis, in place of the inset.
 suppressMessages({library(data.table); library(ggplot2); library(patchwork); library(ragg)})
 pd <- "../pilot"; FONT <- "Liberation Sans"; PT <- 8
 th <- theme_bw(base_size = PT, base_family = FONT) +
@@ -47,18 +51,35 @@ region_map <- function(which_slices = names(slname), show_boxes = TRUE, base = P
   g
 }
 ## labels for the full map (placed by hand, in bin units, clear of the features they name)
-box_lab <- boxes[, .(lab, i = (i0 + i1) / 2, j = j1 + 5)]
+abbr <- c("box-heart-1" = "H1", "box-heart-2" = "H2", "box-liver" = "LB", "box-cord-1" = "C1", "box-cord-2" = "C2",
+          "anat-heart" = "H", "anat-liver" = "Lv", "anat-lung" = "Lu", "anat-spinal-cord" = "SC", "anat-thymus" = "Th")
+box_lab <- data.table(lab = c("H1", "H2", "LB", "C1", "C2"), i = c(98, 122, 177, 44, 92), j = c(89, 124, 119, 25, 22), hjust = c(1, 0.5, 0.5, 1, 0.5))
 sl_lab <- data.table(lab = c("cord to muscle", "heart to liver", "along the cord", "thymus to heart"),
-                     i = c(57, 199, 153, 42), j = c(40, 90, 6, 79), hjust = c(0, 1, 0, 0))
-map_full <- region_map() + ggtitle("A  Frozen regions (boxes and annotated tissues) and transects (lines)") +
-  geom_text(data = box_lab, aes(i, j, label = lab), size = PT / .pt, family = FONT) +
-  geom_text(data = sl_lab, aes(i, j, label = lab, hjust = hjust), size = PT / .pt, family = FONT)
+                     i = c(57, 199, 198, 42), j = c(40, 90, 13, 79), hjust = c(0, 1, 1, 0))
+map_full <- region_map(legend = FALSE) + ggtitle("A  Regions and transects") +
+  scale_fill_manual(values = anatcol, name = NULL, breaks = anat5,
+                    labels = c("Heart (H)", "Liver (Lv)", "Lung (Lu)", "Spinal cord (SC)", "Thymus (Th)")) +
+  geom_text(data = box_lab, aes(i, j, label = lab, hjust = hjust), size = PT / .pt, family = FONT) +
+  geom_text(data = sl_lab, aes(i, j, label = lab, hjust = hjust), size = PT / .pt, family = FONT) +
+  guides(fill = guide_legend(nrow = 3)) + labs(caption = " \n ") +   # blank caption keeps the key below at a fixed height
+  theme(legend.position = "bottom", legend.key.size = unit(0.3, "cm"), plot.caption = element_text(size = PT))
+## key to panel B, drawn as a small plot so that it can sit under the map
+key_b <- ggplot(data.frame(cat = factor(names(cat4), names(cat4)), x = 1, y = 4:1)) +
+  geom_segment(aes(x = x - 0.25, xend = x + 0.25, y = y, yend = y, color = cat), linewidth = 0.6) +
+  geom_point(aes(x, y, color = cat, shape = cat), size = 1.6) + geom_text(aes(x + 0.4, y, label = cat), hjust = 0, size = PT / .pt, family = FONT) +
+  annotate("point", x = 1, y = 5, shape = 4, size = 1.6) + annotate("text", x = 1.4, y = 5, label = "ratio on the plug-in map", hjust = 0, size = PT / .pt, family = FONT) +
+  annotate("segment", x = 0.75, xend = 1.25, y = 0, yend = 0, linewidth = 0.35) +
+  annotate("text", x = 1.4, y = 0, label = "95% interval, correlation removed", hjust = 0, size = PT / .pt, family = FONT) +
+  scale_color_manual(values = cat4, guide = "none") + scale_shape_manual(values = shp4, guide = "none") +
+  coord_cartesian(xlim = c(0.6, 7.6), ylim = c(-0.6, 5.6)) + theme_void(base_size = PT, base_family = FONT) +
+  ggtitle("Key to panel B") + theme(plot.title = element_text(size = PT, face = "bold", hjust = 0.5))
 
 ## ---- region comparisons
 regfig <- function(fields, file, ncol, h, map = TRUE, title_b = "B  Ratio of regional averages") {
   r <- fread(file.path(pd, "results-shuffle-regional.csv"))[field %in% fields]
   r[, field := factor(field, levels = fields)]
-  r[, cmp := factor(paste(nice[r1], "/", nice[r2]), levels = rev(unique(paste(nice[r1], "/", nice[r2]))))]
+  nm <- if (map) abbr else nice   # the main figure uses the abbreviations defined in its map
+  r[, cmp := factor(paste(nm[r1], "/", nm[r2]), levels = rev(unique(paste(nm[r1], "/", nm[r2]))))]
   r[, cat := lab(looks_diff, credible)][, y := as.numeric(cmp)]
   g <- ggplot(r) + geom_vline(xintercept = 1, color = "grey50", linewidth = 0.3) +
     annotate("rect", xmin = 1 / 1.25, xmax = 1.25, ymin = -Inf, ymax = Inf, fill = "grey88") +
@@ -72,10 +93,10 @@ regfig <- function(fields, file, ncol, h, map = TRUE, title_b = "B  Ratio of reg
     scale_color_manual(values = cat4, name = NULL, drop = FALSE) + scale_shape_manual(values = shp4, name = NULL, drop = FALSE) +
     facet_wrap(~ field, ncol = ncol) + th + guides(color = guide_legend(nrow = 2)) +
     labs(title = if (map) title_b else NULL, x = "ratio of regional averages, first region / second region (log scale)", y = NULL)
-  if (map) g <- (map_full / g) + plot_layout(heights = c(1.45, 3.2))
+  if (map) g <- (((map_full / key_b) + plot_layout(heights = c(1, 0.75))) | (g + theme(legend.position = "none"))) + plot_layout(widths = c(1, 1.45))
   save(g, file, 7.5, h)
 }
-regfig(c("CALR-ITGA2B", "NID1-ITGB1", "ADAM12-ITGB1", "Cd44"), "fig-regions-main.png", 2, 8.6)
+regfig(c("CALR-ITGA2B", "NID1-ITGB1", "ADAM12-ITGB1", "Cd44"), "fig-regions-main.png", 2, 4.9)
 regfig(c("CALR-ITGA2B", "NID1-ITGB1", "ADAM12-ITGB1", "WNT4-FZD6", "RSPO1-LGR6", "DHH-PTCH1", "VEGFA-KDR", "Cd44"),
        "fig-regions-all-SI.png", 2, 11, map = FALSE)
 
@@ -95,11 +116,30 @@ tr <- function(f) {
     scale_fill_manual(values = c(Heart = "#E69F00", Liver = "#56B4E9", other = "grey80"), name = "tissue") +
     th + labs(title = f, x = "position along the heart-to-liver transect (bins)", y = "log(field / transect average)")
 }
-inset <- region_map("slice-heart-to-liver", show_boxes = FALSE, legend = FALSE) + guides(fill = "none") +
-  theme(plot.background = element_rect(fill = "white", color = "grey40", linewidth = 0.3))
-tr_a <- tr("ADAM12-ITGB1") + inset_element(inset, left = 0.70, bottom = 0.74, right = 0.995, top = 0.995, align_to = "panel")
-save((tr_a | tr("Cd44")) + plot_layout(guides = "collect") & theme(legend.position = "bottom"),
-     "fig-transects-main.png", 7.5, 3.4)
+## plug-in maps around the transect, above the profiles and on the same horizontal axis (position = i - 84)
+mn <- readRDS(file.path(REPO, "code-spatial-smoothing/controls/sweep/m-est-min-matrix.rds"))
+tc <- readRDS(file.path(REPO, "data-outputs/mouse-embryo-raw/2025-04-10/prediction-objects/Cd44-pred-poi.rds"))$lambda
+pm <- data.table(i = (tc$x - 15025) / 50 + 1, j = (tc$y - 11525) / 50 + 1,
+                 `ADAM12-ITGB1` = mn$counts[match("ADAM12-ITGB1", mn$features), ] / tc$total.count, Cd44 = tc$median)
+hl <- sl[slice == "heart to liver"]; stopifnot(length(unique(hl$j)) == 1)
+J0 <- hl$j[1]; I0 <- min(hl$i) - 1; NP <- nrow(hl); HALF <- 22          # rows shown above and below the transect
+xax <- scale_x_continuous(limits = c(0.5, NP + 0.5), expand = c(0, 0), breaks = seq(0, 120, 30))
+pmap <- function(f, ttl) {
+  d <- pm[i > I0 & i <= I0 + NP & abs(j - J0) <= HALF][, `:=`(pos = i - I0, v = get(f))]; lim <- quantile(d$v, c(0.01, 0.99))
+  ggplot(d, aes(pos, j, fill = v)) + geom_raster() + xax + scale_y_continuous(expand = c(0, 0)) +
+    scale_fill_viridis_c(option = "magma", trans = "log10", limits = lim, oob = scales::squish, name = paste(f, "plug-in rate"),
+                         labels = function(x) formatC(x, format = "e", digits = 0), breaks = as.vector(outer(c(1, 3), 10^(-7:0))),
+                         guide = guide_colorbar(barwidth = unit(1.4, "in"), barheight = unit(0.08, "in"), title.position = "top")) +
+    ## hollow white rectangle around the transect row, with one row of margin, so the transect itself stays visible
+    annotate("rect", xmin = 0.5, xmax = NP + 0.5, ymin = J0 - 1.5, ymax = J0 + 1.5, fill = NA, color = "white", linewidth = 0.7) +
+    theme_void(base_size = PT, base_family = FONT) + ggtitle(ttl) +
+    theme(plot.title = element_text(size = PT, face = "bold"), legend.title = element_text(size = PT), legend.text = element_text(size = PT))
+}
+trp <- function(f, ttl) tr(f) + xax + ggtitle(ttl)
+g <- (pmap("ADAM12-ITGB1", "A  ADAM12-ITGB1, plug-in map around the transect") + pmap("Cd44", "B  Cd44, plug-in map around the transect") +
+      trp("ADAM12-ITGB1", "C  ADAM12-ITGB1 along the transect") + trp("Cd44", "D  Cd44 along the transect")) +
+  plot_layout(ncol = 2, heights = c(1, 2.1), guides = "collect") & theme(legend.position = "bottom")
+save(g, "fig-transects-main.png", 7.5, 5.0)
 
 ## ---- whole fields
 W <- readRDS("/var/home/aoz/data/a-s-omics-uncertainty/wholefield-additions.rds")
