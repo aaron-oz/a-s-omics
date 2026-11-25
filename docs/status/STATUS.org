@@ -7,15 +7,16 @@ status doc in this directory. Git history holds older versions of this file.
 
 * Active lines of work
 ** plosone-uncertainty-pivot
-- Latest status doc: [[file:2026-11-24a-plosone-uncertainty-pivot.org]] (2026-11-24)
-- State: the reframed PLOS One revision was reviewed, checked and rewritten in AOZ's voice; the working manuscript is Submission_PLOSOne/submission-2/plos-port/paper-plos-voice.tex on branch uncertainty-pivot (through 7982d59, not merged). AOZ is midway through his own read-through edit (done through the Methods subsubsection "Inference").
-- Next agent action: do the six edits AOZ logged on 2026-11-24 (Fig 1 glyph question, Fig 2 panel order and wording, restore the abstract's tissue-domain sentence, one name for the point-estimate map), then support the rest of his read-through.
-- Open Aaron todos: finish the read-through of paper-plos-voice.tex (blocks folding it back into paper-plos.tex); rule on where the posterior glyphs go in Fig 1; choose "point-estimate map" or "plug-in map" as the single name; decide on an AI-use disclosure (blocks submission); confirm the affiliation convention, OZ Labs alone or Bucknell with a current-address note (blocks submission); get from Sam the title confirmation, the decision on the tissue-domain (ELSA) material, rulings on the blind threshold maps, and his review of Figs 1 and 2 and the graphical abstract.
+- Latest status doc: [[file:2026-11-24b-plosone-uncertainty-pivot.org]] (2026-11-24)
+- State: AOZ finished his read-through, all 24 of his comments were addressed, and the draft was emailed to Sam on 2026-11-24. The working manuscript is Submission_PLOSOne/submission-2/plos-port/paper-plos-2026-11-24.tex (renamed from paper-plos-voice.tex) on branch uncertainty-pivot (through 106bf1f, pushed, not merged).
+- Next agent action: when Sam replies, apply his answers, then update the response letter, copy the draft over paper-plos.tex and build the PLOS marked-up copy.
+- Open Aaron todos: wait for Sam's reply on the eight items emailed 2026-11-24 (title, tissue-domain material, Discussion cuts, Visium paragraph, Figs 1 and 2 and the graphical abstract, biology read, annotation wording, AI-use disclosure), which blocks everything else; optionally record the inlabru version of the cluster refits.
 - Still running: nothing.
 
 * Dormant or closed
 
 * All status docs (newest first)
+- [[file:2026-11-24b-plosone-uncertainty-pivot.org]] 2026-11-24 plosone-uncertainty-pivot: read-through comments addressed, Discussion reorganized, draft sent to Sam.
 - [[file:2026-11-24a-plosone-uncertainty-pivot.org]] 2026-11-24 plosone-uncertainty-pivot: review, verification and voice rewrite done; AOZ mid read-through of paper-plos-voice.tex.
 - [[file:2026-10-29a-plosone-uncertainty-pivot.org]] 2026-10-29 plosone-uncertainty-pivot: reframed revision drafted on uncertainty-pivot; awaiting Sam.
 

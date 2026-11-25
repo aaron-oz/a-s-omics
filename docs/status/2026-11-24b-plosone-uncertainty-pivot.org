@@ -1,0 +1,75 @@
+#+TITLE: Status: PLOS One revision, uncertainty reframing (2026-11-24, second session)
+#+DATE: 2026-11-24
+
+* Read this first
+- This line of work is the round-1 revision of PLOS ONE manuscript PONE-D-26-04349 by Aaron Osgood-Zimmerman (AOZ) and Micha Sam Brickman Raredon (Sam). Its central result is whether differences seen on plug-in maps of ligand-receptor interaction fields (maps computed from the point estimate of each gene) are supported by the joint posterior of a Bayesian spatial model. In this session AOZ finished his read-through of the working manuscript, the agent addressed all 24 of his bracketed comments, and AOZ emailed the draft to Sam on 2026-11-24. The work now waits on Sam's reply.
+- The working manuscript is =Submission_PLOSOne/submission-2/plos-port/paper-plos-2026-11-24.tex= on branch =uncertainty-pivot= (through commit 106bf1f, pushed, not merged to main). It was called =paper-plos-voice.tex= until it was renamed on 2026-11-24. It is NOT =paper-plos.tex=, which still holds older text.
+- The single most important next action: when Sam replies, apply his answers to the eight items AOZ sent him (listed under "Todos for Aaron"), then carry out the fold-back steps under "Todos for the next agent".
+- Previous status doc in this line of work: =docs/status/2026-11-24a-plosone-uncertainty-pivot.org=.
+- Session ended with: /end-session. Session notes: no auto-compaction.
+
+* What this session accomplished
+All paths are relative to the repo root =/var/home/aoz/Dropbox/genetics/a-s-omics= (a git repo inside Dropbox; there is no ~/code clone, git operations run there). All items verified by running or reading unless marked "reported". Commits are on =uncertainty-pivot=.
+- 16c04b2: the six edits AOZ had logged. "plug-in map" replaces "point-estimate map" everywhere (manuscript, =response-to-reviewers.tex=, =cover-letter-draft.org=). Fig 1 (=Submission_PLOSOne/submission-2/figures-regenerated/fig1-schematic.R=) carries a posterior glyph on mRNA density and binding density only. Fig 2 (=fig2-data-parameters.R=) has the unique-genes-detected panels as C and D, the count panels as E and F. A Methods subsection "Use of artificial intelligence tools" was added. The reading-aid scripts =make-change-copy.py= and =make-claude-edits-copy.py= no longer break on an already-escaped character.
+- ac6ec61: interval symmetry recomputed over every bin of the 790 genes that enter the 1,477 ligand-receptor pairs (=code-spatial-smoothing/uncertainty/interval-symmetry.R=, results =interval-symmetry-summary.csv= and =interval-symmetry-genes.csv=). Median ratio of upper to lower log-scale half-width 0.998, 5th to 95th percentile 0.88 to 1.12, median log-scale standard deviation 1.01. These replace numbers from an unrecorded 60-feature sample.
+- ec6f032: abstract cut from 440 to 327 words.
+- b3cf688: AOZ's read-through edits and 24 bracketed comments, committed as he saved them.
+- eec3ee4: the agent's pass on those comments. The Discussion was reorganized into findings, "Relationship to existing methods", "Limitations", "Future directions" and "Conclusion" (4,359 to 3,008 words), with a condensed related-work paragraph added to the Introduction. Each of the three controls on the tissue domains now states its question and what it shows. Captions have plot elements in bold; the tissue-domain figure is full width with a caption of about 170 words. The example-selection rule formerly called "not nearly empty" is stated as what it is (plug-in field at or above the median of all pairs). New result: the effective number of independent bins in a region, defined as the mean posterior variance of the bins divided by the posterior variance of the regional average (=code-spatial-smoothing/uncertainty/pilot/effective-n.R=, =results-effective-n.csv=); for the 225 bins of a 15 by 15 box it has median 33, range 18 to 53, over 35 combinations of example pair and box. A stray download URL was removed from the NICHES entry of =plos-port/references-msbr.bib=.
+- 813de16: region-comparison figure and transect figure redrawn in =code-spatial-smoothing/uncertainty/paper-figs/make-main-figs.R=. The region figure has the map on the left with its legend and a key beneath, four interval panels two by two, and abbreviated region names (H, Lv, Lu, SC, Th, H1, H2, LB, C1, C2). The transect figure shows the plug-in maps around the transect above the profiles on the same horizontal axis.
+- 284a910: the explanation of why the mean Dawid-Sebastiani score (MDS) has no percentage in the likelihood table (the score has no zero at a perfect prediction, so a ratio is not interpretable; differences are given).
+- 106bf1f: manuscript renamed to =paper-plos-2026-11-24.tex=. Built beside it, generated and not tracked: =paper-plos-2026-11-24.pdf= (36 pages) and =paper-plos-2026-11-24-edits-from-sub-1.tex/.pdf= (the original submission against this version, paragraph by paragraph). AOZ emailed these to Sam.
+- Outside this repo: =~/code/llm-prompts/skills/aaron-voice/SKILL.md= gained rules 39 to 43 and a Discussion-order note, merged to main there (e0334bb).
+
+* Decisions made, and why
+- Fig 1 glyphs on mRNA density and binding density, none on protein density (AOZ): the model estimates the mRNA rate fields, and protein is an assumed proportional proxy.
+- "plug-in map" is the single name (AOZ, on the agent's recommendation): the posterior median map is also a point estimate, so "point-estimate map" would blur the contrast the Results section draws.
+- An AI-use disclosure is included, naming Claude Code with Opus 5.5 and Fable 5.2 (AOZ). AOZ wrote the sentence on how output was evaluated.
+- The threshold of 1.25 for "looks different", set from AOZ's rulings on five example maps, stays as is and Sam was not asked to rule on the maps (AOZ: five rulings is weak, but it should not change now).
+- Discussion order and cuts (AOZ): the two paragraphs on tissue biology, the "All models are wrong" quotation, the closing sentence about working with the community, and the lung-adaptation sentence were removed. The method-by-method survey stays in the Discussion, tightened.
+- Region figure uses AOZ's layout over the agent's one-row alternative (AOZ).
+- The abstract may stay a little over 300 words for now, because the clustering sentence may be cut (AOZ). The 300-word limit is from the agent's memory of the PLOS ONE guidelines and was not checked.
+- Merge to main still waits for Sam (AOZ, standing since 2026-10-29).
+
+* Tried and ruled out
+- A bare "and vice versa" in the abstract for comparisons that look alike but are credibly different: replaced by the count (991 of 7,674), because the reverse case occurs at about 13% against 31%.
+- A one-row layout of the four interval panels in the region figure: rendered, not chosen.
+
+* Current state
+** Git
+- Repo =/var/home/aoz/Dropbox/genetics/a-s-omics=, branch =uncertainty-pivot= at 106bf1f, level with =origin/uncertainty-pivot=, NOT merged to main. =git merge-tree --write-tree origin/main origin/uncertainty-pivot= reports no conflicts as of 2026-11-24.
+- Local branch =main= is behind =origin/main=; harmless until the merge.
+- Untracked on purpose: built PDFs, the reading aids (=plos-port/paper-plos-voice-claude-edits.*=, which shows the agent's changes against AOZ's saved read-through), AOZ's =REVISION-SUMMARY-2026-10-08.tex/.pdf=.
+- =~/code/llm-prompts=: main, pushed, clean.
+** Running or scheduled
+- Nothing.
+** Flagged before shutdown but not done
+- None.
+** Permissions Aaron granted this session
+- Edit the manuscript, figure scripts and letters on disk and revert or switch his Emacs buffer when it is unmodified; run figure scripts and LaTeX builds in the distroboxes; commit and push to =uncertainty-pivot=; commit, merge and push the voice-skill change. These do not carry over.
+
+* Todos for the next agent
+1. Apply Sam's answers when they arrive (the eight items are listed under "Todos for Aaron"). Before editing, check that AOZ's Emacs buffer for the manuscript is unmodified (=distrobox enter emacs-r -- emacsclient --eval '(buffer-modified-p (get-file-buffer "<absolute path>"))'=), edit on disk, then revert the buffer. Report every change by section, line, PDF page and opening words, with a marked-up copy (=README-build.md= section 2c).
+2. Update =Submission_PLOSOne/submission-2/response-to-reviewers.tex= for what changed: the Discussion structure and the moved text, "plug-in map", the Introduction's new related-work paragraph, Tables and figure references, and the one item still marked INCOMPLETE (R1.5, the graphical abstract). Run =python3 check-response-letter.py= in =Submission_PLOSOne/submission-2=. Never edit reviewer quotes (the =\begin{rev}= blocks).
+3. Fold back: copy =paper-plos-2026-11-24.tex= over =paper-plos.tex=, set =\plosmargintrue= and =\embedfigsfalse=, regenerate the PLOS upload figure files (=export-submission-figures.sh=), and build the marked-up copy PLOS requires (=README-build.md= section 2, with =--disable-citation-markup=).
+4. Consistency items: the supplementary region figure (S12, =fig-regions-all-SI.png=) still uses full region names while the main figure uses abbreviations; =plos-port/S16-controls-appendix.tex= (lines 39 to 41) and =cover-letter-draft.org= still call the anatomical annotation "independent", while the main text now says it was derived by clustering the same data; the abstract is 327 words and should reach 300 if the clustering sentence stays (check the limit first).
+5. After AOZ and Sam approve: merge =uncertainty-pivot= to main with --no-ff.
+- Traps: the repo is in Dropbox. =paper-plos-voice-ghost.tex= is stale and should not be edited. bibtex reports one error for a duplicate =Granados2024= entry in =references-msbr.bib= (line 278); the PDF still builds.
+
+* Todos for Aaron
+1. Wait for Sam's reply to the email of 2026-11-24. The eight items sent to him: confirm the title ("Assessing differences on maps of ligand-receptor interaction under uncertainty with spatial Bayesian hierarchical models"); decide whether the tissue-domain (clustering and ELSA) material stays in the main text, moves to the Supporting Information, or is cut for a second paper; read the reorganized Discussion and say whether any cut text should return; check the Visium mouse brain paragraph in "Future directions"; review Fig 1, Fig 2 and the graphical abstract; give a biology read of the example comparisons; check the description of the anatomical annotation in the Controls subsection; read the AI-use disclosure and add his own use. This blocks every agent todo above.
+2. Record which inlabru version the cluster refits used. Only 2.13.0 is recorded, in =code-spatial-smoothing/uncertainty/pilot/FIDELITY.org=. It matters only if version numbers return to the text. Low priority.
+3. Optional: obtain the typeset Bolin and Lindgren 2015 and Mejia et al. 2020 to verify two quotes; delete the klone scratch outputs at =/gscratch/csde/azimmer/uq-out= (1.6 GB).
+
+* Documentation updated this session
+- =Submission_PLOSOne/submission-2/README-build.md= section 2c: the new manuscript file name, the =CHANGE_NOTE= and =CHANGE_SRC= variables of the reading-aid scripts (16c04b2, 106bf1f on =uncertainty-pivot=).
+- =~/code/llm-prompts/skills/aaron-voice/SKILL.md=: rules 39 to 43, rule 34 scope note, Discussion order (e0334bb on main there).
+- Project memory (outside the repo): =plosone-revision-status.md= and its index line now name =paper-plos-2026-11-24.tex=.
+
+* Key files
+- =Submission_PLOSOne/submission-2/plos-port/paper-plos-2026-11-24.tex=: the working manuscript.
+- =Submission_PLOSOne/submission-2/plos-port/paper-plos.tex=: the old committed text, to be replaced by the working manuscript.
+- =Submission_PLOSOne/submission-2/README-build.md=: how to build everything, including the reading aids.
+- =Submission_PLOSOne/submission-2/response-to-reviewers.tex=, =cover-letter-draft.org=: the letters.
+- =code-spatial-smoothing/uncertainty/paper-figs/make-main-figs.R=: the region, transect and whole-field figures.
+- =code-spatial-smoothing/uncertainty/DESIGN.org=: the fixed design and its dated change log.
+- =~/code/llm-prompts/skills/aaron-voice/SKILL.md=: the voice guide to follow for any prose in this paper.
